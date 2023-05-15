@@ -118,12 +118,18 @@ dependencies:
   jose:
     specifier: ^4.14.4
     version: 4.14.4
+  lucide-react:
+    specifier: ^0.216.0
+    version: 0.216.0(react@18.2.0)
   nanoid:
     specifier: ^4.0.2
     version: 4.0.2
   next:
     specifier: 13.4.2
     version: 13.4.2(react-dom@18.2.0)(react@18.2.0)
+  next-13-rsc-realworld-example-app:
+    specifier: 'link:'
+    version: 'link:'
   postcss:
     specifier: 8.4.23
     version: 8.4.23
@@ -3407,6 +3413,14 @@ packages:
     dependencies:
       es5-ext: 0.10.62
     dev: true
+
+  /lucide-react@0.216.0(react@18.2.0):
+    resolution: {integrity: sha512-PGWXs6JXI/08rhfkmj/joji0MAKDCcms44j0LYILO4J36AWqKhgjjaZ6WECRSyZ9TQe5gOrAR0g38O8cKrQngw==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /memoizee@0.4.15:
     resolution: {integrity: sha512-UBWmJpLZd5STPm7PMUlOw/TSy972M+z8gcyQ5veOnSDRREz/0bmpyTfKt3/51DhEBqCZQn1udM/5flcSPYhkdQ==}
