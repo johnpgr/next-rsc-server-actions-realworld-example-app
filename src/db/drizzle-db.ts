@@ -9,5 +9,5 @@ const connection = connect({
 })
 
 export const db = drizzle(connection, {
-    logger: true
+    logger: true,
 })

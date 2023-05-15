@@ -17,5 +17,5 @@ export function jsonResponse(status: number, data: any, init?: ResponseInit) {
 }
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+    return twMerge(clsx(inputs))
 }
