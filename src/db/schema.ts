@@ -16,7 +16,7 @@ export const user = mysqlTable(
         id: varchar("id", { length: 191 }).primaryKey().notNull(),
         username: varchar("name", { length: 191 }),
         email: varchar("email", { length: 191 }).notNull(),
-        password: text("password").notNull(),
+        password_id: varchar("password_id", { length: 191 }).notNull(),
         image: varchar("image", { length: 191 }),
         bio: text("bio"),
         created_at: timestamp("created_at").notNull().defaultNow(),
@@ -28,10 +28,23 @@ export const user = mysqlTable(
     (user) => ({
         nameIndex: index("users__name__idx").on(user.username),
         emailIndex: uniqueIndex("users__email__idx").on(user.email),
+        passwordIdIndex: index("users__password_id__idx").on(user.password_id),
     }),
 )
 
 export type User = InferModel<typeof user>
+
+export const password = mysqlTable(
+    "password",
+    {
+        id: varchar("id", { length: 191 }).primaryKey().notNull(),
+        password: text("password").notNull(),
+        salt: text("salt").notNull(),
+        salt_rounds: int("salt_rounds").notNull(),
+    }
+)
+
+export type Password = InferModel<typeof password>
 
 export const article = mysqlTable(
     "article",

@@ -1,4 +1,4 @@
-import { env } from "~/config/env"
+import { env } from "~/config/env.mjs"
 
 export const USER_TOKEN = "user_token"
 

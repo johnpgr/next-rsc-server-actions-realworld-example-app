@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm"
-import bcrypt from "bcryptjs"
 import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
-import { User, user } from "~/db/schema"
+import { User, user, password as passwordTable, Password } from "~/db/schema"
 import { db } from "~/db/drizzle-db"
 import { SignJWT, jwtVerify } from "jose"
 import { getJwtSecretKey } from "~/lib/constants"
 import { nanoid } from "nanoid"
+import { comparePasswords, hashPassword } from "~/lib/crypto"
 
 interface UserJWTPayload {
     username: string
@@ -21,9 +21,49 @@ export class AuthError extends Error {}
 
 class AuthService {
     private db: PlanetScaleDatabase
+    private SALT_ROUNDS = 12
 
     constructor(db: PlanetScaleDatabase) {
         this.db = db
+    }
+
+    private async persistPasswordForUser(
+        password: string,
+    ): Promise<{ password_id: string }> {
+        const { salt, hashedPassword } = await hashPassword(
+            password,
+            this.SALT_ROUNDS,
+        )
+
+        const id = nanoid()
+        const { rowsAffected } = await this.db.insert(passwordTable).values({
+            id,
+            password: hashedPassword,
+            salt,
+            salt_rounds: this.SALT_ROUNDS,
+        })
+
+        if (rowsAffected === 0) throw new AuthError("Something went wrong")
+
+        return { password_id: id }
+    }
+
+    private async getPasswordForUser(
+        password_id: string,
+    ): Promise<Omit<Password, "id">> {
+        const [password] = await this.db
+            .select({
+                salt: passwordTable.salt,
+                salt_rounds: passwordTable.salt_rounds,
+                password: passwordTable.password,
+            })
+            .from(passwordTable)
+            .where(eq(passwordTable.id, password_id))
+            .limit(1)
+
+        if (!password) throw new AuthError("Something went wrong")
+
+        return password
     }
 
     async registerUser(
@@ -39,10 +79,12 @@ class AuthService {
 
         if (found) throw new AuthError("Email already in use")
 
+        const { password_id } = await this.persistPasswordForUser(password)
+
         const { rowsAffected } = await this.db.insert(user).values({
             id: nanoid(),
             email,
-            password: await bcrypt.hash(password, 12),
+            password_id,
             username,
         })
 
@@ -68,7 +110,11 @@ class AuthService {
 
         if (!found) throw new AuthError("Invalid credentials")
 
-        const valid = await bcrypt.compare(password, found.password)
+        const { password:hashedPassword, salt_rounds, salt } = await this.getPasswordForUser(
+            found.password_id,
+        )
+
+        const valid = await comparePasswords(password, hashedPassword,salt,salt_rounds)
 
         if (!valid) throw new AuthError("Invalid credentials")
 
@@ -79,7 +125,7 @@ class AuthService {
      * Adds the user token cookie to a response.
      */
     async createToken(
-        user: Omit<User, "id" | "password" | "created_at" | "updated_at">,
+        user: Omit<User, "id" | "password_id" | "created_at" | "updated_at">,
     ): Promise<string> {
         return await new SignJWT(user)
             .setProtectedHeader({ alg: "HS256" })
