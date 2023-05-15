@@ -1,12 +1,10 @@
-import { nanoid } from "nanoid"
 import { NextRequest } from "next/server"
-import { env } from "process"
 import { z } from "zod"
 import { jsonResponse } from "~/lib/utils"
 import { authService } from "~/services/auth"
 
 // runtime edge on dev environment crashes because of bcrypt
-export const runtime = env.NODE_ENV === "production" ? "edge" : "nodejs"
+export const runtime = "edge"
 
 const registrationBodySchema = z
     .object({
