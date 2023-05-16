@@ -8,6 +8,7 @@ export const loginAction = validatedAction(
         return await fetch(`${getBaseUrl()}/api/users/login`, {
             method: "POST",
             body: JSON.stringify(data),
+           
         }).then(async (res) => loginResponseSchema.parse(await res.json()))
     },
 )
