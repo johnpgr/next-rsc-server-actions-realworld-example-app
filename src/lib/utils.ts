@@ -3,6 +3,7 @@ import { createSafeActionClient } from "next-safe-action"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { FormEvent } from "react"
+import { env } from "~/config/env.mjs"
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -27,7 +28,7 @@ export function jsonResponse(status: number, data: any, init?: ResponseInit) {
  */
 export function getBaseUrl(): string {
     // vercel deployment url or localhost
-    return process.env.VERCEL_URL || "http://localhost:3000"
+    return env.NEXT_PUBLIC_VERCEL_URL || "http://localhost:3000"
 }
 
 export const validatedAction = createSafeActionClient({
