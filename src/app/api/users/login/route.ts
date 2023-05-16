@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
 
         return jsonResponse(200, { user: safeUser })
     } catch (error) {
+        console.dir(error)
         return jsonResponse(400, { message: (error as Error).message })
     }
 }
