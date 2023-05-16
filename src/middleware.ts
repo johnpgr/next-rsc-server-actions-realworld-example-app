@@ -6,7 +6,7 @@ const protectedPages = ["/api/protected", "/protected"]
 const unavailablePagesForAuthedUsers = ["/login", "/register"]
 
 export const config = {
-    matcher: protectedPages.concat(unavailablePagesForAuthedUsers),
+    matcher: [...protectedPages, ...unavailablePagesForAuthedUsers],
 }
 
 function protectedPagesRedirect(req: NextRequest) {
