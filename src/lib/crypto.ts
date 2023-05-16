@@ -1,8 +1,13 @@
-import { SALT_ROUNDS } from "./constants"
+import {
+    SALT_LENGTH,
+    HASH_KEY_LENGTH,
+    HASH_ALGORITHM,
+    HASH_ITERATIONS,
+} from "./constants"
 
 // Function to generate a random salt
 function generateSalt() {
-    const saltBytes = new Uint8Array(16)
+    const saltBytes = new Uint8Array(SALT_LENGTH)
     crypto.getRandomValues(saltBytes)
     return Array.from(saltBytes, (byte) =>
         ("0" + byte.toString(16)).slice(-2),
@@ -24,11 +29,11 @@ export async function hashPassword(password: string) {
         {
             name: "PBKDF2",
             salt: saltBuffer,
-            iterations: SALT_ROUNDS,
-            hash: "SHA-256",
+            iterations: HASH_ITERATIONS,
+            hash: HASH_ALGORITHM,
         },
         derivedKey,
-        256,
+        HASH_KEY_LENGTH * 8,
     )
     const hashedPassword = Array.from(new Uint8Array(hashedKey))
         .map((byte) => ("0" + byte.toString(16)).slice(-2))
@@ -37,7 +42,11 @@ export async function hashPassword(password: string) {
 }
 
 // Function to compare a password with a hashed password
-export async function comparePasswords(password:string, hashedPassword:string, salt:string) {
+export async function comparePasswords(
+    password: string,
+    hashedPassword: string,
+    salt: string,
+) {
     const saltBuffer = Buffer.from(salt, "hex")
     const derivedKey = await crypto.subtle.importKey(
         "raw",
@@ -50,15 +59,14 @@ export async function comparePasswords(password:string, hashedPassword:string, s
         {
             name: "PBKDF2",
             salt: saltBuffer,
-            iterations:SALT_ROUNDS,
-            hash: "SHA-256",
+            iterations: HASH_ITERATIONS,
+            hash: HASH_ALGORITHM,
         },
         derivedKey,
-        256,
+        HASH_KEY_LENGTH * 8,
     )
     const hashedPasswordToCompare = Array.from(new Uint8Array(hashedKey))
         .map((byte) => ("0" + byte.toString(16)).slice(-2))
         .join("")
     return hashedPassword === hashedPasswordToCompare
 }
-
