@@ -2,6 +2,8 @@ import { NextRequest } from "next/server"
 import { comparePasswords,  hashPassword } from "~/lib/crypto"
 import { jsonResponse } from "~/lib/utils"
 
+export const runtime = "edge"
+
 export async function POST(req: NextRequest) {
     const { password } = await req.json()
     console.time("crypto")
