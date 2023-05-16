@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server"
-import { env } from "process"
 import { jsonResponse } from "~/lib/utils"
 import { authService } from "~/services/auth"
 

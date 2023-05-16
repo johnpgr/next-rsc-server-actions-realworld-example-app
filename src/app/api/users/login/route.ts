@@ -1,24 +1,17 @@
+import { cookies } from "next/headers"
 import { NextRequest } from "next/server"
-import { z } from "zod"
+import { loginInputSchema } from "~/app/login/validation"
+import { USER_TOKEN } from "~/lib/constants"
 import { jsonResponse } from "~/lib/utils"
 import { authService } from "~/services/auth"
 
 // runtime edge on dev environment crashes because of bcrypt
 export const runtime = "edge"
 
-const credentialsBodySchema = z
-    .object({
-        user: z.object({
-            email: z.string().email(),
-            password: z.string(),
-        }),
-    })
-    .strict()
-
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
-        const credentials = credentialsBodySchema.parse(body)
+        const credentials = loginInputSchema.parse(body)
 
         const { email, password } = credentials.user
 
@@ -36,8 +29,12 @@ export async function POST(req: NextRequest) {
         //@ts-ignore
         safeUser.token = token
 
+        //@ts-ignore
+        cookies().set(USER_TOKEN, token, { secure: true })
+
         return jsonResponse(200, { user: safeUser })
     } catch (error) {
         return jsonResponse(400, { message: (error as Error).message })
     }
 }
+

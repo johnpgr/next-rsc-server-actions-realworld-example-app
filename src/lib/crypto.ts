@@ -1,3 +1,5 @@
+import { SALT_ROUNDS } from "./constants"
+
 // Function to generate a random salt
 function generateSalt() {
     const saltBytes = new Uint8Array(16)
@@ -8,7 +10,7 @@ function generateSalt() {
 }
 
 // Function to hash the password with the specified salt rounds
-export async function hashPassword(password: string, saltRounds: number) {
+export async function hashPassword(password: string) {
     const salt = generateSalt()
     const saltBuffer = Buffer.from(salt, "hex")
     const derivedKey = await crypto.subtle.importKey(
@@ -22,7 +24,7 @@ export async function hashPassword(password: string, saltRounds: number) {
         {
             name: "PBKDF2",
             salt: saltBuffer,
-            iterations: saltRounds,
+            iterations: SALT_ROUNDS,
             hash: "SHA-256",
         },
         derivedKey,
@@ -35,7 +37,7 @@ export async function hashPassword(password: string, saltRounds: number) {
 }
 
 // Function to compare a password with a hashed password
-export async function comparePasswords(password:string, hashedPassword:string, salt:string, saltRounds:number) {
+export async function comparePasswords(password:string, hashedPassword:string, salt:string) {
     const saltBuffer = Buffer.from(salt, "hex")
     const derivedKey = await crypto.subtle.importKey(
         "raw",
@@ -48,7 +50,7 @@ export async function comparePasswords(password:string, hashedPassword:string, s
         {
             name: "PBKDF2",
             salt: saltBuffer,
-            iterations: saltRounds,
+            iterations:SALT_ROUNDS,
             hash: "SHA-256",
         },
         derivedKey,

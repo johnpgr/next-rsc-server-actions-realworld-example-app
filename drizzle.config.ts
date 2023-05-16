@@ -1,10 +1,9 @@
 import "dotenv/config"
 import type { Config } from "drizzle-kit"
-import { env } from "./src/config/env.mjs"
 
 const config: Config = {
     schema: "./src/db/schema.ts",
-    connectionString: env.DB_URL,
+    connectionString: process.env.DB_URL,
 }
 
 export default config

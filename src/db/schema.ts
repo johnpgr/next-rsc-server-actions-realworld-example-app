@@ -40,7 +40,6 @@ export const password = mysqlTable(
         id: varchar("id", { length: 191 }).primaryKey().notNull(),
         password: text("password").notNull(),
         salt: text("salt").notNull(),
-        salt_rounds: int("salt_rounds").notNull(),
     }
 )
 

@@ -21,7 +21,6 @@ export class AuthError extends Error {}
 
 class AuthService {
     private db: PlanetScaleDatabase
-    private SALT_ROUNDS = 12
 
     constructor(db: PlanetScaleDatabase) {
         this.db = db
@@ -30,17 +29,13 @@ class AuthService {
     private async persistPasswordForUser(
         password: string,
     ): Promise<{ password_id: string }> {
-        const { salt, hashedPassword } = await hashPassword(
-            password,
-            this.SALT_ROUNDS,
-        )
+        const { salt, hashedPassword } = await hashPassword(password)
 
         const id = nanoid()
         const { rowsAffected } = await this.db.insert(passwordTable).values({
             id,
             password: hashedPassword,
             salt,
-            salt_rounds: this.SALT_ROUNDS,
         })
 
         if (rowsAffected === 0) throw new AuthError("Something went wrong")
@@ -54,7 +49,6 @@ class AuthService {
         const [password] = await this.db
             .select({
                 salt: passwordTable.salt,
-                salt_rounds: passwordTable.salt_rounds,
                 password: passwordTable.password,
             })
             .from(passwordTable)
@@ -71,13 +65,21 @@ class AuthService {
         password: string,
         username: string,
     ): Promise<User> {
-        const [found] = await this.db
+        const [foundEmail] = await this.db
             .select()
             .from(user)
             .where(eq(user.email, email))
             .limit(1)
 
-        if (found) throw new AuthError("Email already in use")
+        if (foundEmail) throw new AuthError("Email already in use")
+
+        const [foundUsername] = await this.db
+            .select()
+            .from(user)
+            .where(eq(user.username, username))
+            .limit(1)
+
+        if(foundUsername) throw new AuthError("Username already in use")
 
         const { password_id } = await this.persistPasswordForUser(password)
 
@@ -108,15 +110,14 @@ class AuthService {
             .where(eq(user.email, email))
             .limit(1)
 
-        if (!found) throw new AuthError("Invalid credentials")
+        if (!found) throw new AuthError("Email or password is invalid")
 
-        const { password:hashedPassword, salt_rounds, salt } = await this.getPasswordForUser(
-            found.password_id,
-        )
+        const { password: hashedPassword, salt } =
+            await this.getPasswordForUser(found.password_id)
 
-        const valid = await comparePasswords(password, hashedPassword,salt,salt_rounds)
+        const valid = await comparePasswords(password, hashedPassword, salt)
 
-        if (!valid) throw new AuthError("Invalid credentials")
+        if (!valid) throw new AuthError("Email or password is invalid")
 
         return found
     }

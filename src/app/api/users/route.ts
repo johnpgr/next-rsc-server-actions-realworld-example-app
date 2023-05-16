@@ -1,25 +1,17 @@
+import { cookies } from "next/headers"
 import { NextRequest } from "next/server"
-import { z } from "zod"
+import { registerInputSchema } from "~/app/register/validation"
+import { USER_TOKEN } from "~/lib/constants"
 import { jsonResponse } from "~/lib/utils"
 import { authService } from "~/services/auth"
 
 // runtime edge on dev environment crashes because of bcrypt
 export const runtime = "edge"
 
-const registrationBodySchema = z
-    .object({
-        user: z.object({
-            email: z.string().email(),
-            password: z.string(),
-            username: z.string(),
-        }),
-    })
-    .strict()
-
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
-        const registration = registrationBodySchema.parse(body)
+        const registration = registerInputSchema.parse(body)
 
         const { email, password, username } = registration.user
 
@@ -36,6 +28,9 @@ export async function POST(req: NextRequest) {
 
         //@ts-ignore
         safeUser.token = token
+
+        //@ts-ignore
+        cookies().set(USER_TOKEN, token, { secure: true })
 
         return jsonResponse(200, {
             user: safeUser,

@@ -136,6 +136,9 @@ dependencies:
   next-13-rsc-realworld-example-app:
     specifier: 'link:'
     version: 'link:'
+  next-safe-action:
+    specifier: ^2.5.5
+    version: 2.5.5(next@13.4.2)(react@18.2.0)(zod@3.21.4)
   postcss:
     specifier: 8.4.23
     version: 8.4.23
@@ -3544,6 +3547,19 @@ packages:
 
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
+    dev: false
+
+  /next-safe-action@2.5.5(next@13.4.2)(react@18.2.0)(zod@3.21.4):
+    resolution: {integrity: sha512-TMvvwJz5J6NR/tcnln+88B8Vp7mqa9CDD9lUMNNGfMcp++KL9dxAaTuPHlooqddGuewZs8k5KhXCb7O+camGig==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      next: '>= 13.4.2'
+      react: '>= 18.2.0'
+      zod: '>= 3.0.0'
+    dependencies:
+      next: 13.4.2(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+      zod: 3.21.4
     dev: false
 
   /next-tick@1.1.0:
