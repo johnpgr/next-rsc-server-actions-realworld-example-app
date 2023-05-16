@@ -9,6 +9,8 @@ import { getFormData } from "~/lib/utils"
 import { registerAction } from "./action"
 import { passwordRegex } from "./validation"
 
+export const runtime = "edge"
+
 export default function RegisterPage() {
     const router = useRouter()
     const [isPending, setIsPending] = useState(false)
