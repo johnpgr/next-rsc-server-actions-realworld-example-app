@@ -14,7 +14,7 @@ export const user = mysqlTable(
     "user",
     {
         id: varchar("id", { length: 191 }).primaryKey().notNull(),
-        username: varchar("name", { length: 191 }),
+        username: varchar("name", { length: 191 }).notNull(),
         email: varchar("email", { length: 191 }).notNull(),
         password_id: varchar("password_id", { length: 191 }).notNull(),
         image: varchar("image", { length: 191 }),
@@ -109,8 +109,8 @@ export const follow = mysqlTable(
     "follow",
     {
         id: varchar("id", { length: 191 }).primaryKey().notNull(),
-        follower_id: varchar("follower_id", { length: 191 }).notNull(),
-        following_id: varchar("following_id", { length: 191 }).notNull(),
+        follower_username: varchar("follower_username", { length: 191 }).notNull(),
+        following_username: varchar("following_username", { length: 191 }).notNull(),
         created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at")
             .notNull()
@@ -118,11 +118,11 @@ export const follow = mysqlTable(
             .onUpdateNow(),
     },
     (follow) => ({
-        followerIdIndex: index("follows__follower_id__idx").on(
-            follow.follower_id,
+        followerIndex: index("follows__follower_username__idx").on(
+            follow.follower_username,
         ),
-        followingIdIndex: index("follows__following_id__idx").on(
-            follow.following_id,
+        followingIndex: index("follows__following_username__idx").on(
+            follow.following_username,
         ),
     }),
 )

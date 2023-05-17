@@ -8,11 +8,13 @@ import { Input } from "~/components/ui/input"
 import { getFormData } from "~/lib/utils"
 import { registerAction } from "./actions"
 import { passwordRegex } from "./validation"
+import { useUser } from "~/components/user-context"
 
 export const runtime = "edge"
 
 export default function RegisterPage() {
     const router = useRouter()
+    const {login} = useUser()
     const [isPending, setIsPending] = useState(false)
     const [error, setError] = useState<string | undefined>()
     const [passwordError, setPasswordError] = useState<string | undefined>()
@@ -49,6 +51,7 @@ export default function RegisterPage() {
             return
         }
 
+        login(data.user)
         router.push("/")
         setIsPending(false)
     }

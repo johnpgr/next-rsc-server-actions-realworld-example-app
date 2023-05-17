@@ -2,16 +2,18 @@ import { eq } from "drizzle-orm"
 import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import { User, user, password as passwordTable, Password } from "~/db/schema"
 import { db } from "~/db/drizzle-db"
-import { SignJWT, jwtVerify } from "jose"
+import { SignJWT, errors, jwtVerify } from "jose"
 import { JWT_EXPIRATION_TIME, getJwtSecretKey } from "~/lib/constants"
 import { nanoid } from "nanoid"
 import { comparePasswords, hashPassword } from "~/lib/crypto"
+import { EditUserInput } from "~/app/profile/(edit-user)/validation"
 
 export interface UserJWTPayload {
+    id: string
     username: string
     email: string
-    bio: string
-    image: string
+    bio: string | null
+    image: string | null
     jti: string
     iat: number
     exp: number
@@ -58,6 +60,28 @@ class AuthService {
         if (!password) throw new AuthError("Something went wrong")
 
         return password
+    }
+
+    async updateUser(input: EditUserInput & { id: string }): Promise<User> {
+        const { id, user: userInput } = input
+        console.log({ input })
+
+        const { rowsAffected } = await this.db
+            .update(user)
+            .set(userInput)
+            .where(eq(user.id, id))
+
+        if (rowsAffected === 0) throw new AuthError("Something went wrong")
+
+        const [updatedUser] = await this.db
+            .select()
+            .from(user)
+            .where(eq(user.id, id))
+            .limit(1)
+
+        if (!updatedUser) throw new AuthError("Something went wrong")
+
+        return updatedUser
     }
 
     async registerUser(
@@ -123,7 +147,7 @@ class AuthService {
     }
 
     async createToken(
-        user: Omit<User, "id" | "password_id" | "created_at" | "updated_at">,
+        user: Omit<User, "password_id" | "created_at" | "updated_at">,
     ): Promise<string> {
         return await new SignJWT(user)
             .setProtectedHeader({ alg: "HS512" })
@@ -133,19 +157,30 @@ class AuthService {
             .sign(new TextEncoder().encode(getJwtSecretKey()))
     }
 
-    async getPayloadFromToken(token: string): Promise<UserJWTPayload> {
-        const verified = await jwtVerify(
-            token,
-            new TextEncoder().encode(getJwtSecretKey()),
-        )
+    async getPayloadFromToken(token: string): Promise<UserJWTPayload | null> {
+        try {
+            const verified = await jwtVerify(
+                token,
+                new TextEncoder().encode(getJwtSecretKey()),
+            )
 
-        const payload = verified.payload as unknown as UserJWTPayload
+            const payload = verified.payload as unknown as UserJWTPayload
 
-        return payload
+            return payload
+        } catch (error) {
+            if (error instanceof errors.JWTExpired) {
+                return null
+            }
+
+            throw error
+        }
     }
 
     async refreshToken(token: string) {
         const payload = await this.getPayloadFromToken(token)
+
+        if(!payload) throw new AuthError("Token to refresh is invalid")
+
         const newToken = await this.createToken(payload)
 
         return newToken

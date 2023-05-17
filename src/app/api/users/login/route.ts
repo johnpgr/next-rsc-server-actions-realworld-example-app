@@ -22,7 +22,12 @@ export async function POST(req: NextRequest) {
             image: user.image,
         }
 
-        const token = await authService.createToken(safeUser)
+        //@ts-ignore
+        delete user.created_at
+        //@ts-ignore
+        delete user.updated_at
+
+        const token = await authService.createToken(user)
 
         //@ts-ignore
         safeUser.token = token

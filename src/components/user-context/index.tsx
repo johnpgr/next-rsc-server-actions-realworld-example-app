@@ -1,17 +1,16 @@
 "use client"
-import React, { cache, use } from "react"
+import React, { SetStateAction, cache, use } from "react"
 import Cookies from "js-cookie"
 import { getBaseUrl } from "~/lib/utils"
 import {
     CurrentUserResponse,
     getCurrentUserResponseSchema,
-} from "~/app/api/user/(get-user)/validation"
+} from "~/app/api/user/(get,put)/validation"
 import { JWT_EXPIRATION_TIME, USER_TOKEN } from "~/lib/constants"
 import { SafeUser } from "~/types/user"
 
 export type UserContextType = {
     user: SafeUser | null
-    isLoading: boolean
     login: (user: SafeUser) => void
     logout: () => void
 }
@@ -32,7 +31,6 @@ const fetchUser = cache(async (token: string) => {
 
 export const UserContextProvider = (props: { children: React.ReactNode }) => {
     const [user, setUser] = React.useState<SafeUser | null>(null)
-    const [isLoading, setIsLoading] = React.useState(false)
     const token = Cookies.get(USER_TOKEN)
     const res = token ? use(fetchUser(token)) : null
 
@@ -58,19 +56,13 @@ export const UserContextProvider = (props: { children: React.ReactNode }) => {
     React.useEffect(() => {
         async function getUser(): Promise<void> {
             try {
-                setIsLoading(true)
-
-                if (!token || !res) {
-                    setIsLoading(false)
-                    return
-                }
+                if (!token || !res) return
 
                 const parsed = getCurrentUserResponseSchema.parse(res)
 
                 if (!parsed.success) return
 
                 setUser(parsed.user)
-                setIsLoading(false)
             } catch (error) {
                 console.error(error)
             }
@@ -84,7 +76,6 @@ export const UserContextProvider = (props: { children: React.ReactNode }) => {
         <UserContext.Provider
             value={{
                 user,
-                isLoading,
                 login,
                 logout,
             }}
