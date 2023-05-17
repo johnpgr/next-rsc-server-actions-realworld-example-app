@@ -6,7 +6,7 @@ const protectedPages = ["/api/protected", "/protected"]
 const unavailablePagesForAuthedUsers = ["/login", "/register"]
 
 export const config = {
-    matcher: [...protectedPages, ...unavailablePagesForAuthedUsers],
+    matcher: ["/api/protected", "/protected", "/login", "/register"],
 }
 
 function protectedPagesRedirect(req: NextRequest) {
@@ -31,7 +31,7 @@ export async function middleware(req: NextRequest) {
         return protectedPagesRedirect(req)
     }
 
-    const user = await authService.verifyToken(token)
+    const user = await authService.getPayloadFromToken(token)
 
     if (!user) {
         return protectedPagesRedirect(req)

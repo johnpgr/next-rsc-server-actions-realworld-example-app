@@ -4,6 +4,9 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { FormEvent } from "react"
 import { env } from "~/config/env.mjs"
+import { cookies } from "next/headers"
+import { USER_TOKEN } from "./constants"
+import { UserJWTPayload, authService } from "~/services/auth"
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -28,12 +31,12 @@ export function jsonResponse(status: number, data: any, init?: ResponseInit) {
  */
 export function getBaseUrl(): string {
     // vercel deployment url or localhost
-    return env.NEXT_PUBLIC_VERCEL_URL || "http://localhost:3000"
+    if (process.env.NODE_ENV === "development") {
+        return "http://localhost:3000"
+    } else {
+        return env.NEXT_PUBLIC_VERCEL_URL
+    }
 }
-
-export const validatedAction = createSafeActionClient({
-    serverErrorLogFunction: console.error,
-})
 
 export function getFormData<T extends object>(
     e: FormEvent<HTMLFormElement>,

@@ -7,6 +7,8 @@ import { loginAction } from "./action"
 import { getFormData } from "~/lib/utils"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Cookies from "js-cookie"
+import { JWT_EXPIRATION_TIME, USER_TOKEN } from "~/lib/constants"
 
 export const runtime = "edge"
 
@@ -49,9 +51,16 @@ export default function LoginPage() {
                     if (data && "message" in data) {
                         setError(data.message)
                         setIsPending(false)
-                    } else {
+                    } else if (data && "user" in data) {
+                        Cookies.set(USER_TOKEN, data.user.token, {
+                            expires: JWT_EXPIRATION_TIME.seconds,
+                            sameSite: "strict",
+                            secure: process.env.NODE_ENV === "production",
+                        })
                         router.push("/")
                         setIsPending(false)
+                    } else {
+                        setError("Something went wrong")
                     }
                 }}
                 className="flex flex-col gap-4"

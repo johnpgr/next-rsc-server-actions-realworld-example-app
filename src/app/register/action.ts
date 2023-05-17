@@ -1,16 +1,23 @@
-import { getBaseUrl, validatedAction } from "~/lib/utils"
+"use server"
+import { action } from "~/lib/actions"
+import { getBaseUrl } from "~/lib/utils"
 import { registerInputSchema } from "./validation"
-import {
-    registerResponseSchema,
-} from "~/app/api/users/validation"
+import { registerResponseSchema } from "~/app/api/users/validation"
 
-export const registerAction = validatedAction(
+export const registerAction = action(
     { input: registerInputSchema },
     async (data) => {
-        console.log("registerAction", data)
-        return await fetch(`${getBaseUrl()}/api/users`, {
+        const res = await fetch(`${getBaseUrl()}/api/users`, {
             method: "POST",
             body: JSON.stringify(data),
-        }).then(async (res) => registerResponseSchema.parse(await res.json()))
+            next: {
+                revalidate: 0,
+            },
+        })
+        const json = await res.json()
+
+        const parsed = registerResponseSchema.parse(json)
+
+        return parsed
     },
 )

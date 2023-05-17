@@ -51,6 +51,7 @@
         "eslint": "8.40.0",
         "eslint-config-next": "13.4.2",
         "jose": "^4.14.4",
+        "js-cookie": "^3.0.5",
         "lucide-react": "^0.216.0",
         "nanoid": "^4.0.2",
         "next": "13.4.2",
@@ -68,6 +69,7 @@
         "zod": "^3.21.4"
     },
     "devDependencies": {
+        "@types/js-cookie": "^3.0.3",
         "dotenv": "^16.0.3",
         "drizzle-kit": "0.17.6-76e73f3",
         "prettier": "^2.8.8",

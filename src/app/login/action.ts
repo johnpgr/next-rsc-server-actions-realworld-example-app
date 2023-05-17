@@ -1,14 +1,23 @@
-import { getBaseUrl, validatedAction } from "~/lib/utils"
+"use server"
+import { getBaseUrl } from "~/lib/utils"
+import { action } from "~/lib/actions"
 import { loginInputSchema } from "./validation"
-import { loginResponseSchema } from "~/app/api/users/login/validation"
+import {
+    LoginResponse,
+    loginResponseSchema,
+} from "~/app/api/users/login/validation"
 
-export const loginAction = validatedAction(
-    { input: loginInputSchema },
-    async (data) => {
-        return await fetch(`${getBaseUrl()}/api/users/login`, {
-            method: "POST",
-            body: JSON.stringify(data),
-           
-        }).then(async (res) => loginResponseSchema.parse(await res.json()))
-    },
-)
+export const loginAction = action({ input: loginInputSchema }, async (data) => {
+    const res = await fetch(`${getBaseUrl()}/api/users/login`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        next: {
+            revalidate: 0,
+        },
+    })
+    const json = (await res.json()) as LoginResponse
+
+    const parsed = loginResponseSchema.parse(json)
+
+    return parsed
+})

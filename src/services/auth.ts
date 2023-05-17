@@ -3,11 +3,11 @@ import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import { User, user, password as passwordTable, Password } from "~/db/schema"
 import { db } from "~/db/drizzle-db"
 import { SignJWT, jwtVerify } from "jose"
-import { getJwtSecretKey } from "~/lib/constants"
+import { JWT_EXPIRATION_TIME, getJwtSecretKey } from "~/lib/constants"
 import { nanoid } from "nanoid"
 import { comparePasswords, hashPassword } from "~/lib/crypto"
 
-interface UserJWTPayload {
+export interface UserJWTPayload {
     username: string
     email: string
     bio: string
@@ -79,7 +79,7 @@ class AuthService {
             .where(eq(user.username, username))
             .limit(1)
 
-        if(foundUsername) throw new AuthError("Username already in use")
+        if (foundUsername) throw new AuthError("Username already in use")
 
         const { password_id } = await this.persistPasswordForUser(password)
 
@@ -122,21 +122,18 @@ class AuthService {
         return found
     }
 
-    /**
-     * Adds the user token cookie to a response.
-     */
     async createToken(
         user: Omit<User, "id" | "password_id" | "created_at" | "updated_at">,
     ): Promise<string> {
         return await new SignJWT(user)
-            .setProtectedHeader({ alg: "HS256" })
+            .setProtectedHeader({ alg: "HS512" })
             .setJti(nanoid())
             .setIssuedAt()
-            .setExpirationTime("2h")
+            .setExpirationTime(JWT_EXPIRATION_TIME.string)
             .sign(new TextEncoder().encode(getJwtSecretKey()))
     }
 
-    async verifyToken(token: string): Promise<UserJWTPayload> {
+    async getPayloadFromToken(token: string): Promise<UserJWTPayload> {
         const verified = await jwtVerify(
             token,
             new TextEncoder().encode(getJwtSecretKey()),
@@ -145,6 +142,13 @@ class AuthService {
         const payload = verified.payload as unknown as UserJWTPayload
 
         return payload
+    }
+
+    async refreshToken(token: string) {
+        const payload = await this.getPayloadFromToken(token)
+        const newToken = await this.createToken(payload)
+
+        return newToken
     }
 }
 
