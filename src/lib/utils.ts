@@ -4,9 +4,6 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { FormEvent } from "react"
 import { env } from "~/config/env.mjs"
-import { cookies } from "next/headers"
-import { USER_TOKEN } from "./constants"
-import { UserJWTPayload, authService } from "~/services/auth"
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -38,6 +35,10 @@ export function getBaseUrl(): string {
     }
 }
 
+export const action = createSafeActionClient({
+    serverErrorLogFunction: console.error,
+})
+
 export function getFormData<T extends object>(
     e: FormEvent<HTMLFormElement>,
 ): T {
@@ -51,3 +52,4 @@ export class ErrorWithCode extends Error {
         super(message)
     }
 }
+

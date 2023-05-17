@@ -115,6 +115,7 @@ export const RefreshTokenComponent = () => {
             // Clear the timeout when the component unmounts
             clearTimeout(timeoutRef.current)
         }
+        //@eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user])
 
     return null

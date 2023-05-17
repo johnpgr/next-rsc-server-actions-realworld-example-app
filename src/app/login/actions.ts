@@ -1,6 +1,5 @@
 "use server"
-import { getBaseUrl } from "~/lib/utils"
-import { action } from "~/lib/actions"
+import { getBaseUrl, action } from "~/lib/utils"
 import { loginInputSchema } from "./validation"
 import {
     LoginResponse,

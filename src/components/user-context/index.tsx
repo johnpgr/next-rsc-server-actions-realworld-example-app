@@ -5,7 +5,7 @@ import { getBaseUrl } from "~/lib/utils"
 import {
     CurrentUserResponse,
     getCurrentUserResponseSchema,
-} from "~/app/api/user/validation"
+} from "~/app/api/user/(get-user)/validation"
 import { JWT_EXPIRATION_TIME, USER_TOKEN } from "~/lib/constants"
 import { SafeUser } from "~/types/user"
 
@@ -77,6 +77,7 @@ export const UserContextProvider = (props: { children: React.ReactNode }) => {
         }
 
         getUser()
+        //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (

@@ -6,7 +6,7 @@ import { FormEvent, useState } from "react"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { getFormData } from "~/lib/utils"
-import { registerAction } from "./action"
+import { registerAction } from "./actions"
 import { passwordRegex } from "./validation"
 
 export const runtime = "edge"

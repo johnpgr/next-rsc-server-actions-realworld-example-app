@@ -1,8 +1,7 @@
 "use server"
-import { action } from "~/lib/actions"
-import { getBaseUrl } from "~/lib/utils"
+import { getBaseUrl, action } from "~/lib/utils"
 import { registerInputSchema } from "./validation"
-import { registerResponseSchema } from "~/app/api/users/validation"
+import { registerResponseSchema } from "~/app/api/users/(register)/validation"
 
 export const registerAction = action(
     { input: registerInputSchema },
