@@ -47,9 +47,3 @@ export function getFormData<T extends object>(
     return input
 }
 
-export class ErrorWithCode extends Error {
-    constructor(message: string, public code: string) {
-        super(message)
-    }
-}
-

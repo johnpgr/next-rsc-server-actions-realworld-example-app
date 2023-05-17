@@ -3,10 +3,9 @@
 import { JWT_EXPIRATION_TIME, USER_TOKEN } from "~/lib/constants"
 import Cookies from "js-cookie"
 import { cache, use, useEffect, useRef } from "react"
-import { ErrorWithCode, getBaseUrl } from "~/lib/utils"
+import { getBaseUrl } from "~/lib/utils"
 import { TokenValidationResponse } from "~/app/api/user/refresh/validation"
 import {
-    JWT_ERROR_CODES,
     TokenExpResponse,
 } from "~/app/api/user/token-exp/validation"
 import { useUser } from "./user-context"
@@ -33,7 +32,7 @@ async function calculateExpirationTime(token: string) {
             next: { revalidate: 0 },
         }).then((res) => res.json() as Promise<TokenExpResponse>)
 
-        if (!data.success) throw new ErrorWithCode(data.message, data.code)
+        if (!data.success) throw new Error(data.message)
 
         // Calculate the remaining time until expiration
         const currentTime = Math.floor(Date.now() / 1000) // Convert current time to seconds
@@ -41,17 +40,8 @@ async function calculateExpirationTime(token: string) {
 
         return remainingTime
     } catch (error) {
-        if (error instanceof ErrorWithCode) {
-            if (error.code === JWT_ERROR_CODES.ERR_JWT_EXPIRED) {
-                // If the token is expired, return 0
-                return 0
-            }
-            if (error.code === JWT_ERROR_CODES.ERR_TOKEN_NOTFOUND) {
-                // If the token is not found, return the default expiration time
-                return JWT_EXPIRATION_TIME.seconds
-            }
-        }
-        throw new Error("Error calculating expiration time")
+        console.error(error)
+        return 0
     }
 }
 

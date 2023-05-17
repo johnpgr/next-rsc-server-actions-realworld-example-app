@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
             })
 
         const user = await authService.getPayloadFromToken(token)
+        if(!user) throw new Error("Token expired")
 
         return jsonResponse(200, {
             success: true,
@@ -25,17 +26,9 @@ export async function GET(req: NextRequest) {
         })
     } catch (error) {
 
-        if (error instanceof ERRORS.JWTExpired)
-            return jsonResponse(401, {
-                error: true,
-                code: error.code,
-                message: "Token expired",
-            })
-
         return jsonResponse(401, {
             error: true,
             message: (error as Error).message,
-            code: "UNKNOWN_ERROR"
         })
     }
 }
