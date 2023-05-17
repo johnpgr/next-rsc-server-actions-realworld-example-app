@@ -15,6 +15,7 @@ export const loginAction = action({ input: loginInputSchema }, async (data) => {
             revalidate: 0,
         },
     })
+
     const json = (await res.json()) as LoginResponse
 
     const parsed = loginResponseSchema.parse(json)

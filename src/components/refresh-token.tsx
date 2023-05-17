@@ -2,14 +2,21 @@
 
 import { JWT_EXPIRATION_TIME, USER_TOKEN } from "~/lib/constants"
 import Cookies from "js-cookie"
-import { cache, use, useEffect, useMemo, useRef } from "react"
-import { getBaseUrl } from "~/lib/utils"
+import { cache, use, useEffect, useRef } from "react"
+import { ErrorWithCode, getBaseUrl } from "~/lib/utils"
 import { TokenValidationResponse } from "~/app/api/user/refresh/validation"
-import { TokenExpResponse } from "~/app/api/user/token-exp/validation"
+import {
+    JWT_ERROR_CODES,
+    TokenExpResponse,
+} from "~/app/api/user/token-exp/validation"
+import { useUser } from "./user-context"
 
 function updateToken(token: string) {
+    const expiration = new Date(Date.now() + JWT_EXPIRATION_TIME.seconds * 1000)
+
+
     Cookies.set(USER_TOKEN, token, {
-        expires: JWT_EXPIRATION_TIME.seconds,
+        expires: expiration,
         sameSite: "strict",
         secure: process.env.NODE_ENV === "production",
     })
@@ -26,7 +33,7 @@ async function calculateExpirationTime(token: string) {
             next: { revalidate: 0 },
         }).then((res) => res.json() as Promise<TokenExpResponse>)
 
-        if ("message" in data) throw new Error("Unauthorized")
+        if (!data.success) throw new ErrorWithCode(data.message, data.code)
 
         // Calculate the remaining time until expiration
         const currentTime = Math.floor(Date.now() / 1000) // Convert current time to seconds
@@ -34,10 +41,16 @@ async function calculateExpirationTime(token: string) {
 
         return remainingTime
     } catch (error) {
-        console.error(
-            "Error calculating expiration time:",
-            (error as Error).message,
-        )
+        if (error instanceof ErrorWithCode) {
+            if (error.code === JWT_ERROR_CODES.ERR_JWT_EXPIRED) {
+                // If the token is expired, return 0
+                return 0
+            }
+            if (error.code === JWT_ERROR_CODES.ERR_TOKEN_NOTFOUND) {
+                // If the token is not found, return the default expiration time
+                return JWT_EXPIRATION_TIME.seconds
+            }
+        }
         throw new Error("Error calculating expiration time")
     }
 }
@@ -47,23 +60,22 @@ const fetchInitialExpTime = cache((token: string) =>
 )
 
 export const RefreshTokenComponent = () => {
-    const token = Cookies.get(USER_TOKEN)
-
-    const initialExpTime = token
-        ? use(fetchInitialExpTime(token))
-        : JWT_EXPIRATION_TIME.seconds
-
+    const { user } = useUser()
     const timeoutRef = useRef<any>(null)
 
+    const initialExpTime = user?.token
+        ? use(fetchInitialExpTime(user.token))
+        : JWT_EXPIRATION_TIME.seconds
+
     async function refreshToken() {
-        console.log("Refreshing token")
+        if (!user) return
         try {
             // Get a new token
             const res = await fetch(`${getBaseUrl()}/api/user/refresh`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Token ${token}`,
+                    Authorization: `Token ${user.token}`,
                 },
                 next: { revalidate: 0 },
             })
@@ -83,8 +95,7 @@ export const RefreshTokenComponent = () => {
             // Restart the token refresh process with the new access token
             startTokenRefresh(newExp)
         } catch (error) {
-            console.error("Error refreshing token:", (error as Error).message)
-            throw new Error("Error refreshing token")
+            console.error(error)
         }
     }
 
@@ -96,16 +107,15 @@ export const RefreshTokenComponent = () => {
     }
 
     useEffect(() => {
-        if (!token) return
-        // Start the initial token refresh process
+        if (!user || !user.token) return
+
         startTokenRefresh(initialExpTime)
-        console.log("Initial token refresh started", { initialExpTime })
 
         return () => {
             // Clear the timeout when the component unmounts
             clearTimeout(timeoutRef.current)
         }
-    }, [])
+    }, [user])
 
     return null
 }

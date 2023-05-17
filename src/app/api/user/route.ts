@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 export async function GET(req: NextRequest) {
     try {
         const token = req.headers.get("authorization")?.split("Token ")[1]
-        if(!token) throw new Error("Unauthorized")
+        if (!token) throw new Error("Unauthorized")
 
         const user = await authService.getPayloadFromToken(token)
 
@@ -22,9 +22,13 @@ export async function GET(req: NextRequest) {
         }
 
         return jsonResponse(200, {
+            success: true,
             user: safeUser,
         })
     } catch (error) {
-        return jsonResponse(401, { message: (error as Error).message })
+        return jsonResponse(401, {
+            success: false,
+            message: (error as Error).message,
+        })
     }
 }

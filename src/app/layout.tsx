@@ -1,6 +1,9 @@
 import "~/styles/globals.css"
 import { Inter } from "next/font/google"
 import { RefreshTokenComponent } from "~/components/refresh-token"
+import { Toaster } from "~/components/ui/toaster"
+import { UserContextProvider } from "~/components/user-context"
+import { Nav } from "~/components/nav"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,8 +20,12 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={inter.className}>
-                <RefreshTokenComponent/>
-                {children}
+                <UserContextProvider>
+                    <RefreshTokenComponent />
+                    <Nav />
+                    {children}
+                </UserContextProvider>
+                <Toaster />
             </body>
         </html>
     )

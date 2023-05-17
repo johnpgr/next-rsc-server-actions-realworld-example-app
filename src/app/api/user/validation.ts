@@ -2,6 +2,7 @@ import { z } from "zod"
 
 export const getCurrentUserResponseSchema = z
     .object({
+        success: z.literal(true),
         user: z.object({
             email: z.string(),
             token: z.string(),
@@ -12,6 +13,7 @@ export const getCurrentUserResponseSchema = z
     })
     .or(
         z.object({
+            success: z.literal(false),
             message: z.string(),
         }),
     )

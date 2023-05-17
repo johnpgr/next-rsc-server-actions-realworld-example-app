@@ -2,6 +2,7 @@ import { z } from "zod"
 
 export const loginResponseSchema = z
     .object({
+        success: z.literal(true),
         user: z.object({
             email: z.string(),
             username: z.string(),
@@ -12,6 +13,7 @@ export const loginResponseSchema = z
     })
     .or(
         z.object({
+            success: z.literal(false),
             message: z.string(),
         }),
     )

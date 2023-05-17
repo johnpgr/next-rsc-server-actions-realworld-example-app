@@ -45,3 +45,9 @@ export function getFormData<T extends object>(
     const input = Object.fromEntries(formData.entries()) as unknown as T
     return input
 }
+
+export class ErrorWithCode extends Error {
+    constructor(message: string, public code: string) {
+        super(message)
+    }
+}

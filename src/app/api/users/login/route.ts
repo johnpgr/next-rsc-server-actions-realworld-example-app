@@ -1,11 +1,8 @@
-import { cookies } from "next/headers"
 import { NextRequest } from "next/server"
 import { loginInputSchema } from "~/app/login/validation"
-import { USER_TOKEN } from "~/lib/constants"
 import { jsonResponse } from "~/lib/utils"
 import { authService } from "~/services/auth"
 
-// runtime edge on dev environment crashes because of bcrypt
 export const runtime = "edge"
 export const dynamic = "force-dynamic"
 
@@ -30,9 +27,11 @@ export async function POST(req: NextRequest) {
         //@ts-ignore
         safeUser.token = token
 
-        return jsonResponse(200, { user: safeUser })
+        return jsonResponse(200, { success: true, user: safeUser })
     } catch (error) {
-        return jsonResponse(400, { message: (error as Error).message })
+        return jsonResponse(400, {
+            success: false,
+            message: (error as Error).message,
+        })
     }
 }
-

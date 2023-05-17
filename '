@@ -1,0 +1,92 @@
+"use client"
+import React, { cache } from "react"
+import Cookies from "js-cookie"
+import { getBaseUrl } from "~/lib/utils"
+import { getCurrentUserResponseSchema } from "~/app/api/user/validation"
+import { USER_TOKEN } from "~/lib/constants"
+import { SafeUser } from "~/types/user"
+
+export type UserContextType = {
+    user: SafeUser | null
+    isLoading: boolean
+    login: (user: SafeUser) => void
+    logout: () => void
+}
+
+export const UserContext = React.createContext<UserContextType>(
+    {} as UserContextType,
+)
+
+const fetchUser = cache((token: string) =>
+    fetch(`${getBaseUrl()}/api/user`, {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+        },
+        next: { revalidate: 0 },
+    }),
+)
+
+export const UserContextProvider = (props: { children: React.ReactNode }) => {
+    const [user, setUser] = React.useState<SafeUser | null>(null)
+    const [isLoading, setIsLoading] = React.useState(false)
+
+    function login(user: SafeUser) {
+        setUser(user)
+    }
+
+    function logout() {
+        setUser(null)
+    }
+
+    React.useEffect(() => {
+        async function getUser(): Promise<void> {
+            try {
+                setIsLoading(true)
+
+                const token = Cookies.get(USER_TOKEN)
+
+                if (!token) {
+                    setIsLoading(false)
+                    return
+                }
+
+                const userPromise = await fetchUser(token)
+                const json = await userPromise.json()
+                const parsed = getCurrentUserResponseSchema.parse(json)
+
+                if (!parsed.success) return
+
+                setUser(parsed.user)
+                setIsLoading(false)
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        getUser()
+    }, [])
+
+    return (
+        <UserContext.Provider
+            value={{
+                user,
+                isLoading,
+                login,
+                logout,
+            }}
+        >
+            <pre>{JSON.stringify(user, null, 4)}</pre>
+            {props.children}
+        </UserContext.Provider>
+    )
+}
+
+export const useUser = () => {
+    const ctx = React.useContext(UserContext)
+
+    if (!ctx)
+        throw new Error("useUser must be used within a UserContextProvider")
+
+    return ctx
+}
