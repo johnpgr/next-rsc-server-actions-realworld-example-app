@@ -5,7 +5,6 @@ import { authService } from "~/services/auth"
 
 // runtime edge on dev environment crashes because of bcrypt
 export const runtime = "edge"
-export const dynamic = "force-dynamic"
 
 export async function POST(req: NextRequest) {
     try {

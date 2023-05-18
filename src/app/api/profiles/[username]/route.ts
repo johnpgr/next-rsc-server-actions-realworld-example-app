@@ -3,25 +3,27 @@ import { jsonResponse } from "~/lib/utils"
 import { authService } from "~/services/auth"
 import { profileService } from "~/services/profile"
 
+export const runtime = "edge"
+
 export async function GET(
     req: NextRequest,
     { params }: { params: { username: string } },
 ) {
     try {
-        let currentUser: string | undefined = undefined
+        let currentUsername: string | undefined = undefined
 
         const token = req.headers.get("authorization")?.split("Token ")[1]
 
         if (token) {
             const user = await authService.getPayloadFromToken(token)
             if (user) {
-                currentUser = user.username
+                currentUsername = user.username
             }
         }
 
         const profile = await profileService.getProfile(
             params.username,
-            currentUser,
+            currentUsername,
         )
 
         return jsonResponse(200, { profile })

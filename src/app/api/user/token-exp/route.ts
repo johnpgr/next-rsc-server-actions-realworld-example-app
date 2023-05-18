@@ -1,10 +1,8 @@
 import { NextRequest } from "next/server"
 import { jsonResponse } from "~/lib/utils"
 import { authService } from "~/services/auth"
-import { errors as ERRORS } from "jose"
 
 export const runtime = "edge"
-export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
     try {
@@ -18,16 +16,15 @@ export async function GET(req: NextRequest) {
             })
 
         const user = await authService.getPayloadFromToken(token)
-        if(!user) throw new Error("Token expired")
+        if (!user) throw new Error("Token expired")
 
         return jsonResponse(200, {
             success: true,
             exp: user.exp,
         })
     } catch (error) {
-
         return jsonResponse(401, {
-            error: true,
+            success: false,
             message: (error as Error).message,
         })
     }

@@ -4,7 +4,6 @@ import { jsonResponse } from "~/lib/utils"
 import { authService } from "~/services/auth"
 
 export const runtime = "edge"
-export const dynamic = "force-dynamic"
 
 export async function POST(req: NextRequest) {
     try {

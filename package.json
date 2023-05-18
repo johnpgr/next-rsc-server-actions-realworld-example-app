@@ -7,7 +7,8 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "db:push": "drizzle-kit push:mysql"
+        "db:push": "drizzle-kit push:mysql",
+        "db:seed": "curl http://localhost:3000/api/seed"
     },
     "dependencies": {
         "@planetscale/database": "^1.7.0",
@@ -69,10 +70,12 @@
         "zod": "^3.21.4"
     },
     "devDependencies": {
+        "@faker-js/faker": "^8.0.1",
         "@types/js-cookie": "^3.0.3",
         "dotenv": "^16.0.3",
         "drizzle-kit": "0.17.6-76e73f3",
         "prettier": "^2.8.8",
-        "prettier-plugin-tailwindcss": "^0.3.0"
+        "prettier-plugin-tailwindcss": "^0.3.0",
+        "ts-node": "^10.9.1"
     }
 }

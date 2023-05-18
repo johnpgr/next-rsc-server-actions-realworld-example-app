@@ -34,14 +34,11 @@ export const user = mysqlTable(
 
 export type User = InferModel<typeof user>
 
-export const password = mysqlTable(
-    "password",
-    {
-        id: varchar("id", { length: 191 }).primaryKey().notNull(),
-        password: text("password").notNull(),
-        salt: text("salt").notNull(),
-    }
-)
+export const password = mysqlTable("password", {
+    id: varchar("id", { length: 191 }).primaryKey().notNull(),
+    password: text("password").notNull(),
+    salt: text("salt").notNull(),
+})
 
 export type Password = InferModel<typeof password>
 
@@ -51,8 +48,9 @@ export const article = mysqlTable(
         id: varchar("id", { length: 191 }).primaryKey().notNull(),
         author_id: varchar("author_id", { length: 191 }).notNull(),
         slug: varchar("slug", { length: 191 }).notNull(),
-        title: text("title").notNull(),
-        text: text("text").notNull(),
+        title: varchar("title", { length: 191 }).notNull(),
+        description: varchar("description", { length: 191 }).notNull(),
+        body: text("body").notNull(),
         created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at")
             .notNull()
@@ -61,6 +59,18 @@ export const article = mysqlTable(
     },
     (post) => ({
         userIdIndex: index("posts__user_id__idx").on(post.author_id),
+    }),
+)
+
+export const tag = mysqlTable(
+    "tag",
+    {
+        id: varchar("id", { length: 191 }).primaryKey().notNull(),
+        name: varchar("name", { length: 191 }).notNull(),
+        article_id: varchar("article_id", { length: 191 }).notNull(),
+    },
+    (tag) => ({
+        articleIdIndex: index("tags__article_id__idx").on(tag.article_id),
     }),
 )
 
@@ -109,8 +119,12 @@ export const follow = mysqlTable(
     "follow",
     {
         id: varchar("id", { length: 191 }).primaryKey().notNull(),
-        follower_username: varchar("follower_username", { length: 191 }).notNull(),
-        following_username: varchar("following_username", { length: 191 }).notNull(),
+        follower_username: varchar("follower_username", {
+            length: 191,
+        }).notNull(),
+        following_username: varchar("following_username", {
+            length: 191,
+        }).notNull(),
         created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at")
             .notNull()
