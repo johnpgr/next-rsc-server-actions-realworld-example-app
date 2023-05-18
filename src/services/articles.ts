@@ -1,6 +1,6 @@
 import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import { db } from "~/db/drizzle-db"
-import { and, desc, eq, isNull, or, sql } from "drizzle-orm"
+import { sql } from "drizzle-orm"
 
 export type GetArticlesParams = {
     tag: string | null
