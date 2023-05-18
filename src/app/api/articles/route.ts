@@ -8,15 +8,15 @@ export const runtime = "edge"
 export function getSearchParams(req: NextRequest): GetArticlesParams {
     const url = new URL(req.nextUrl)
     const tag = url.searchParams.get("tag")
-    const author_name = url.searchParams.get("author")
-    const favorited = url.searchParams.get("favorited")
+    const authorName = url.searchParams.get("author")
+    const favoritedBy = url.searchParams.get("favorited")
     const _limit = url.searchParams.get("limit")
     const _offset = url.searchParams.get("offset")
 
     const limit = _limit ? Number(_limit) : 20
     const offset = _offset ? Number(_offset) : 0
 
-    return { tag, author_name, favorited_by: favorited, limit, offset }
+    return { tag, authorName, favoritedBy, limit, offset }
 }
 
 export async function GET(req: NextRequest) {
