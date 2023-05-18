@@ -4,8 +4,8 @@ import { and, desc, eq, isNull, or, sql } from "drizzle-orm"
 
 export type GetArticlesParams = {
     tag: string | null
-    author_name: string | null
-    favorited_by: string | null
+    authorName: string | null
+    favoritedBy: string | null
     limit: number
     offset: number
 }
@@ -49,11 +49,8 @@ class ArticlesService {
         this.db = db
     }
 
-    async getArticles(
-        params: GetArticlesParams,
-        current_user_id: string | null,
-    ) {
-        const { tag, author_name, favorited_by, limit, offset } = params
+    async getArticles(params: GetArticlesParams, currentUserId: string | null) {
+        const { tag, authorName, favoritedBy, limit, offset } = params
 
         const articles = await this.db.execute(sql`
             SELECT a.title, a.description, a.body, a.slug, a.created_at as createdAt, a.updated_at as updatedAt,
@@ -72,13 +69,13 @@ class ArticlesService {
                 FROM favorite
                 GROUP BY article_id
             ) AS favorites ON a.id = favorites.article_id
-            LEFT JOIN favorite f ON a.id = f.article_id AND f.user_id = ${current_user_id}
-            WHERE (${author_name} IS NULL OR u.name = ${author_name})
-              AND (${favorited_by} IS NULL OR EXISTS (
+            LEFT JOIN favorite f ON a.id = f.article_id AND f.user_id = ${currentUserId}
+            WHERE (${authorName} IS NULL OR u.name = ${authorName})
+              AND (${favoritedBy} IS NULL OR EXISTS (
                 SELECT 1
                 FROM favorite f
                 JOIN user uf ON f.user_id = uf.id
-                WHERE a.id = f.article_id AND uf.name = ${favorited_by}
+                WHERE a.id = f.article_id AND uf.name = ${favoritedBy}
               ))
               AND (${tag} IS NULL OR EXISTS (
                 SELECT 1
