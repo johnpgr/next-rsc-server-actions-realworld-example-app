@@ -2,8 +2,14 @@ import { db } from "~/db/drizzle-db"
 import { article, tag, user as userTable } from "~/db/schema"
 import { faker } from "@faker-js/faker"
 import { jsonResponse } from "~/lib/utils"
+import { env } from "~/config/env.mjs"
+import {redirect} from "next/navigation"
 
 async function seedArticles(n: number) {
+    if(env.NODE_ENV !== "development"){
+        redirect("/")
+    } 
+
     const user = {
         id: faker.string.uuid(),
         username: faker.internet.userName(),

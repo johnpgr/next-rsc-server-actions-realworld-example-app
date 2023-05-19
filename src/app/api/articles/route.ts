@@ -5,7 +5,7 @@ import { authService } from "~/services/auth"
 
 export const runtime = "edge"
 
-export function getSearchParams(req: NextRequest): GetArticlesParams {
+function getSearchParams(req: NextRequest): GetArticlesParams {
     const url = new URL(req.nextUrl)
     const tag = url.searchParams.get("tag")
     const authorName = url.searchParams.get("author")

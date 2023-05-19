@@ -75,7 +75,6 @@
         "dotenv": "^16.0.3",
         "drizzle-kit": "0.17.6-76e73f3",
         "prettier": "^2.8.8",
-        "prettier-plugin-tailwindcss": "^0.3.0",
-        "ts-node": "^10.9.1"
+        "prettier-plugin-tailwindcss": "^0.3.0"
     }
 }
