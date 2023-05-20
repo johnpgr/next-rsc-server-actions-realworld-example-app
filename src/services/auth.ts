@@ -1,10 +1,9 @@
 import { eq } from "drizzle-orm"
 import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
-import { User, user, password as passwordTable, Password } from "~/db/schema"
+import { User, user, password as passwordTable, Password, NewPassword } from "~/db/schema"
 import { db } from "~/db/drizzle-db"
 import { SignJWT, errors, jwtVerify } from "jose"
 import { JWT_EXPIRATION_TIME, getJwtSecretKey } from "~/lib/constants"
-import { nanoid } from "nanoid"
 import { comparePasswords, hashPassword } from "~/lib/crypto"
 import { EditUserInput } from "~/app/profile/(edit-user)/validation"
 import { createId } from "~/lib/utils"
@@ -48,7 +47,7 @@ class AuthService {
 
     private async getPasswordForUser(
         password_id: string,
-    ): Promise<Omit<Password, "id">> {
+    ): Promise<Omit<NewPassword, "id">> {
         const [password] = await this.db
             .select({
                 salt: passwordTable.salt,
@@ -109,7 +108,7 @@ class AuthService {
         const { password_id } = await this.persistPasswordForUser(password)
 
         const { rowsAffected } = await this.db.insert(user).values({
-            id: nanoid(),
+            id: createId(),
             email,
             password_id,
             username,

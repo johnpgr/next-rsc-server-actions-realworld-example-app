@@ -39,6 +39,7 @@ export const password = mysqlTable("password", {
 })
 
 export type Password = InferModel<typeof password>
+export type NewPassword = InferModel<typeof password, "insert">
 
 export const article = mysqlTable(
     "article",

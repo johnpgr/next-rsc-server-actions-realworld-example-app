@@ -2,7 +2,6 @@ import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import { db } from "~/db/drizzle-db"
 import { User, user, follow } from "~/db/schema"
 import { and, eq, sql } from "drizzle-orm"
-import { nanoid } from "nanoid"
 import { createId } from "~/lib/utils"
 
 export type Profile = Omit<

@@ -54,7 +54,6 @@
         "jose": "^4.14.4",
         "js-cookie": "^3.0.5",
         "lucide-react": "^0.216.0",
-        "nanoid": "^4.0.2",
         "next": "13.4.2",
         "next-13-rsc-realworld-example-app": "link:",
         "next-safe-action": "^2.5.5",
