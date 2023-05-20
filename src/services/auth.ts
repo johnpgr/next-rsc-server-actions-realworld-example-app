@@ -7,6 +7,7 @@ import { JWT_EXPIRATION_TIME, getJwtSecretKey } from "~/lib/constants"
 import { nanoid } from "nanoid"
 import { comparePasswords, hashPassword } from "~/lib/crypto"
 import { EditUserInput } from "~/app/profile/(edit-user)/validation"
+import { createId } from "~/lib/utils"
 
 export interface UserJWTPayload {
     id: string
@@ -33,7 +34,7 @@ class AuthService {
     ): Promise<{ password_id: string }> {
         const { salt, hashedPassword } = await hashPassword(password)
 
-        const id = nanoid()
+        const id = createId()
         const { rowsAffected } = await this.db.insert(passwordTable).values({
             id,
             password: hashedPassword,
@@ -151,7 +152,7 @@ class AuthService {
     ): Promise<string> {
         return await new SignJWT(user)
             .setProtectedHeader({ alg: "HS512" })
-            .setJti(nanoid())
+            .setJti(createId())
             .setIssuedAt()
             .setExpirationTime(JWT_EXPIRATION_TIME.string)
             .sign(new TextEncoder().encode(getJwtSecretKey()))

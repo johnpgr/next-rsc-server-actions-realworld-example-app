@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { decodeTime, ulidFactory } from "ulid-workers"
 import { createSafeActionClient } from "next-safe-action"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
@@ -47,3 +48,11 @@ export function getFormData<T extends object>(
     return input
 }
 
+export function createId(): string {
+    const ulid = ulidFactory({ monotonic: true })
+    return ulid()
+}
+
+export function getDateFromULID(ulid:string){
+    return new Date(decodeTime(ulid))
+}

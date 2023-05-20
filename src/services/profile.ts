@@ -3,6 +3,7 @@ import { db } from "~/db/drizzle-db"
 import { User, user, follow } from "~/db/schema"
 import { and, eq, sql } from "drizzle-orm"
 import { nanoid } from "nanoid"
+import { createId } from "~/lib/utils"
 
 export type Profile = Omit<
     User,
@@ -16,8 +17,8 @@ export class ProfileService {
     }
 
     async getProfile(
-        username: string,
-        currentUser?: string,
+        userId: string,
+        currentUserId?: string,
     ): Promise<Profile | null> {
         const result = await this.db
             .select({
@@ -29,12 +30,12 @@ export class ProfileService {
                         SELECT 1
                         FROM ${follow}
                         WHERE ${and(
-                            eq(follow.follower_username, currentUser || ""),
-                            eq(follow.following_username, username),
+                            eq(follow.follower_id, currentUserId || ""),
+                            eq(follow.following_id, userId),
                         )})`,
             })
             .from(user)
-            .where(eq(user.username, username))
+            .where(eq(user.id, userId))
             .limit(1)
 
         const profile = result[0]
@@ -49,30 +50,36 @@ export class ProfileService {
     }
 
     async followUser(
-        followerName: string,
-        followingName: string,
+        followerId: string,
+        followingId: string,
     ): Promise<Profile> {
         const [alreadyFollowing] = await this.db
             .select()
             .from(follow)
             .where(
                 and(
-                    eq(follow.follower_username, followerName),
-                    eq(follow.following_username, followingName),
+                    eq(follow.follower_id, followerId),
+                    eq(follow.following_id, followingId),
                 ),
             )
             .limit(1)
 
-        if (alreadyFollowing)
-            throw new Error(`Already following user: ${followingName}`)
+        if (alreadyFollowing) {
+            const [found] = await this.db
+                .select({ username: user.username })
+                .from(user)
+                .where(eq(user.id, followingId))
+                .limit(1)
+            throw new Error(`Already following user: ${found.username}`)
+        }
 
         await this.db.insert(follow).values({
-            id: nanoid(),
-            follower_username: followerName,
-            following_username: followingName,
+            id: createId(),
+            follower_id: followerId,
+            following_id: followingId,
         })
 
-        const profile = await this.getProfile(followingName, followerName)
+        const profile = await this.getProfile(followingId, followerId)
 
         if (!profile) throw new Error("Profile not found")
 
@@ -80,33 +87,39 @@ export class ProfileService {
     }
 
     async unfollowUser(
-        followerName: string,
-        followingName: string,
+        followerId: string,
+        followingId: string,
     ): Promise<Profile> {
         const [alreadyFollowing] = await this.db
             .select()
             .from(follow)
             .where(
                 and(
-                    eq(follow.follower_username, followerName),
-                    eq(follow.following_username, followingName),
+                    eq(follow.follower_id, followerId),
+                    eq(follow.following_id, followingId),
                 ),
             )
             .limit(1)
 
-        if (!alreadyFollowing)
-            throw new Error(`Not following user: ${followingName}`)
+        if (!alreadyFollowing){
+            const [found] = await this.db
+                .select({ username: user.username })
+                .from(user)
+                .where(eq(user.id, followingId))
+                .limit(1)
+            throw new Error(`Not following user: ${found.username}`)
+        }
 
         await this.db
             .delete(follow)
             .where(
                 and(
-                    eq(follow.follower_username, followerName),
-                    eq(follow.following_username, followingName),
+                    eq(follow.follower_id, followerId),
+                    eq(follow.following_id, followingId),
                 ),
             )
 
-        const profile = await this.getProfile(followingName, followerName)
+        const profile = await this.getProfile(followingId, followerId)
 
         if (!profile) throw new Error("Profile not found")
 

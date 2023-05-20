@@ -1,17 +1,19 @@
 import { db } from "~/db/drizzle-db"
 import { article, tag, user as userTable } from "~/db/schema"
 import { faker } from "@faker-js/faker"
-import { jsonResponse } from "~/lib/utils"
+import { createId, jsonResponse } from "~/lib/utils"
 import { env } from "~/config/env.mjs"
-import {redirect} from "next/navigation"
+import { redirect } from "next/navigation"
 
 async function seedArticles(n: number) {
-    if(env.NODE_ENV !== "development"){
+    if (env.NODE_ENV !== "development") {
         redirect("/")
-    } 
+    }
+
+    const userId = createId()
 
     const user = {
-        id: faker.string.uuid(),
+        id: userId,
         username: faker.internet.userName(),
         email: faker.internet.email(),
         bio: faker.lorem.paragraph(),
@@ -22,7 +24,7 @@ async function seedArticles(n: number) {
     await db.insert(userTable).values(user)
 
     for (let i = 0; i < n; i++) {
-        const articleId = faker.string.uuid()
+        const articleId = createId()
         await db.insert(article).values({
             id: articleId,
             title: faker.lorem.sentence(),
@@ -35,8 +37,9 @@ async function seedArticles(n: number) {
         const tagList = faker.lorem.words(3).split(" ")
 
         for (const tagItem of tagList) {
+            const tagId = createId()
             await db.insert(tag).values({
-                id: faker.string.uuid(),
+                id: tagId,
                 name: tagItem,
                 article_id: articleId,
             })

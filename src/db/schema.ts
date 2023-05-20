@@ -19,15 +19,12 @@ export const user = mysqlTable(
         password_id: varchar("password_id", { length: 191 }).notNull(),
         image: varchar("image", { length: 191 }),
         bio: text("bio"),
-        created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at")
             .notNull()
             .defaultNow()
             .onUpdateNow(),
     },
     (user) => ({
-        nameIndex: index("users__name__idx").on(user.username),
-        emailIndex: uniqueIndex("users__email__idx").on(user.email),
         passwordIdIndex: index("users__password_id__idx").on(user.password_id),
     }),
 )
@@ -38,6 +35,7 @@ export const password = mysqlTable("password", {
     id: varchar("id", { length: 191 }).primaryKey().notNull(),
     password: text("password").notNull(),
     salt: text("salt").notNull(),
+    updated_at: timestamp("updated_at").defaultNow().onUpdateNow(),
 })
 
 export type Password = InferModel<typeof password>
@@ -51,7 +49,6 @@ export const article = mysqlTable(
         title: varchar("title", { length: 191 }).notNull(),
         description: varchar("description", { length: 191 }).notNull(),
         body: text("body").notNull(),
-        created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at")
             .notNull()
             .defaultNow()
@@ -68,6 +65,7 @@ export const tag = mysqlTable(
         id: varchar("id", { length: 191 }).primaryKey().notNull(),
         name: varchar("name", { length: 191 }).notNull(),
         article_id: varchar("article_id", { length: 191 }).notNull(),
+        updated_at: timestamp("updated_at").defaultNow().onUpdateNow(),
     },
     (tag) => ({
         articleIdIndex: index("tags__article_id__idx").on(tag.article_id),
@@ -80,7 +78,6 @@ export const favorite = mysqlTable(
         id: varchar("id", { length: 191 }).primaryKey().notNull(),
         user_id: varchar("user_id", { length: 191 }).notNull(),
         article_id: varchar("article_id", { length: 191 }).notNull(),
-        created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at")
             .notNull()
             .defaultNow()
@@ -101,7 +98,6 @@ export const comment = mysqlTable(
         author_id: varchar("author_id", { length: 191 }).notNull(),
         article_id: varchar("article_id", { length: 191 }).notNull(),
         text: text("text").notNull(),
-        created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at")
             .notNull()
             .defaultNow()
@@ -125,7 +121,6 @@ export const follow = mysqlTable(
         following_id: varchar("following_id", {
             length: 191,
         }).notNull(),
-        created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at")
             .notNull()
             .defaultNow()
