@@ -60,6 +60,9 @@ export const article = mysqlTable(
     }),
 )
 
+export type Article = InferModel<typeof article>
+export type NewArticle = InferModel<typeof article, "insert">
+
 export const tag = mysqlTable(
     "tag",
     {

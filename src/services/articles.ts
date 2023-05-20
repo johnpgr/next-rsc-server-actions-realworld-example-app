@@ -1,8 +1,17 @@
+import slugify from "slugify"
 import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import { db } from "~/db/drizzle-db"
 import { and, desc, eq, exists, isNull, or, sql } from "drizzle-orm"
-import { article, favorite, follow, tag as tagTable, user } from "~/db/schema"
-import { getDateFromULID } from "~/lib/utils"
+import {
+    article,
+    favorite,
+    follow,
+    tag,
+    tag as tagTable,
+    user,
+} from "~/db/schema"
+import { createId, getDateFromULID } from "~/lib/utils"
+import { NewArticleBody } from "~/app/api/articles/validation"
 
 export type GetArticlesParams = {
     tag: string | null
@@ -40,7 +49,7 @@ class ArticlesService {
         params: GetArticlesParams,
         currentUserId: string | null,
         feedType: "global" | "user" = "global",
-    ):Promise<ParsedArticleQueryResponse[]> {
+    ): Promise<ParsedArticleQueryResponse[]> {
         const { tag, authorName, favoritedBy, limit, offset } = params
         /**
             SELECT
@@ -184,7 +193,7 @@ class ArticlesService {
 
     async getArticleBySlug(
         slug: string,
-        userId: string,
+        userId: string | null,
     ): Promise<ParsedArticleQueryResponse> {
         const [found] = await this.db
             .select({
@@ -221,7 +230,7 @@ class ArticlesService {
                 favorite,
                 and(
                     eq(article.id, favorite.article_id),
-                    eq(favorite.user_id, userId),
+                    eq(favorite.user_id, sql`${userId}`),
                 ),
             )
             .where(eq(article.slug, slug))
@@ -233,6 +242,51 @@ class ArticlesService {
         found.favoritesCount = parseInt(found.favoritesCount as string)
 
         return found as unknown as ParsedArticleQueryResponse
+    }
+
+    async createArticle(
+        input: NewArticleBody,
+        userId: string,
+    ): Promise<ParsedArticleQueryResponse | null> {
+        const { title, description, body, tagList } = input.article
+        let slug = slugify(title)
+
+        const existingArticleWithSameSlug = await this.getArticleBySlug(slug, null)
+
+        if (existingArticleWithSameSlug) {
+            return null
+        }
+
+        const articleId = createId()
+        const insertTagsPromises = []
+
+        if (tagList && tagList.length > 0) {
+            for (const _tag of tagList) {
+                insertTagsPromises.push(
+                    this.db.insert(tag).values({
+                        id: createId(),
+                        name: _tag,
+                        article_id: articleId,
+                    }),
+                )
+            }
+        }
+
+        const { rowsAffected } = await this.db.insert(article).values({
+            id: articleId,
+            title,
+            description,
+            body,
+            slug,
+            author_id: userId,
+        })
+        if(rowsAffected === 0) {
+            throw new Error("Failed to create article")
+        }
+
+        await Promise.all(insertTagsPromises)
+
+        return this.getArticleBySlug(slug, userId)
     }
 }
 
