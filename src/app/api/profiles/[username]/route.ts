@@ -28,7 +28,8 @@ export async function GET(
 
         return jsonResponse(200, { profile })
     } catch (error) {
-        console.dir(error)
-        return jsonResponse(500, { error: (error as Error).message })
+        return jsonResponse(500, {
+            errors: { body: [(error as Error).message] },
+        })
     }
 }

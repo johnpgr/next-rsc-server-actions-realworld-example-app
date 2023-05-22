@@ -55,7 +55,7 @@ export async function GET() {
         })
     } catch (error) {
         return jsonResponse(500, {
-            success: false,
+            errors: { body: [(error as Error).message] },
         })
     }
 }

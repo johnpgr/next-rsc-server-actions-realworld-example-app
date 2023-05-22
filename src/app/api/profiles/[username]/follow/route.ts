@@ -21,15 +21,16 @@ export async function POST(
             params.username,
         )
 
-        return jsonResponse(200, { success: true, profile })
+        return jsonResponse(200, { profile })
     } catch (error) {
         if ((error as Error).message.startsWith("Already following user")) {
             return jsonResponse(422, { error: (error as Error).message })
         }
 
         return jsonResponse(401, {
-            success: false,
-            message: (error as Error).message,
+            errors: {
+                body: [(error as Error).message],
+            },
         })
     }
 }
@@ -50,11 +51,12 @@ export async function DELETE(
             params.username,
         )
 
-        return jsonResponse(200, { success: true, profile })
+        return jsonResponse(200, { profile })
     } catch (error) {
         return jsonResponse(401, {
-            success: false,
-            message: (error as Error).message,
+            errors: {
+                body: [(error as Error).message],
+            },
         })
     }
 }

@@ -21,21 +21,15 @@ export async function POST(req: NextRequest) {
             image: user.image,
         }
 
-        //@ts-ignore
-        delete user.created_at
-        //@ts-ignore
-        delete user.updated_at
-
-        const token = await authService.createToken(user)
+        const token = await authService.createToken(safeUser)
 
         //@ts-ignore
         safeUser.token = token
 
-        return jsonResponse(200, { success: true, user: safeUser })
+        return jsonResponse(200, { user: safeUser })
     } catch (error) {
         return jsonResponse(400, {
-            success: false,
-            message: (error as Error).message,
+            errors: { body: [(error as Error).message] },
         })
     }
 }

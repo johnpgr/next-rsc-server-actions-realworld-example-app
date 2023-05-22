@@ -1,6 +1,12 @@
 import { eq } from "drizzle-orm"
 import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
-import { User, user, password as passwordTable, Password, NewPassword } from "~/db/schema"
+import {
+    User,
+    user,
+    password as passwordTable,
+    Password,
+    NewPassword,
+} from "~/db/schema"
 import { db } from "~/db/drizzle-db"
 import { SignJWT, errors, jwtVerify } from "jose"
 import { JWT_EXPIRATION_TIME, getJwtSecretKey } from "~/lib/constants"
@@ -9,7 +15,6 @@ import { EditUserInput } from "~/app/profile/(edit-user)/validation"
 import { createId } from "~/lib/utils"
 
 export interface UserJWTPayload {
-    id: string
     username: string
     email: string
     bio: string | null
@@ -19,8 +24,6 @@ export interface UserJWTPayload {
     exp: number
 }
 
-export class AuthError extends Error {}
-
 class AuthService {
     private db: PlanetScaleDatabase
 
@@ -28,6 +31,9 @@ class AuthService {
         this.db = db
     }
 
+    /**
+     * @throws {Error}
+     */
     private async persistPasswordForUser(
         password: string,
     ): Promise<{ password_id: string }> {
@@ -40,11 +46,14 @@ class AuthService {
             salt,
         })
 
-        if (rowsAffected === 0) throw new AuthError("Something went wrong")
+        if (rowsAffected === 0) throw new Error("Something went wrong")
 
         return { password_id: id }
     }
 
+    /**
+     * @throws {Error}
+     */
     private async getPasswordForUser(
         password_id: string,
     ): Promise<Omit<NewPassword, "id">> {
@@ -57,33 +66,38 @@ class AuthService {
             .where(eq(passwordTable.id, password_id))
             .limit(1)
 
-        if (!password) throw new AuthError("Something went wrong")
+        if (!password) throw new Error("Something went wrong")
 
         return password
     }
 
-    async updateUser(input: EditUserInput & { id: string }): Promise<User> {
-        const { id, user: userInput } = input
-        console.log({ input })
+    /**
+     * @throws {Error}
+     */
+    async updateUser(username: string, input: EditUserInput): Promise<User> {
+        const { user: userInput } = input
 
         const { rowsAffected } = await this.db
             .update(user)
             .set(userInput)
-            .where(eq(user.id, id))
+            .where(eq(user.username, username))
 
-        if (rowsAffected === 0) throw new AuthError("Something went wrong")
+        if (rowsAffected === 0) throw new Error("Something went wrong")
 
         const [updatedUser] = await this.db
             .select()
             .from(user)
-            .where(eq(user.id, id))
+            .where(eq(user.username, username))
             .limit(1)
 
-        if (!updatedUser) throw new AuthError("Something went wrong")
+        if (!updatedUser) throw new Error("Something went wrong")
 
         return updatedUser
     }
 
+    /**
+     * @throws {Error}
+     */
     async registerUser(
         email: string,
         password: string,
@@ -95,7 +109,7 @@ class AuthService {
             .where(eq(user.email, email))
             .limit(1)
 
-        if (foundEmail) throw new AuthError("Email already in use")
+        if (foundEmail) throw new Error("Email already in use")
 
         const [foundUsername] = await this.db
             .select()
@@ -103,7 +117,7 @@ class AuthService {
             .where(eq(user.username, username))
             .limit(1)
 
-        if (foundUsername) throw new AuthError("Username already in use")
+        if (foundUsername) throw new Error("Username already in use")
 
         const { password_id } = await this.persistPasswordForUser(password)
 
@@ -114,7 +128,7 @@ class AuthService {
             username,
         })
 
-        if (rowsAffected === 0) throw new AuthError("Something went wrong")
+        if (rowsAffected === 0) throw new Error("Something went wrong")
 
         const [newUser] = await this.db
             .select()
@@ -122,11 +136,14 @@ class AuthService {
             .where(eq(user.email, email))
             .limit(1)
 
-        if (!newUser) throw new AuthError("Something went wrong")
+        if (!newUser) throw new Error("Something went wrong")
 
         return newUser
     }
 
+    /**
+     * @throws {Error}
+     */
     async verifyCredentials(email: string, password: string): Promise<User> {
         const [found] = await this.db
             .select()
@@ -134,20 +151,20 @@ class AuthService {
             .where(eq(user.email, email))
             .limit(1)
 
-        if (!found) throw new AuthError("Email or password is invalid")
+        if (!found) throw new Error("Email or password is invalid")
 
         const { password: hashedPassword, salt } =
             await this.getPasswordForUser(found.password_id)
 
         const valid = await comparePasswords(password, hashedPassword, salt)
 
-        if (!valid) throw new AuthError("Email or password is invalid")
+        if (!valid) throw new Error("Email or password is invalid")
 
         return found
     }
 
     async createToken(
-        user: Omit<User, "password_id" | "created_at" | "updated_at">,
+        user: Omit<User, "id" | "password_id" | "created_at" | "updated_at">,
     ): Promise<string> {
         return await new SignJWT(user)
             .setProtectedHeader({ alg: "HS512" })
@@ -157,6 +174,9 @@ class AuthService {
             .sign(new TextEncoder().encode(getJwtSecretKey()))
     }
 
+    /**
+     * @throws {Error}
+     */
     async getPayloadFromToken(token: string): Promise<UserJWTPayload | null> {
         try {
             const verified = await jwtVerify(
@@ -176,14 +196,32 @@ class AuthService {
         }
     }
 
-    async refreshToken(token: string) {
+    /**
+     * @throws {Error}
+     */
+    async refreshToken(token: string): Promise<string> {
         const payload = await this.getPayloadFromToken(token)
 
-        if(!payload) throw new AuthError("Token to refresh is invalid")
+        if (!payload) throw new Error("Token to refresh is invalid")
 
         const newToken = await this.createToken(payload)
 
         return newToken
+    }
+
+    /**
+     * @throws {Error}
+     */
+    async getUserIdByUserName(userName: string): Promise<string> {
+        const [{ id }] = await this.db
+            .select({ id: user.id })
+            .from(user)
+            .where(eq(user.username, userName))
+            .limit(1)
+
+        if (!id) throw new Error("User not found")
+
+        return id
     }
 }
 

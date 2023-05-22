@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server"
-import { jsonResponse } from "~/lib/utils"
+import { errorBody, jsonResponse } from "~/lib/utils"
 import { articlesService } from "~/services/articles"
 import { authService } from "~/services/auth"
 
@@ -15,9 +15,9 @@ function getSearchParams(req: NextRequest) {
     return {
         limit,
         offset,
-        tag:null,
-        authorName:null,
-        favoritedBy:null
+        tag: null,
+        authorName: null,
+        favoritedBy: null,
     }
 }
 
@@ -26,13 +26,21 @@ export async function GET(req: NextRequest) {
 
     const token = req.headers.get("authorization")?.replace("Token ", "")
 
-    if(!token) return jsonResponse(401, { message: "Unauthorized" } )
+    if (!token) return jsonResponse(401, errorBody(["Unauthorized"]))
 
     const currentUser = await authService.getPayloadFromToken(token)
 
-    if(!currentUser) return jsonResponse(401, { message: "Token Expired" } )
+    if (!currentUser) return jsonResponse(401, errorBody(["Token Expired"]))
 
-    const articles = await articlesService.getArticles(params, currentUser.id, "user")
+    const currentUserId = await authService.getUserIdByUserName(
+        currentUser.username,
+    )
+
+    const articles = await articlesService.getArticles({
+        currentUserId,
+        params,
+        feedType: "user"
+    })
 
     return jsonResponse(200, { articles, articlesCount: articles.length })
 }

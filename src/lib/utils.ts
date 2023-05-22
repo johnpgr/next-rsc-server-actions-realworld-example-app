@@ -53,6 +53,22 @@ export function createId(): string {
     return ulid()
 }
 
-export function getDateFromULID(ulid:string){
+export function getDateFromULID(ulid: string) {
     return new Date(decodeTime(ulid))
+}
+
+export function errorBody(errors: string[]) {
+    return {
+        errors: {
+            body: errors,
+        },
+    }
+}
+
+export function defaultErrorMessage(e: unknown) {
+    if(e instanceof Error){
+        return e.message
+    }
+    
+    throw new Error("UNKNOWN ERROR")
 }

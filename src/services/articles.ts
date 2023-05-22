@@ -1,7 +1,7 @@
 import slugify from "slugify"
 import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import { db } from "~/db/drizzle-db"
-import { and, desc, eq, exists, isNull, or, sql } from "drizzle-orm"
+import { and, desc, eq, exists, isNull, notInArray, or, sql } from "drizzle-orm"
 import {
     article,
     favorite,
@@ -11,7 +11,10 @@ import {
     user,
 } from "~/db/schema"
 import { createId, getDateFromULID } from "~/lib/utils"
-import { NewArticleBody } from "~/app/api/articles/validation"
+import {
+    NewArticleBody,
+    UpdateArticleBody,
+} from "~/app/api/articles/validation"
 
 export type GetArticlesParams = {
     tag: string | null
@@ -45,12 +48,13 @@ class ArticlesService {
         this.db = db
     }
 
-    async getArticles(
-        params: GetArticlesParams,
-        currentUserId: string | null,
-        feedType: "global" | "user" = "global",
-    ): Promise<ParsedArticleQueryResponse[]> {
-        const { tag, authorName, favoritedBy, limit, offset } = params
+    async getArticles(args: {
+        params: GetArticlesParams
+        currentUserId: string | null
+        feedType: "global" | "user"
+    }): Promise<ParsedArticleQueryResponse[]> {
+        const { feedType, currentUserId } = args
+        const { tag, authorName, favoritedBy, limit, offset } = args.params
         /**
             SELECT
                 a.title,
@@ -194,7 +198,7 @@ class ArticlesService {
     async getArticleBySlug(
         slug: string,
         userId: string | null,
-    ): Promise<ParsedArticleQueryResponse> {
+    ): Promise<ParsedArticleQueryResponse | null> {
         const [found] = await this.db
             .select({
                 title: article.title,
@@ -235,6 +239,10 @@ class ArticlesService {
             )
             .where(eq(article.slug, slug))
 
+        if (!found) {
+            return null
+        }
+
         //parse the response
         found.createdAt = getDateFromULID(found.createdAt).toISOString()
         found.tagList = (found.tagList as string).split(",")
@@ -244,14 +252,26 @@ class ArticlesService {
         return found as unknown as ParsedArticleQueryResponse
     }
 
-    async createArticle(
-        input: NewArticleBody,
-        userId: string,
-    ): Promise<ParsedArticleQueryResponse | null> {
-        const { title, description, body, tagList } = input.article
+    /**
+     *
+     * @throws {Error}
+     */
+    async createArticle(input: {
+        body: NewArticleBody
+        userId: string
+    }): Promise<ParsedArticleQueryResponse | null> {
+        const {
+            title,
+            description,
+            body: articleBody,
+            tagList,
+        } = input.body.article
         let slug = slugify(title)
 
-        const existingArticleWithSameSlug = await this.getArticleBySlug(slug, null)
+        const existingArticleWithSameSlug = await this.getArticleBySlug(
+            slug,
+            null,
+        )
 
         if (existingArticleWithSameSlug) {
             return null
@@ -272,21 +292,122 @@ class ArticlesService {
             }
         }
 
+        console.log("here")
         const { rowsAffected } = await this.db.insert(article).values({
             id: articleId,
             title,
             description,
-            body,
+            body: articleBody,
             slug,
-            author_id: userId,
+            author_id: input.userId,
         })
-        if(rowsAffected === 0) {
+
+        if (rowsAffected === 0) {
             throw new Error("Failed to create article")
         }
 
         await Promise.all(insertTagsPromises)
 
-        return this.getArticleBySlug(slug, userId)
+        console.log({ slug, userId: input.userId })
+
+        return this.getArticleBySlug(slug, input.userId)
+    }
+
+    /**
+     *
+     * @throws {Error}
+     */
+    async updateArticle(args: {
+        userId: string
+        slug: string
+        body: UpdateArticleBody
+    }): Promise<ParsedArticleQueryResponse> {
+        const {
+            title,
+            description,
+            body: articleBody,
+            tagList,
+        } = args.body.article
+
+        const [{ id }] = await this.db
+            .select({ id: article.id })
+            .from(article)
+            .where(eq(article.slug, args.slug))
+
+        const slug = title ? slugify(title) : undefined
+        const insertTagsPromises = []
+
+        const existingTags = await this.db
+            .select({ tagName: tag.name })
+            .from(tag)
+            .where(eq(tag.article_id, id))
+
+        // Insert new tags that are not in the old tag list
+        if (tagList && tagList.length > 0) {
+            for (const _tag of tagList) {
+                if (!existingTags.find((tag) => tag.tagName === _tag)) {
+                    insertTagsPromises.push(
+                        this.db.insert(tag).values({
+                            id: createId(),
+                            name: _tag,
+                            article_id: id,
+                        }),
+                    )
+                }
+            }
+            //Remove tags that are not in the new tag list
+            for (const _tag of existingTags) {
+                if (!tagList.find((tag) => tag === _tag.tagName)) {
+                    await this.db.delete(tag).where(eq(tag.name, _tag.tagName))
+                }
+            }
+        }
+
+        //Update article
+        const { rowsAffected } = await this.db
+            .update(article)
+            .set({
+                title,
+                description,
+                body: articleBody,
+                slug,
+            })
+            .where(eq(article.id, id))
+
+        if (rowsAffected === 0) {
+            throw new Error("Failed to update article")
+        }
+
+        //Insert new tags
+        await Promise.all(insertTagsPromises)
+
+        if (!slug) {
+            const [{ slug }] = await this.db
+                .select({ slug: article.slug })
+                .from(article)
+                .where(eq(article.id, id))
+                .limit(1)
+
+            return this.getArticleBySlug(
+                slug,
+                args.userId,
+            ) as Promise<ParsedArticleQueryResponse>
+        }
+
+        return this.getArticleBySlug(
+            slug,
+            args.userId,
+        ) as Promise<ParsedArticleQueryResponse>
+    }
+
+    async isArticleAuthor(userId: string, slug: string): Promise<boolean> {
+        const [found] = await this.db
+            .select({ authorId: article.author_id })
+            .from(article)
+            .where(eq(article.slug, slug))
+            .limit(1)
+
+        return found.authorId === userId
     }
 }
 

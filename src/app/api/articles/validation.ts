@@ -22,12 +22,20 @@ export const getArticlesSchema = z.object({
     articlesCount: z.number(),
 })
 
-export const newArticleBodychema = z.object({
-    article: z.object({
+const articleInputSchema = z.object({
         title: z.string(),
         description: z.string(),
         body: z.string(),
         tagList: z.array(z.string()).optional(),
-    }),
+    })
+
+export const newArticleBodySchema = z.object({
+    article: articleInputSchema,
 })
-export type NewArticleBody = z.infer<typeof newArticleBodychema>
+export type NewArticleBody = z.infer<typeof newArticleBodySchema>
+
+
+export const updateArticleBodySchema = z.object({
+    article: articleInputSchema.partial()
+})
+export type UpdateArticleBody = z.infer<typeof updateArticleBodySchema>
