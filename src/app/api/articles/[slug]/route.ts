@@ -20,6 +20,10 @@ export async function GET(
 
     const article = await articlesService.getArticleBySlug(params.slug, id)
 
+    if (!article) {
+        return jsonResponse(404, errorBody(["Article not found"]))
+    }
+
     return jsonResponse(200, { article })
 }
 
@@ -65,4 +69,40 @@ export async function PUT(
     })
 
     return jsonResponse(200, { article })
+}
+
+export async function DELETE(
+    req: NextRequest,
+    { params }: { params: { slug: string } },
+) {
+    const token = req.headers.get("authorization")?.replace("Token ", "")
+
+    const currentUser = token
+        ? await authService.getPayloadFromToken(token)
+        : null
+
+    if (!currentUser) {
+        return jsonResponse(401, errorBody(["Unauthorized"]))
+    }
+
+    const id = await authService.getUserIdByUserName(currentUser.username)
+
+    const isArticleAuthor = await articlesService.isArticleAuthor(
+        id,
+        params.slug,
+    )
+
+    if (!isArticleAuthor) {
+        return jsonResponse(403, errorBody(["Forbidden"]))
+    }
+
+    const deleted = await articlesService.deleteArticle(params.slug)
+
+    if (!deleted) {
+        return jsonResponse(404, errorBody(["Article not found"]))
+    }
+
+    return jsonResponse(200, {
+        ok: true,
+    })
 }

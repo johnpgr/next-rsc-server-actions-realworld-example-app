@@ -55,56 +55,7 @@ class ArticlesService {
     }): Promise<ParsedArticleQueryResponse[]> {
         const { feedType, currentUserId } = args
         const { tag, authorName, favoritedBy, limit, offset } = args.params
-        /**
-            SELECT
-                a.title,
-                a.description,
-                a.body,
-                a.slug,
-                a.id as createdAt,
-                a.updated_at as updatedAt,
-                u.name AS authorName,
-                u.bio AS authorBio,
-                u.image AS authorImage,
-                GROUP_CONCAT(t.name SEPARATOR ',') AS tagList,
-                COALESCE(f.favoritesCount, 0) AS favoritesCount,
-                IF(fav.article_id IS NOT NULL, 1, 0) AS favorited
-            FROM
-                article a
-                JOIN user u ON a.author_id = u.id
-                LEFT JOIN tag t ON t.article_id = a.id
-                LEFT JOIN (
-                    SELECT article_id, COUNT(*) AS favoritesCount
-                    FROM favorite
-                    GROUP BY article_id
-                ) AS f ON a.id = f.article_id
-                LEFT JOIN favorite fav ON a.id = fav.article_id AND fav.user_id = ${currentUserId}
-            WHERE
-                (${authorName} IS NULL OR u.name = ${authorName})
-                AND (${favoritedBy} IS NULL OR EXISTS (
-                    SELECT 1
-                    FROM favorite f
-                    JOIN user uf ON f.user_id = uf.id
-                    WHERE a.id = f.article_id AND uf.name = ${favoritedBy}
-                ))
-                AND (${tag} IS NULL OR t.name = ${tag})
-                AND (
-                    ${feedType} = 'global' OR
-                    (
-                        ${feedType} = 'user' AND EXISTS (
-                            SELECT 1
-                            FROM follow fw
-                            WHERE fw.follower_id = ${currentUserId} AND fw.following_id = a.author_id
-                        )
-                    )
-                )
-            GROUP BY
-                a.id
-            ORDER BY
-                a.id DESC
-            LIMIT
-                ${limit} OFFSET ${offset}; 
-         */
+        
         const articles = await this.db
             .select({
                 title: article.title,
@@ -292,7 +243,6 @@ class ArticlesService {
             }
         }
 
-        console.log("here")
         const { rowsAffected } = await this.db.insert(article).values({
             id: articleId,
             title,
@@ -307,8 +257,6 @@ class ArticlesService {
         }
 
         await Promise.all(insertTagsPromises)
-
-        console.log({ slug, userId: input.userId })
 
         return this.getArticleBySlug(slug, input.userId)
     }
@@ -408,6 +356,21 @@ class ArticlesService {
             .limit(1)
 
         return found.authorId === userId
+    }
+
+    async getArticleIdBySlug(slug: string): Promise<string | null> {
+        const [found] = await this.db
+            .select({ id: article.id })
+            .from(article)
+            .where(eq(article.slug, slug))
+            .limit(1)
+
+        return found?.id ?? null
+    }
+
+    async deleteArticle(slug: string): Promise<boolean> {
+        const {rowsAffected} = await this.db.delete(article).where(eq(article.slug, slug))
+        return rowsAffected > 0
     }
 }
 

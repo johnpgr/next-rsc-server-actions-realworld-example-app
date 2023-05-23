@@ -101,7 +101,7 @@ export const comment = mysqlTable(
         id: varchar("id", { length: 191 }).primaryKey().notNull(),
         author_id: varchar("author_id", { length: 191 }).notNull(),
         article_id: varchar("article_id", { length: 191 }).notNull(),
-        text: text("text").notNull(),
+        body: text("body").notNull(),
         updated_at: timestamp("updated_at")
             .notNull()
             .defaultNow()
@@ -114,6 +114,9 @@ export const comment = mysqlTable(
         ),
     }),
 )
+
+export type Comment = InferModel<typeof comment>
+export type NewComment = InferModel<typeof comment, "insert">
 
 export const follow = mysqlTable(
     "follow",
