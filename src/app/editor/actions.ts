@@ -1,20 +1,17 @@
 'use server'
 
-import { cookies } from 'next/headers'
-import { USER_TOKEN } from '~/lib/constants'
 import { action } from '~/lib/utils'
 import { authService } from '~/services/auth'
-import { newArticleBodySchema } from '../article/validations'
+import {
+    newArticleBodySchema,
+    updateArticleBodySchema,
+} from '../article/validations'
 import { articlesService } from '~/services/articles'
 
 export const publishArticleAction = action(
     { input: newArticleBodySchema, withAuth: true },
-    async (
-        data,
-    ) => {
-        const token = cookies().get(USER_TOKEN)?.value
-
-        if (!token)
+    async (data, { user }) => {
+        if (!user)
             return {
                 error: {
                     message: 'You need to be logged in to publish an article',
@@ -22,19 +19,7 @@ export const publishArticleAction = action(
                 },
             }
 
-        const currentUser = await authService.getPayloadFromToken(token)
-
-        if (!currentUser)
-            return {
-                error: {
-                    message: 'Your session has expired, please log in again',
-                    code: 401,
-                },
-            }
-
-        const userId = await authService.getUserIdByUserName(
-            currentUser.username,
-        )
+        const userId = await authService.getUserIdByUserName(user.username)
 
         const article = await articlesService.createArticle({
             body: data,
@@ -48,6 +33,44 @@ export const publishArticleAction = action(
                     code: 409,
                 },
             }
+
+        return { article }
+    },
+)
+
+export const editArticleAction = action(
+    { input: updateArticleBodySchema, withAuth: true },
+    async (data, { user }) => {
+        if (!user) {
+            return {
+                error: {
+                    message: 'You need to be logged in to edit an article',
+                    code: 401,
+                },
+            }
+        }
+
+        const id = await authService.getUserIdByUserName(user.username)
+
+        const isArticleAuthor = await articlesService.isArticleAuthor(
+            id,
+            data.slug,
+        )
+
+        if (!isArticleAuthor) {
+            return {
+                error: {
+                    message: 'You are not the author of this article',
+                    code: 403,
+                },
+            }
+        }
+
+        const article = await articlesService.updateArticle({
+            slug: data.slug,
+            body: data,
+            userId: id,
+        })
 
         return { article }
     },

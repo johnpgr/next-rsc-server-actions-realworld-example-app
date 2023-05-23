@@ -23,9 +23,12 @@ export const getArticlesSchema = z.object({
 })
 
 const articleInputSchema = z.object({
-    title: z.string(),
-    description: z.string(),
-    body: z.string(),
+    title: z
+        .string()
+        .min(1, 'Article title must have at least 1 character.')
+        .max(191, 'Article title length is too big.'),
+    description: z.string().min(1, 'Article description must have at least 1 character.').max(191, 'Article description is too big.'),
+    body: z.string().min(1, 'Article body must have at least 1 character'),
     tagList: z.array(z.string()).optional(),
 })
 
@@ -35,6 +38,7 @@ export const newArticleBodySchema = z.object({
 export type NewArticleBody = z.infer<typeof newArticleBodySchema>
 
 export const updateArticleBodySchema = z.object({
+    slug: z.string(),
     article: articleInputSchema.partial(),
 })
 export type UpdateArticleBody = z.infer<typeof updateArticleBodySchema>

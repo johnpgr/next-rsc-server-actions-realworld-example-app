@@ -7,9 +7,9 @@ import { authService } from '~/services/auth'
 export async function getAuthData() {
     const token = cookies().get(USER_TOKEN)?.value
 
-    if(!token) return {}
+    if (!token) return { user: null }
 
     const user = await authService.getPayloadFromToken(token)
 
-    return user ?? {}
+    return { user }
 }

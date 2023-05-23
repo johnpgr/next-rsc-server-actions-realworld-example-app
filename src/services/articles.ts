@@ -11,10 +11,7 @@ import {
     user,
 } from '~/db/schema'
 import { createId, getDateFromULID } from '~/lib/utils'
-import {
-    NewArticleBody,
-    UpdateArticleBody,
-} from '~/app/article/validations'
+import { NewArticleBody, UpdateArticleBody } from '~/app/article/validations'
 
 export type GetArticlesParams = {
     tag: string | null
@@ -138,7 +135,7 @@ class ArticlesService {
         //parse the response
         for (let article of articles) {
             article.createdAt = getDateFromULID(article.createdAt).toISOString()
-            article.tagList = (article.tagList as string).split(',')
+            article.tagList = article.tagList && (article.tagList as string).split(',')
             article.favorited = article.favorited === 1
             article.favoritesCount = parseInt(article.favoritesCount as string)
         }
@@ -196,7 +193,7 @@ class ArticlesService {
 
         //parse the response
         found.createdAt = getDateFromULID(found.createdAt).toISOString()
-        found.tagList = (found.tagList as string).split(',')
+        found.tagList = found.tagList && (found.tagList as string).split(',')
         found.favorited = found.favorited === '1'
         found.favoritesCount = parseInt(found.favoritesCount as string)
 
