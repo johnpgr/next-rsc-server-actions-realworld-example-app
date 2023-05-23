@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { registerInputSchema } from '~/app/register/validation'
+import { DEFAULT_USER_IMAGE } from '~/lib/constants'
 import { jsonResponse } from '~/lib/utils'
 import { authService } from '~/services/auth'
 
@@ -12,7 +13,12 @@ export async function POST(req: NextRequest) {
 
         const { email, password, username } = registration.user
 
-        const user = await authService.registerUser(email, password, username)
+        const user = await authService.registerUser({
+            email,
+            password,
+            username,
+            image: DEFAULT_USER_IMAGE
+        })
 
         const safeUser = {
             email: user.email,

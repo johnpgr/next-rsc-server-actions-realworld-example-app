@@ -11,7 +11,7 @@ import { db } from '~/db/drizzle-db'
 import { SignJWT, errors, jwtVerify } from 'jose'
 import { JWT_EXPIRATION_TIME, getJwtSecretKey } from '~/lib/constants'
 import { comparePasswords, hashPassword } from '~/lib/crypto'
-import { EditUserInput } from '~/app/profile/(edit-user)/validation'
+import { EditUserInput } from '~/app/profile/[username]/validation'
 import { createId } from '~/lib/utils'
 
 export interface UserJWTPayload {
