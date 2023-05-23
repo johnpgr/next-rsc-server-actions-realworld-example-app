@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from 'zod'
 
 export const editUserInputSchema = z.object({
     user: z.object({

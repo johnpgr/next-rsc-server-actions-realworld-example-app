@@ -1,13 +1,13 @@
-import { db } from "~/db/drizzle-db"
-import { article, tag, user as userTable } from "~/db/schema"
-import { faker } from "@faker-js/faker"
-import { createId, jsonResponse } from "~/lib/utils"
-import { env } from "~/config/env.mjs"
-import { redirect } from "next/navigation"
+import { db } from '~/db/drizzle-db'
+import { article, tag, user as userTable } from '~/db/schema'
+import { faker } from '@faker-js/faker'
+import { createId, jsonResponse } from '~/lib/utils'
+import { env } from '~/config/env.mjs'
+import { redirect } from 'next/navigation'
 
 async function seedArticles(n: number) {
-    if (env.NODE_ENV !== "development") {
-        redirect("/")
+    if (env.NODE_ENV !== 'development') {
+        redirect('/')
     }
 
     const userId = createId()
@@ -34,7 +34,7 @@ async function seedArticles(n: number) {
             author_id: user.id,
         })
 
-        const tagList = faker.lorem.words(3).split(" ")
+        const tagList = faker.lorem.words(3).split(' ')
 
         for (const tagItem of tagList) {
             const tagId = createId()

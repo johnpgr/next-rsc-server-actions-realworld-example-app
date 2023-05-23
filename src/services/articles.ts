@@ -1,7 +1,7 @@
-import slugify from "slugify"
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
-import { db } from "~/db/drizzle-db"
-import { and, desc, eq, exists, isNull, notInArray, or, sql } from "drizzle-orm"
+import slugify from 'slugify'
+import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
+import { db } from '~/db/drizzle-db'
+import { and, desc, eq, exists, isNull, notInArray, or, sql } from 'drizzle-orm'
 import {
     article,
     favorite,
@@ -9,12 +9,12 @@ import {
     tag,
     tag as tagTable,
     user,
-} from "~/db/schema"
-import { createId, getDateFromULID } from "~/lib/utils"
+} from '~/db/schema'
+import { createId, getDateFromULID } from '~/lib/utils'
 import {
     NewArticleBody,
     UpdateArticleBody,
-} from "~/app/api/articles/validation"
+} from '~/app/article/validations'
 
 export type GetArticlesParams = {
     tag: string | null
@@ -51,11 +51,11 @@ class ArticlesService {
     async getArticles(args: {
         params: GetArticlesParams
         currentUserId: string | null
-        feedType: "global" | "user"
+        feedType: 'global' | 'user'
     }): Promise<ParsedArticleQueryResponse[]> {
         const { feedType, currentUserId } = args
         const { tag, authorName, favoritedBy, limit, offset } = args.params
-        
+
         const articles = await this.db
             .select({
                 title: article.title,
@@ -138,7 +138,7 @@ class ArticlesService {
         //parse the response
         for (let article of articles) {
             article.createdAt = getDateFromULID(article.createdAt).toISOString()
-            article.tagList = (article.tagList as string).split(",")
+            article.tagList = (article.tagList as string).split(',')
             article.favorited = article.favorited === 1
             article.favoritesCount = parseInt(article.favoritesCount as string)
         }
@@ -196,8 +196,8 @@ class ArticlesService {
 
         //parse the response
         found.createdAt = getDateFromULID(found.createdAt).toISOString()
-        found.tagList = (found.tagList as string).split(",")
-        found.favorited = found.favorited === "1"
+        found.tagList = (found.tagList as string).split(',')
+        found.favorited = found.favorited === '1'
         found.favoritesCount = parseInt(found.favoritesCount as string)
 
         return found as unknown as ParsedArticleQueryResponse
@@ -253,7 +253,7 @@ class ArticlesService {
         })
 
         if (rowsAffected === 0) {
-            throw new Error("Failed to create article")
+            throw new Error('Failed to create article')
         }
 
         await Promise.all(insertTagsPromises)
@@ -323,7 +323,7 @@ class ArticlesService {
             .where(eq(article.id, id))
 
         if (rowsAffected === 0) {
-            throw new Error("Failed to update article")
+            throw new Error('Failed to update article')
         }
 
         //Insert new tags
@@ -369,7 +369,9 @@ class ArticlesService {
     }
 
     async deleteArticle(slug: string): Promise<boolean> {
-        const {rowsAffected} = await this.db.delete(article).where(eq(article.slug, slug))
+        const { rowsAffected } = await this.db
+            .delete(article)
+            .where(eq(article.slug, slug))
         return rowsAffected > 0
     }
 }

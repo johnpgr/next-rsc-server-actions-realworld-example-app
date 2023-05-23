@@ -1,9 +1,9 @@
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
-import { comment as commentTable, user, follow } from "~/db/schema"
-import { CreateCommentBody } from "~/app/api/articles/[slug]/comments/validation"
-import { createId, getDateFromULID } from "~/lib/utils"
-import { db } from "~/db/drizzle-db"
-import { and, desc, eq, sql } from "drizzle-orm"
+import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
+import { comment as commentTable, user, follow } from '~/db/schema'
+import { CreateCommentBody } from '~/app/api/articles/[slug]/comments/validation'
+import { createId, getDateFromULID } from '~/lib/utils'
+import { db } from '~/db/drizzle-db'
+import { and, desc, eq, sql } from 'drizzle-orm'
 
 type Comment = {
     id: string
@@ -60,7 +60,7 @@ class CommentService {
             if (!comment.author) {
                 continue
             }
-            comment.author.following = comment.author?.following === "1"
+            comment.author.following = comment.author?.following === '1'
         }
 
         return comments as unknown as Comment[]
@@ -82,7 +82,7 @@ class CommentService {
         })
 
         if (rowsAffected !== 1) {
-            throw new Error("Failed to create comment")
+            throw new Error('Failed to create comment')
         }
     }
 
@@ -102,7 +102,7 @@ class CommentService {
             )
 
         if (rowsAffected !== 1) {
-            throw new Error("Failed to delete comment")
+            throw new Error('Failed to delete comment')
         }
     }
 

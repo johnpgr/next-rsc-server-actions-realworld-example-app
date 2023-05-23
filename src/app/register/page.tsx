@@ -1,22 +1,22 @@
-"use client"
-import { Dot, Loader2 } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { FormEvent, useState } from "react"
-import { Button } from "~/components/ui/button"
-import { Input } from "~/components/ui/input"
-import { getFormData } from "~/lib/utils"
-import { registerAction } from "./actions"
-import { passwordRegex } from "./validation"
-import { useUser } from "~/components/user-context"
+'use client'
+import { Dot, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { FormEvent, useState } from 'react'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { getFormData } from '~/lib/utils'
+import { registerAction } from './actions'
+import { passwordRegex } from './validation'
+import { useUser } from '~/components/user-context'
 
-export const runtime = "edge"
+export const runtime = 'edge'
 
 export default function RegisterPage() {
     const router = useRouter()
-    const {login} = useUser()
+    const { login } = useUser()
     const [isPending, setIsPending] = useState(false)
-    const [error, setError] = useState<string | undefined>()
+    const [error, setError] = useState<string>('')
     const [passwordError, setPasswordError] = useState<string | undefined>()
 
     async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -37,22 +37,15 @@ export default function RegisterPage() {
 
         const { data } = await registerAction({ user })
 
-        if (!data) {
-            setError(
-                "Something went wrong creating your account, try again later",
-            )
-            setIsPending(false)
-            return
+        if (data?.error) {
+            setError(data.error.message)
         }
 
-        if (!data.success) {
-            setError(data.message)
-            setIsPending(false)
-            return
+        if (data?.user) {
+            login(data.user)
+            router.push('/')
         }
 
-        login(data.user)
-        router.push("/")
         setIsPending(false)
     }
 
@@ -79,7 +72,7 @@ export default function RegisterPage() {
                         const valid = passwordRegex.test(e.currentTarget.value)
                         if (!valid)
                             setPasswordError(
-                                "Password must be at least 8 characters long, contain at least one uppercase letter, one number and one special character.",
+                                'Password must be at least 8 characters long, contain at least one uppercase letter, one number and one special character.',
                             )
                         else setPasswordError(undefined)
                     }}

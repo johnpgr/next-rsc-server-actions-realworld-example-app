@@ -1,12 +1,15 @@
-import { NextRequest } from "next/server"
-import { errorBody, jsonResponse } from "~/lib/utils"
-import { authService } from "~/services/auth"
-import { createCommentBodySchema } from "./validation"
-import { commentsService } from "~/services/comments"
-import { articlesService } from "~/services/articles"
+import { NextRequest } from 'next/server'
+import { errorBody, jsonResponse } from '~/lib/utils'
+import { authService } from '~/services/auth'
+import { createCommentBodySchema } from './validation'
+import { commentsService } from '~/services/comments'
+import { articlesService } from '~/services/articles'
 
-export async function GET(req:NextRequest, {params}: {params: {slug: string}}){
-    const token = req.headers.get("authorization")?.replace("Token ", "")
+export async function GET(
+    req: NextRequest,
+    { params }: { params: { slug: string } },
+) {
+    const token = req.headers.get('authorization')?.replace('Token ', '')
 
     const currentUser = token
         ? await authService.getPayloadFromToken(token)
@@ -19,13 +22,15 @@ export async function GET(req:NextRequest, {params}: {params: {slug: string}}){
     const articleId = await articlesService.getArticleIdBySlug(params.slug)
 
     if (!articleId) {
-        return jsonResponse(404, errorBody(["Article not found"]))
+        return jsonResponse(404, errorBody(['Article not found']))
     }
 
-    const comments = await commentsService.getCommentsFromArticleId(articleId, currentUserId)
+    const comments = await commentsService.getCommentsFromArticleId(
+        articleId,
+        currentUserId,
+    )
 
     return jsonResponse(200, { comments })
-
 }
 
 export async function POST(
@@ -36,14 +41,14 @@ export async function POST(
         params: { slug: string }
     },
 ) {
-    const token = req.headers.get("authorization")?.replace("Token ", "")
+    const token = req.headers.get('authorization')?.replace('Token ', '')
 
     const currentUser = token
         ? await authService.getPayloadFromToken(token)
         : null
 
     if (!currentUser) {
-        return jsonResponse(401, errorBody(["Unauthorized"]))
+        return jsonResponse(401, errorBody(['Unauthorized']))
     }
 
     const body = await req.json()
@@ -59,7 +64,7 @@ export async function POST(
     const articleId = await articlesService.getArticleIdBySlug(params.slug)
 
     if (!articleId) {
-        return jsonResponse(404, errorBody(["Article not found"]))
+        return jsonResponse(404, errorBody(['Article not found']))
     }
 
     const authorId = await authService.getUserIdByUserName(currentUser.username)

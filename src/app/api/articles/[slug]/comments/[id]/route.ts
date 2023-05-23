@@ -1,22 +1,22 @@
-import { NextRequest } from "next/server"
-import { errorBody, jsonResponse } from "~/lib/utils"
-import { authService } from "~/services/auth"
-import { commentsService } from "~/services/comments"
+import { NextRequest } from 'next/server'
+import { errorBody, jsonResponse } from '~/lib/utils'
+import { authService } from '~/services/auth'
+import { commentsService } from '~/services/comments'
 
 export async function DELETE(
     req: NextRequest,
     { params }: { params: { slug: string; id: string } },
 ) {
-    const token = req.headers.get("authorization")?.replace("Token ", "")
+    const token = req.headers.get('authorization')?.replace('Token ', '')
 
     if (!token) {
-        return jsonResponse(401, errorBody(["Unauthorized"]))
+        return jsonResponse(401, errorBody(['Unauthorized']))
     }
 
     const currentUser = await authService.getPayloadFromToken(token)
 
     if (!currentUser) {
-        return jsonResponse(401, errorBody(["Token Expired"]))
+        return jsonResponse(401, errorBody(['Token Expired']))
     }
 
     const currentUserId = await authService.getUserIdByUserName(
@@ -29,7 +29,7 @@ export async function DELETE(
     })
 
     if (!isCommentAuthor) {
-        return jsonResponse(403, errorBody(["Forbidden"]))
+        return jsonResponse(403, errorBody(['Forbidden']))
     }
 
     await commentsService.deleteComment({

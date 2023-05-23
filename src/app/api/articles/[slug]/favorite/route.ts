@@ -1,23 +1,23 @@
-import { NextRequest } from "next/server"
-import { errorBody, jsonResponse } from "~/lib/utils"
-import { articlesService } from "~/services/articles"
-import { authService } from "~/services/auth"
-import { favoritesService } from "~/services/favorites"
+import { NextRequest } from 'next/server'
+import { errorBody, jsonResponse } from '~/lib/utils'
+import { articlesService } from '~/services/articles'
+import { authService } from '~/services/auth'
+import { favoritesService } from '~/services/favorites'
 
 export async function POST(
     req: NextRequest,
     { params }: { params: { slug: string } },
 ) {
-    const token = req.headers.get("authorization")?.replace("Token ", "")
+    const token = req.headers.get('authorization')?.replace('Token ', '')
 
     if (!token) {
-        return jsonResponse(401, errorBody(["Unauthorized"]))
+        return jsonResponse(401, errorBody(['Unauthorized']))
     }
 
     const currentUser = await authService.getPayloadFromToken(token)
 
     if (!currentUser) {
-        return jsonResponse(401, errorBody(["Token Expired"]))
+        return jsonResponse(401, errorBody(['Token Expired']))
     }
 
     const currentUserId = await authService.getUserIdByUserName(
@@ -27,7 +27,7 @@ export async function POST(
     const articleId = await articlesService.getArticleIdBySlug(params.slug)
 
     if (!articleId) {
-        return jsonResponse(404, errorBody(["Article not found"]))
+        return jsonResponse(404, errorBody(['Article not found']))
     }
 
     await favoritesService.favoriteArticle({
@@ -47,16 +47,16 @@ export async function DELETE(
     req: NextRequest,
     { params }: { params: { slug: string } },
 ) {
-    const token = req.headers.get("authorization")?.replace("Token ", "")
+    const token = req.headers.get('authorization')?.replace('Token ', '')
 
     if (!token) {
-        return jsonResponse(401, errorBody(["Unauthorized"]))
+        return jsonResponse(401, errorBody(['Unauthorized']))
     }
 
     const currentUser = await authService.getPayloadFromToken(token)
 
     if (!currentUser) {
-        return jsonResponse(401, errorBody(["Token Expired"]))
+        return jsonResponse(401, errorBody(['Token Expired']))
     }
 
     const currentUserId = await authService.getUserIdByUserName(
@@ -66,7 +66,7 @@ export async function DELETE(
     const articleId = await articlesService.getArticleIdBySlug(params.slug)
 
     if (!articleId) {
-        return jsonResponse(404, errorBody(["Article not found"]))
+        return jsonResponse(404, errorBody(['Article not found']))
     }
 
     const userHasFavoritedArticle =
@@ -78,7 +78,7 @@ export async function DELETE(
     if (!userHasFavoritedArticle) {
         return jsonResponse(
             400,
-            errorBody(["Invalid Request", "Article not favorited"]),
+            errorBody(['Invalid Request', 'Article not favorited']),
         )
     }
 
@@ -93,7 +93,7 @@ export async function DELETE(
     )
 
     if (!article) {
-        return jsonResponse(404, errorBody(["Article not found"]))
+        return jsonResponse(404, errorBody(['Article not found']))
     }
 
     return jsonResponse(200, { article })

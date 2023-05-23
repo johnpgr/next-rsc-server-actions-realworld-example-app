@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server"
-import { jsonResponse } from "~/lib/utils"
-import { authService } from "~/services/auth"
-import { profileService } from "~/services/profile"
+import { NextRequest } from 'next/server'
+import { jsonResponse } from '~/lib/utils'
+import { authService } from '~/services/auth'
+import { profileService } from '~/services/profile'
 
-export const runtime = "edge"
+export const runtime = 'edge'
 
 export async function GET(
     req: NextRequest,
@@ -12,7 +12,7 @@ export async function GET(
     try {
         let currentUsername: string | undefined = undefined
 
-        const token = req.headers.get("authorization")?.split("Token ")[1]
+        const token = req.headers.get('authorization')?.split('Token ')[1]
 
         if (token) {
             const user = await authService.getPayloadFromToken(token)

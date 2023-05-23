@@ -1,18 +1,18 @@
-import { eq } from "drizzle-orm"
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
+import { eq } from 'drizzle-orm'
+import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
 import {
     User,
     user,
     password as passwordTable,
     Password,
     NewPassword,
-} from "~/db/schema"
-import { db } from "~/db/drizzle-db"
-import { SignJWT, errors, jwtVerify } from "jose"
-import { JWT_EXPIRATION_TIME, getJwtSecretKey } from "~/lib/constants"
-import { comparePasswords, hashPassword } from "~/lib/crypto"
-import { EditUserInput } from "~/app/profile/(edit-user)/validation"
-import { createId } from "~/lib/utils"
+} from '~/db/schema'
+import { db } from '~/db/drizzle-db'
+import { SignJWT, errors, jwtVerify } from 'jose'
+import { JWT_EXPIRATION_TIME, getJwtSecretKey } from '~/lib/constants'
+import { comparePasswords, hashPassword } from '~/lib/crypto'
+import { EditUserInput } from '~/app/profile/(edit-user)/validation'
+import { createId } from '~/lib/utils'
 
 export interface UserJWTPayload {
     username: string
@@ -46,7 +46,7 @@ class AuthService {
             salt,
         })
 
-        if (rowsAffected === 0) throw new Error("Something went wrong")
+        if (rowsAffected === 0) throw new Error('Something went wrong')
 
         return { password_id: id }
     }
@@ -56,7 +56,7 @@ class AuthService {
      */
     private async getPasswordForUser(
         password_id: string,
-    ): Promise<Omit<NewPassword, "id">> {
+    ): Promise<Omit<NewPassword, 'id'>> {
         const [password] = await this.db
             .select({
                 salt: passwordTable.salt,
@@ -66,7 +66,7 @@ class AuthService {
             .where(eq(passwordTable.id, password_id))
             .limit(1)
 
-        if (!password) throw new Error("Something went wrong")
+        if (!password) throw new Error('Something went wrong')
 
         return password
     }
@@ -82,7 +82,7 @@ class AuthService {
             .set(userInput)
             .where(eq(user.username, username))
 
-        if (rowsAffected === 0) throw new Error("Something went wrong")
+        if (rowsAffected === 0) throw new Error('Something went wrong')
 
         const [updatedUser] = await this.db
             .select()
@@ -90,7 +90,7 @@ class AuthService {
             .where(eq(user.username, username))
             .limit(1)
 
-        if (!updatedUser) throw new Error("Something went wrong")
+        if (!updatedUser) throw new Error('Something went wrong')
 
         return updatedUser
     }
@@ -109,7 +109,7 @@ class AuthService {
             .where(eq(user.email, email))
             .limit(1)
 
-        if (foundEmail) throw new Error("Email already in use")
+        if (foundEmail) throw new Error('Email already in use')
 
         const [foundUsername] = await this.db
             .select()
@@ -117,7 +117,7 @@ class AuthService {
             .where(eq(user.username, username))
             .limit(1)
 
-        if (foundUsername) throw new Error("Username already in use")
+        if (foundUsername) throw new Error('Username already in use')
 
         const { password_id } = await this.persistPasswordForUser(password)
 
@@ -128,7 +128,7 @@ class AuthService {
             username,
         })
 
-        if (rowsAffected === 0) throw new Error("Something went wrong")
+        if (rowsAffected === 0) throw new Error('Something went wrong')
 
         const [newUser] = await this.db
             .select()
@@ -136,7 +136,7 @@ class AuthService {
             .where(eq(user.email, email))
             .limit(1)
 
-        if (!newUser) throw new Error("Something went wrong")
+        if (!newUser) throw new Error('Something went wrong')
 
         return newUser
     }
@@ -151,23 +151,23 @@ class AuthService {
             .where(eq(user.email, email))
             .limit(1)
 
-        if (!found) throw new Error("Email or password is invalid")
+        if (!found) throw new Error('Email or password is invalid')
 
         const { password: hashedPassword, salt } =
             await this.getPasswordForUser(found.password_id)
 
         const valid = await comparePasswords(password, hashedPassword, salt)
 
-        if (!valid) throw new Error("Email or password is invalid")
+        if (!valid) throw new Error('Email or password is invalid')
 
         return found
     }
 
     async createToken(
-        user: Omit<User, "id" | "password_id" | "created_at" | "updated_at">,
+        user: Omit<User, 'id' | 'password_id' | 'created_at' | 'updated_at'>,
     ): Promise<string> {
         return await new SignJWT(user)
-            .setProtectedHeader({ alg: "HS512" })
+            .setProtectedHeader({ alg: 'HS512' })
             .setJti(createId())
             .setIssuedAt()
             .setExpirationTime(JWT_EXPIRATION_TIME.string)
@@ -202,7 +202,7 @@ class AuthService {
     async refreshToken(token: string): Promise<string> {
         const payload = await this.getPayloadFromToken(token)
 
-        if (!payload) throw new Error("Token to refresh is invalid")
+        if (!payload) throw new Error('Token to refresh is invalid')
 
         const newToken = await this.createToken(payload)
 
@@ -219,7 +219,7 @@ class AuthService {
             .where(eq(user.username, userName))
             .limit(1)
 
-        if (!id) throw new Error("User not found")
+        if (!id) throw new Error('User not found')
 
         return id
     }

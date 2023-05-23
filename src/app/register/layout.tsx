@@ -1,4 +1,4 @@
-import { UnauthRequiredPage } from "~/components/unauthed-required-page"
+import { UnauthRequiredPage } from '~/components/unauthed-required-page'
 
 export default function RegisterPageLayout({
     children,

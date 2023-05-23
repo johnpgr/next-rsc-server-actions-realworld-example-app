@@ -1,19 +1,19 @@
-import { NextRequest } from "next/server"
-import { defaultErrorMessage, errorBody, jsonResponse } from "~/lib/utils"
-import { authService } from "~/services/auth"
-import { editUserInputSchema } from "~/app/profile/(edit-user)/validation"
-import { ZodError } from "zod"
+import { NextRequest } from 'next/server'
+import { defaultErrorMessage, errorBody, jsonResponse } from '~/lib/utils'
+import { authService } from '~/services/auth'
+import { editUserInputSchema } from '~/app/profile/(edit-user)/validation'
+import { ZodError } from 'zod'
 
-export const runtime = "edge"
+export const runtime = 'edge'
 
 export async function GET(req: NextRequest) {
     try {
-        const token = req.headers.get("authorization")?.split("Token ")[1]
-        if (!token) throw new Error("Unauthorized")
+        const token = req.headers.get('authorization')?.split('Token ')[1]
+        if (!token) throw new Error('Unauthorized')
 
         const user = await authService.getPayloadFromToken(token)
 
-        if (!user) throw new Error("Token expired")
+        if (!user) throw new Error('Token expired')
 
         const safeUser = {
             email: user.email,
@@ -33,11 +33,11 @@ export async function GET(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
     try {
-        const token = req.headers.get("authorization")?.split("Token ")[1]
-        if (!token) throw new Error("Unauthorized")
+        const token = req.headers.get('authorization')?.split('Token ')[1]
+        if (!token) throw new Error('Unauthorized')
 
         const user = await authService.getPayloadFromToken(token)
-        if (!user) throw new Error("Token expired")
+        if (!user) throw new Error('Token expired')
 
         const input = await req.json()
         const parsed = editUserInputSchema.parse(input)

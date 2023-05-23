@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server"
-import { decodeTime, ulidFactory } from "ulid-workers"
-import { createSafeActionClient } from "next-safe-action"
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import { FormEvent } from "react"
-import { env } from "~/config/env.mjs"
+import { NextResponse } from 'next/server'
+import { decodeTime, ulidFactory } from 'ulid-workers'
+import { createSafeActionClient } from 'next-safe-action'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+import { FormEvent } from 'react'
+import { env } from '~/config/env.mjs'
+import { getAuthData } from './get-auth-data'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -19,7 +20,7 @@ export function jsonResponse(status: number, data: any, init?: ResponseInit) {
         status,
         headers: {
             ...init?.headers,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
         },
     })
 }
@@ -29,8 +30,8 @@ export function jsonResponse(status: number, data: any, init?: ResponseInit) {
  */
 export function getBaseUrl(): string {
     // vercel deployment url or localhost
-    if (process.env.NODE_ENV === "development") {
-        return "http://localhost:3000"
+    if (process.env.NODE_ENV === 'development') {
+        return 'http://localhost:3000'
     } else {
         return env.NEXT_PUBLIC_VERCEL_URL
     }
@@ -38,6 +39,7 @@ export function getBaseUrl(): string {
 
 export const action = createSafeActionClient({
     serverErrorLogFunction: console.error,
+    getAuthData
 })
 
 export function getFormData<T extends object>(
@@ -66,9 +68,43 @@ export function errorBody(errors: string[]) {
 }
 
 export function defaultErrorMessage(e: unknown) {
-    if(e instanceof Error){
+    if (e instanceof Error) {
         return e.message
     }
-    
-    throw new Error("UNKNOWN ERROR")
+
+    throw new Error('UNKNOWN ERROR')
+}
+
+export type PageSearchParams = { [key: string]: string | string[] | undefined }
+
+export function getSearchParam(
+    searchParams: PageSearchParams,
+    key: string,
+): string | null {
+    const value = searchParams[key]
+    if (Array.isArray(value)) {
+        return value[0]
+    }
+
+    return value ?? null
+}
+
+export function getSearchParams(
+    searchParams: PageSearchParams,
+    keys: string[],
+): { [key: string]: string | null } {
+    const params: { [key: string]: string | null } = {}
+
+    for (const key of keys) {
+        const value = searchParams[key]
+
+        if (Array.isArray(value)) {
+            params[key] = value[0]
+            continue
+        }
+
+        params[key] = value ?? null
+    }
+
+    return params
 }

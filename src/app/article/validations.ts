@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from 'zod'
 
 export const articleSchema = z.object({
     title: z.string(),
@@ -23,19 +23,18 @@ export const getArticlesSchema = z.object({
 })
 
 const articleInputSchema = z.object({
-        title: z.string(),
-        description: z.string(),
-        body: z.string(),
-        tagList: z.array(z.string()).optional(),
-    })
+    title: z.string(),
+    description: z.string(),
+    body: z.string(),
+    tagList: z.array(z.string()).optional(),
+})
 
 export const newArticleBodySchema = z.object({
     article: articleInputSchema,
 })
 export type NewArticleBody = z.infer<typeof newArticleBodySchema>
 
-
 export const updateArticleBodySchema = z.object({
-    article: articleInputSchema.partial()
+    article: articleInputSchema.partial(),
 })
 export type UpdateArticleBody = z.infer<typeof updateArticleBodySchema>

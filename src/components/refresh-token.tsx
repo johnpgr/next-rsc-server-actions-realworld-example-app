@@ -1,32 +1,29 @@
-"use client"
+'use client'
 
-import { JWT_EXPIRATION_TIME, USER_TOKEN } from "~/lib/constants"
-import Cookies from "js-cookie"
-import { cache, use, useEffect, useRef } from "react"
-import { getBaseUrl } from "~/lib/utils"
-import { TokenValidationResponse } from "~/app/api/user/refresh/validation"
-import {
-    TokenExpResponse,
-} from "~/app/api/user/token-exp/validation"
-import { useUser } from "./user-context"
+import { JWT_EXPIRATION_TIME, USER_TOKEN } from '~/lib/constants'
+import Cookies from 'js-cookie'
+import { cache, use, useEffect, useRef } from 'react'
+import { getBaseUrl } from '~/lib/utils'
+import { TokenValidationResponse } from '~/app/api/user/refresh/validation'
+import { TokenExpResponse } from '~/app/api/user/token-exp/validation'
+import { useUser } from './user-context'
 
 function updateToken(token: string) {
     const expiration = new Date(Date.now() + JWT_EXPIRATION_TIME.seconds * 1000)
 
-
     Cookies.set(USER_TOKEN, token, {
         expires: expiration,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
     })
 }
 
 async function calculateExpirationTime(token: string) {
     try {
         const data = await fetch(`${getBaseUrl()}/api/user/token-exp`, {
-            method: "GET",
+            method: 'GET',
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
                 Authorization: `Token ${token}`,
             },
             next: { revalidate: 0 },
@@ -62,9 +59,9 @@ export const RefreshTokenComponent = () => {
         try {
             // Get a new token
             const res = await fetch(`${getBaseUrl()}/api/user/refresh`, {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                     Authorization: `Token ${user.token}`,
                 },
                 next: { revalidate: 0 },
@@ -72,7 +69,7 @@ export const RefreshTokenComponent = () => {
 
             const json = (await res.json()) as TokenValidationResponse
 
-            if ("message" in json) throw new Error("Unauthorized")
+            if ('message' in json) throw new Error('Unauthorized')
 
             const newToken = json.token
 

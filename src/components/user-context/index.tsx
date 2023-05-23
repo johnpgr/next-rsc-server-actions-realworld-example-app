@@ -1,13 +1,13 @@
-"use client"
-import React, { SetStateAction, cache, use } from "react"
-import Cookies from "js-cookie"
-import { getBaseUrl } from "~/lib/utils"
+'use client'
+import React, { SetStateAction, cache, use } from 'react'
+import Cookies from 'js-cookie'
+import { getBaseUrl } from '~/lib/utils'
 import {
     CurrentUserResponse,
     getCurrentUserResponseSchema,
-} from "~/app/api/user/(get,put)/validation"
-import { JWT_EXPIRATION_TIME, USER_TOKEN } from "~/lib/constants"
-import { SafeUser } from "~/types/user"
+} from '~/app/api/user/(get,put)/validation'
+import { JWT_EXPIRATION_TIME, USER_TOKEN } from '~/lib/constants'
+import { SafeUser } from '~/types/user'
 
 export type UserContextType = {
     user: SafeUser | null
@@ -22,7 +22,7 @@ export const UserContext = React.createContext<UserContextType>(
 const fetchUser = cache(async (token: string) => {
     return fetch(`${getBaseUrl()}/api/user`, {
         headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Token ${token}`,
         },
         next: { revalidate: 0 },
@@ -41,8 +41,8 @@ export const UserContextProvider = (props: { children: React.ReactNode }) => {
 
         Cookies.set(USER_TOKEN, user.token, {
             expires: expiration,
-            sameSite: "strict",
-            secure: process.env.NODE_ENV === "production",
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
         })
 
         setUser(user)
@@ -59,8 +59,6 @@ export const UserContextProvider = (props: { children: React.ReactNode }) => {
                 if (!token || !res) return
 
                 const parsed = getCurrentUserResponseSchema.parse(res)
-
-                if (!parsed.success) return
 
                 setUser(parsed.user)
             } catch (error) {
@@ -89,7 +87,7 @@ export const useUser = () => {
     const ctx = React.useContext(UserContext)
 
     if (!ctx)
-        throw new Error("useUser must be used within a UserContextProvider")
+        throw new Error('useUser must be used within a UserContextProvider')
 
     return ctx
 }

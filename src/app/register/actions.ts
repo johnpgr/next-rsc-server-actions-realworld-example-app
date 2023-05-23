@@ -1,22 +1,41 @@
-"use server"
-import { getBaseUrl, action } from "~/lib/utils"
-import { registerInputSchema } from "./validation"
-import { registerResponseSchema } from "~/app/api/users/(register)/validation"
+'use server'
+import { getBaseUrl, action } from '~/lib/utils'
+import { registerInputSchema } from './validation'
+import { registerResponseSchema } from '~/app/api/users/(register)/validation'
+import { authService } from '~/services/auth'
+import { SafeUser } from '~/types/user'
 
 export const registerAction = action(
     { input: registerInputSchema },
     async (data) => {
-        const res = await fetch(`${getBaseUrl()}/api/users`, {
-            method: "POST",
-            body: JSON.stringify(data),
-            next: {
-                revalidate: 0,
-            },
-        })
-        const json = await res.json()
+        try {
+            const { email, password, username } = data.user
 
-        const parsed = registerResponseSchema.parse(json)
+            const user = await authService.registerUser(
+                email,
+                password,
+                username,
+            )
 
-        return parsed
+            const safeUser = {
+                email: user.email,
+                username: user.username,
+                bio: user.bio,
+                image: user.image,
+            }
+
+            const token = await authService.createToken(safeUser)
+
+            //@ts-ignore
+            safeUser.token = token
+
+            return {
+                user: safeUser as SafeUser & { token: string },
+            }
+        } catch (error) {
+            return {
+                error: { code: 400, message: (error as Error).message },
+            }
+        }
     },
 )

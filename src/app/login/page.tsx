@@ -1,23 +1,23 @@
-"use client"
-import Link from "next/link"
-import { Button } from "~/components/ui/button"
-import { Input } from "~/components/ui/input"
-import { Dot, Loader2 } from "lucide-react"
-import { loginAction } from "./actions"
-import { getFormData } from "~/lib/utils"
-import { FormEvent, useState } from "react"
-import { useRouter } from "next/navigation"
-import { useUser } from "~/components/user-context"
+'use client'
+import Link from 'next/link'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Dot, Loader2 } from 'lucide-react'
+import { loginAction } from './actions'
+import { getFormData } from '~/lib/utils'
+import { FormEvent, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUser } from '~/components/user-context'
 
-export const runtime = "edge"
+export const runtime = 'edge'
 
 export default function LoginPage() {
     const router = useRouter()
-    const {login} = useUser()
+    const { login } = useUser()
     const [isPending, setIsPending] = useState(false)
     const [error, setError] = useState<string | undefined>()
 
-    async function onSubmit(e:FormEvent<HTMLFormElement>) {
+    async function onSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
         setIsPending(true)
 
@@ -33,20 +33,15 @@ export default function LoginPage() {
 
         const { data } = await loginAction({ user })
 
-        if (!data) {
-            setError("Something went wrong")
-            setIsPending(false)
-            return
+        if (data?.error) {
+            setError(data.error.message)
+        }
+        
+        if (data?.user) {
+            login(data.user)
+            router.push('/')
         }
 
-        if (!data.success) {
-            setError(data.message)
-            setIsPending(false)
-            return
-        }
-
-        login(data.user)
-        router.push("/")
         setIsPending(false)
     }
 

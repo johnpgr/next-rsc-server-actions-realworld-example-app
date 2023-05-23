@@ -1,12 +1,12 @@
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
-import { db } from "~/db/drizzle-db"
-import { User, user, follow } from "~/db/schema"
-import { and, eq, sql } from "drizzle-orm"
-import { createId } from "~/lib/utils"
+import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
+import { db } from '~/db/drizzle-db'
+import { User, user, follow } from '~/db/schema'
+import { and, eq, sql } from 'drizzle-orm'
+import { createId } from '~/lib/utils'
 
 export type Profile = Omit<
     User,
-    "id" | "password_id" | "email" | "created_at" | "updated_at"
+    'id' | 'password_id' | 'email' | 'created_at' | 'updated_at'
 > & { following: boolean }
 
 export class ProfileService {
@@ -29,7 +29,7 @@ export class ProfileService {
                         SELECT 1
                         FROM ${follow}
                         WHERE ${and(
-                            eq(follow.follower_id, currentUserId || ""),
+                            eq(follow.follower_id, currentUserId || ''),
                             eq(follow.following_id, userId),
                         )})`,
             })
@@ -42,7 +42,7 @@ export class ProfileService {
         if (!profile) return null
 
         //@ts-ignore
-        profile.following = profile.following === "1"
+        profile.following = profile.following === '1'
 
         //@ts-ignore
         return profile
@@ -80,7 +80,7 @@ export class ProfileService {
 
         const profile = await this.getProfile(followingId, followerId)
 
-        if (!profile) throw new Error("Profile not found")
+        if (!profile) throw new Error('Profile not found')
 
         return profile
     }
@@ -100,7 +100,7 @@ export class ProfileService {
             )
             .limit(1)
 
-        if (!alreadyFollowing){
+        if (!alreadyFollowing) {
             const [found] = await this.db
                 .select({ username: user.username })
                 .from(user)
@@ -120,7 +120,7 @@ export class ProfileService {
 
         const profile = await this.getProfile(followingId, followerId)
 
-        if (!profile) throw new Error("Profile not found")
+        if (!profile) throw new Error('Profile not found')
 
         return profile
     }

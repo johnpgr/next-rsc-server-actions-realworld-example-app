@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server"
-import { jsonResponse } from "~/lib/utils"
-import { GetArticlesParams, articlesService } from "~/services/articles"
-import { authService } from "~/services/auth"
-import { newArticleBodySchema } from "./validation"
+import { NextRequest } from 'next/server'
+import { newArticleBodySchema } from '~/app/article/validations'
+import { jsonResponse } from '~/lib/utils'
+import { GetArticlesParams, articlesService } from '~/services/articles'
+import { authService } from '~/services/auth'
 
 export const runtime = "edge"
 
@@ -44,14 +44,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const token = req.headers.get("authorization")?.replace("Token ", "")
-    if (!token) return jsonResponse(401, { errors: { body: ["Unauthorized"] } })
+    const token = req.headers.get('authorization')?.replace('Token ', '')
+    if (!token) return jsonResponse(401, { errors: { body: ['Unauthorized'] } })
 
     const currentUser = await authService.getPayloadFromToken(token)
 
     if (!currentUser)
-        return jsonResponse(401, { errors: { body: ["Unauthorized"] } })
-    
+        return jsonResponse(401, { errors: { body: ['Unauthorized'] } })
+
     const userId = await authService.getUserIdByUserName(currentUser.username)
 
     const body = await req.json()
@@ -63,12 +63,12 @@ export async function POST(req: NextRequest) {
 
     const article = await articlesService.createArticle({
         body: parsed.data,
-        userId
+        userId,
     })
 
     if (!article)
         return jsonResponse(422, {
-            errors: { body: ["An article with the same slug already exists"] },
+            errors: { body: ['An article with the same slug already exists'] },
         })
 
     return jsonResponse(201, { article })

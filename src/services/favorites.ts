@@ -1,8 +1,8 @@
-import { and, eq } from "drizzle-orm"
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
-import { db } from "~/db/drizzle-db"
-import { favorite } from "~/db/schema"
-import { createId } from "~/lib/utils"
+import { and, eq } from 'drizzle-orm'
+import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
+import { db } from '~/db/drizzle-db'
+import { favorite } from '~/db/schema'
+import { createId } from '~/lib/utils'
 
 class FavoritesService {
     private db: PlanetScaleDatabase
@@ -27,7 +27,7 @@ class FavoritesService {
         })
 
         if (rowsAffected !== 1) {
-            throw new Error("Failed to favorite article")
+            throw new Error('Failed to favorite article')
         }
     }
     /**
@@ -49,7 +49,7 @@ class FavoritesService {
             )
 
         if (rowsAffected !== 1) {
-            throw new Error("Failed to unfavorite article")
+            throw new Error('Failed to unfavorite article')
         }
     }
 

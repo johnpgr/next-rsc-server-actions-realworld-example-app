@@ -1,37 +1,45 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import { Button } from "~/components/ui/button"
-import { useUser } from "~/components/user-context"
-import { User } from "lucide-react"
+import Link from 'next/link'
+import { Button } from '~/components/ui/button'
+import { useUser } from '~/components/user-context'
+import { Edit, Home, User, UserCircle, UserCircle2 } from 'lucide-react'
+import Image from 'next/image'
+import UserButton from './user-button'
 
 export const Nav = () => {
-    const { user, logout } = useUser()
+    const { user } = useUser()
     return (
-        <nav className="items-centr flex w-full justify-end bg-neutral-100 p-4">
+        <nav className="flex w-full items-center justify-end bg-neutral-100 p-4">
+            <Button asChild variant="link">
+                <Link href="/" className="flex items-center gap-1">
+                    <Home size={16} />
+                    Home
+                </Link>
+            </Button>
             {user && (
-                <div>
+                <div className="flex items-center">
                     <Button asChild variant="link">
                         <Link
-                            href="/profile"
+                            href="/editor"
                             className="flex items-center gap-1"
                         >
-                            <User size={16} />
-                            {user.username}
+                            <Edit size={16} />
+                            New Article
                         </Link>
                     </Button>
-                    <Button onClick={() => logout()}>Sign out</Button>
+                    <UserButton/>
                 </div>
             )}
             {!user && (
-                <Button asChild variant="link">
-                    <Link href="/login">Sign in</Link>
-                </Button>
-            )}
-            {!user && (
-                <Button asChild variant="link">
-                    <Link href="/register">Sign up</Link>
-                </Button>
+                <div>
+                    <Button asChild variant="link">
+                        <Link href="/login">Sign in</Link>
+                    </Button>
+                    <Button asChild variant="link">
+                        <Link href="/register">Sign up</Link>
+                    </Button>
+                </div>
             )}
         </nav>
     )

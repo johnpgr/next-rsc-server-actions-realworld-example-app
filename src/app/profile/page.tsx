@@ -1,7 +1,5 @@
-export const runtime = "edge"
+export const runtime = 'edge'
 
 export default function ProfilePage() {
-  return (
-    <div>Profilepage</div>
-  )
+    return <div>Profilepage</div>
 }
