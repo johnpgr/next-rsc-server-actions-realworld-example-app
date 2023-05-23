@@ -1,5 +1,5 @@
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
-import { comment as commentTable, user, follow } from '~/db/schema'
+import * as schema from '~/db/schema'
 import { CreateCommentBody } from '~/app/api/articles/[slug]/comments/validation'
 import { createId, getDateFromULID } from '~/lib/utils'
 import { db } from '~/db/drizzle-db'
@@ -19,9 +19,9 @@ type Comment = {
 }
 
 class CommentService {
-    private db: PlanetScaleDatabase
+    private db: PlanetScaleDatabase<typeof schema>
 
-    constructor(db: PlanetScaleDatabase) {
+    constructor(db: PlanetScaleDatabase<typeof schema>) {
         this.db = db
     }
 
@@ -31,27 +31,27 @@ class CommentService {
     ): Promise<Comment[]> {
         const comments = await this.db
             .select({
-                id: commentTable.id,
-                body: commentTable.body,
-                updatedAt: commentTable.updated_at,
+                id: schema.comment.id,
+                body: schema.comment.body,
+                updatedAt: schema.comment.updated_at,
                 author: {
-                    username: user.username,
-                    bio: user.bio,
-                    image: user.image,
-                    following: sql`IF(${follow.id} IS NULL, FALSE, TRUE)`,
+                    username: schema.user.username,
+                    bio: schema.user.bio,
+                    image: schema.user.image,
+                    following: sql`IF(${schema.follow.id} IS NULL, FALSE, TRUE)`,
                 },
             })
-            .from(commentTable)
-            .leftJoin(user, eq(user.id, commentTable.author_id))
+            .from(schema.comment)
+            .leftJoin(schema.user, eq(schema.user.id, schema.comment.author_id))
             .leftJoin(
-                follow,
+                schema.follow,
                 and(
-                    eq(follow.follower_id, sql`${currentUserId}`),
-                    eq(follow.following_id, commentTable.author_id),
+                    eq(schema.follow.follower_id, sql`${currentUserId}`),
+                    eq(schema.follow.following_id, schema.comment.author_id),
                 ),
             )
-            .where(eq(commentTable.article_id, articleId))
-            .orderBy(desc(commentTable.id))
+            .where(eq(schema.comment.article_id, articleId))
+            .orderBy(desc(schema.comment.id))
 
         for (const comment of comments) {
             //@ts-ignore
@@ -74,7 +74,7 @@ class CommentService {
         const { articleId, authorId } = args
         const { comment } = args.input
 
-        const { rowsAffected } = await this.db.insert(commentTable).values({
+        const { rowsAffected } = await this.db.insert(schema.comment).values({
             body: comment.body,
             id: createId(),
             article_id: articleId,
@@ -93,11 +93,11 @@ class CommentService {
         const { commentId, userId } = args
 
         const { rowsAffected } = await this.db
-            .delete(commentTable)
+            .delete(schema.comment)
             .where(
                 and(
-                    eq(commentTable.id, commentId),
-                    eq(commentTable.author_id, userId),
+                    eq(schema.comment.id, commentId),
+                    eq(schema.comment.author_id, userId),
                 ),
             )
 
@@ -113,9 +113,9 @@ class CommentService {
         const { commentId, userId } = args
 
         const [{ authorId }] = await this.db
-            .select({ authorId: commentTable.author_id })
-            .from(commentTable)
-            .where(eq(commentTable.id, commentId))
+            .select({ authorId: schema.comment.author_id })
+            .from(schema.comment)
+            .where(eq(schema.comment.id, commentId))
             .limit(1)
 
         return authorId === userId

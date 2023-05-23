@@ -1,6 +1,7 @@
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
 import { db } from '~/db/drizzle-db'
-import { User, user, follow } from '~/db/schema'
+import { type User } from '~/db/schema'
+import * as schema from '~/db/schema'
 import { and, eq, sql } from 'drizzle-orm'
 import { createId } from '~/lib/utils'
 
@@ -10,8 +11,8 @@ export type Profile = Omit<
 > & { following: boolean }
 
 export class ProfileService {
-    private db: PlanetScaleDatabase
-    constructor(db: PlanetScaleDatabase) {
+    private db: PlanetScaleDatabase<typeof schema>
+    constructor(db: PlanetScaleDatabase<typeof schema>) {
         this.db = db
     }
 
@@ -21,20 +22,20 @@ export class ProfileService {
     ): Promise<Profile | null> {
         const result = await this.db
             .select({
-                username: user.username,
-                bio: user.bio,
-                image: user.image,
+                username: schema.user.username,
+                bio: schema.user.bio,
+                image: schema.user.image,
                 following: sql<string>`
                     EXISTS (
                         SELECT 1
-                        FROM ${follow}
+                        FROM ${schema.follow}
                         WHERE ${and(
-                            eq(follow.follower_id, currentUserId || ''),
-                            eq(follow.following_id, userId),
+                            eq(schema.follow.follower_id, currentUserId || ''),
+                            eq(schema.follow.following_id, userId),
                         )})`,
             })
-            .from(user)
-            .where(eq(user.id, userId))
+            .from(schema.user)
+            .where(eq(schema.user.id, userId))
             .limit(1)
 
         const profile = result[0]
@@ -54,20 +55,20 @@ export class ProfileService {
     ): Promise<Profile | null> {
         const result = await this.db
             .select({
-                username: user.username,
-                bio: user.bio,
-                image: user.image,
+                username: schema.user.username,
+                bio: schema.user.bio,
+                image: schema.user.image,
                 following: sql<string>`
                     EXISTS (
                         SELECT 1
-                        FROM ${follow}
+                        FROM ${schema.follow}
                         WHERE ${and(
-                            eq(follow.follower_id, currentUserId || ''),
-                            eq(follow.following_id, user.id),
+                            eq(schema.follow.follower_id, currentUserId || ''),
+                            eq(schema.follow.following_id, schema.user.id),
                         )})`,
             })
-            .from(user)
-            .where(eq(user.username, username))
+            .from(schema.user)
+            .where(eq(schema.user.username, username))
             .limit(1)
 
         const profile = result[0]
@@ -87,25 +88,25 @@ export class ProfileService {
     ): Promise<Profile> {
         const [alreadyFollowing] = await this.db
             .select()
-            .from(follow)
+            .from(schema.follow)
             .where(
                 and(
-                    eq(follow.follower_id, followerId),
-                    eq(follow.following_id, followingId),
+                    eq(schema.follow.follower_id, followerId),
+                    eq(schema.follow.following_id, followingId),
                 ),
             )
             .limit(1)
 
         if (alreadyFollowing) {
             const [found] = await this.db
-                .select({ username: user.username })
-                .from(user)
-                .where(eq(user.id, followingId))
+                .select({ username: schema.user.username })
+                .from(schema.user)
+                .where(eq(schema.user.id, followingId))
                 .limit(1)
             throw new Error(`Already following user: ${found.username}`)
         }
 
-        await this.db.insert(follow).values({
+        await this.db.insert(schema.follow).values({
             id: createId(),
             follower_id: followerId,
             following_id: followingId,
@@ -124,30 +125,30 @@ export class ProfileService {
     ): Promise<Profile> {
         const [alreadyFollowing] = await this.db
             .select()
-            .from(follow)
+            .from(schema.follow)
             .where(
                 and(
-                    eq(follow.follower_id, followerId),
-                    eq(follow.following_id, followingId),
+                    eq(schema.follow.follower_id, followerId),
+                    eq(schema.follow.following_id, followingId),
                 ),
             )
             .limit(1)
 
         if (!alreadyFollowing) {
             const [found] = await this.db
-                .select({ username: user.username })
-                .from(user)
-                .where(eq(user.id, followingId))
+                .select({ username: schema.user.username })
+                .from(schema.user)
+                .where(eq(schema.user.id, followingId))
                 .limit(1)
             throw new Error(`Not following user: ${found.username}`)
         }
 
         await this.db
-            .delete(follow)
+            .delete(schema.follow)
             .where(
                 and(
-                    eq(follow.follower_id, followerId),
-                    eq(follow.following_id, followingId),
+                    eq(schema.follow.follower_id, followerId),
+                    eq(schema.follow.following_id, followingId),
                 ),
             )
 

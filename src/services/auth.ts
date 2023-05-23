@@ -1,12 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
-import {
-    User,
-    user,
-    password as passwordTable,
-    Password,
-    NewPassword,
-} from '~/db/schema'
+import { User, Password, NewPassword } from '~/db/schema'
+import * as schema from '~/db/schema'
 import { db } from '~/db/drizzle-db'
 import { SignJWT, errors, jwtVerify } from 'jose'
 import { JWT_EXPIRATION_TIME, getJwtSecretKey } from '~/lib/constants'
@@ -25,9 +20,9 @@ export interface UserJWTPayload {
 }
 
 class AuthService {
-    private db: PlanetScaleDatabase
+    private db: PlanetScaleDatabase<typeof schema>
 
-    constructor(db: PlanetScaleDatabase) {
+    constructor(db: PlanetScaleDatabase<typeof schema>) {
         this.db = db
     }
 
@@ -40,7 +35,7 @@ class AuthService {
         const { salt, hashedPassword } = await hashPassword(password)
 
         const id = createId()
-        const { rowsAffected } = await this.db.insert(passwordTable).values({
+        const { rowsAffected } = await this.db.insert(schema.password).values({
             id,
             password: hashedPassword,
             salt,
@@ -59,11 +54,11 @@ class AuthService {
     ): Promise<Omit<NewPassword, 'id'>> {
         const [password] = await this.db
             .select({
-                salt: passwordTable.salt,
-                password: passwordTable.password,
+                salt: schema.password.salt,
+                password: schema.password.password,
             })
-            .from(passwordTable)
-            .where(eq(passwordTable.id, password_id))
+            .from(schema.password)
+            .where(eq(schema.password.id, password_id))
             .limit(1)
 
         if (!password) throw new Error('Something went wrong')
@@ -78,16 +73,16 @@ class AuthService {
         const { user: userInput } = input
 
         const { rowsAffected } = await this.db
-            .update(user)
+            .update(schema.user)
             .set(userInput)
-            .where(eq(user.username, username))
+            .where(eq(schema.user.username, username))
 
         if (rowsAffected === 0) throw new Error('Something went wrong')
 
         const [updatedUser] = await this.db
             .select()
-            .from(user)
-            .where(eq(user.username, username))
+            .from(schema.user)
+            .where(eq(schema.user.username, username))
             .limit(1)
 
         if (!updatedUser) throw new Error('Something went wrong')
@@ -107,23 +102,23 @@ class AuthService {
         const { email, password, username, image } = input
         const [foundEmail] = await this.db
             .select()
-            .from(user)
-            .where(eq(user.email, email))
+            .from(schema.user)
+            .where(eq(schema.user.email, email))
             .limit(1)
 
         if (foundEmail) throw new Error('Email already in use')
 
         const [foundUsername] = await this.db
             .select()
-            .from(user)
-            .where(eq(user.username, username))
+            .from(schema.user)
+            .where(eq(schema.user.username, username))
             .limit(1)
 
         if (foundUsername) throw new Error('Username already in use')
 
         const { password_id } = await this.persistPasswordForUser(password)
 
-        const { rowsAffected } = await this.db.insert(user).values({
+        const { rowsAffected } = await this.db.insert(schema.user).values({
             id: createId(),
             email,
             password_id,
@@ -135,8 +130,8 @@ class AuthService {
 
         const [newUser] = await this.db
             .select()
-            .from(user)
-            .where(eq(user.email, email))
+            .from(schema.user)
+            .where(eq(schema.user.email, email))
             .limit(1)
 
         if (!newUser) throw new Error('Something went wrong')
@@ -150,8 +145,8 @@ class AuthService {
     async verifyCredentials(email: string, password: string): Promise<User> {
         const [found] = await this.db
             .select()
-            .from(user)
-            .where(eq(user.email, email))
+            .from(schema.user)
+            .where(eq(schema.user.email, email))
             .limit(1)
 
         if (!found) throw new Error('Email or password is invalid')
@@ -217,9 +212,9 @@ class AuthService {
      */
     async getUserIdByUserName(userName: string): Promise<string> {
         const [{ id }] = await this.db
-            .select({ id: user.id })
-            .from(user)
-            .where(eq(user.username, userName))
+            .select({ id: schema.user.id })
+            .from(schema.user)
+            .where(eq(schema.user.username, userName))
             .limit(1)
 
         if (!id) throw new Error('User not found')

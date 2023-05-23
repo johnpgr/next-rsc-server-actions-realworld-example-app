@@ -1,13 +1,13 @@
 import { and, eq } from 'drizzle-orm'
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
 import { db } from '~/db/drizzle-db'
-import { favorite } from '~/db/schema'
+import * as schema from '~/db/schema'
 import { createId } from '~/lib/utils'
 
 class FavoritesService {
-    private db: PlanetScaleDatabase
+    private db: PlanetScaleDatabase<typeof schema>
 
-    constructor(db: PlanetScaleDatabase) {
+    constructor(db: PlanetScaleDatabase<typeof schema>) {
         this.db = db
     }
 
@@ -20,7 +20,7 @@ class FavoritesService {
     }): Promise<void> {
         const { articleId, userId } = args
 
-        const { rowsAffected } = await this.db.insert(favorite).values({
+        const { rowsAffected } = await this.db.insert(schema.favorite).values({
             id: createId(),
             article_id: articleId,
             user_id: userId,
@@ -40,11 +40,11 @@ class FavoritesService {
         const { articleId, userId } = args
 
         const { rowsAffected } = await this.db
-            .delete(favorite)
+            .delete(schema.favorite)
             .where(
                 and(
-                    eq(favorite.article_id, articleId),
-                    eq(favorite.user_id, userId),
+                    eq(schema.favorite.article_id, articleId),
+                    eq(schema.favorite.user_id, userId),
                 ),
             )
 
@@ -60,12 +60,12 @@ class FavoritesService {
         const { articleId, userId } = args
 
         const found = await this.db
-            .select({ id: favorite.id })
-            .from(favorite)
+            .select({ id: schema.favorite.id })
+            .from(schema.favorite)
             .where(
                 and(
-                    eq(favorite.article_id, articleId),
-                    eq(favorite.user_id, userId),
+                    eq(schema.favorite.article_id, articleId),
+                    eq(schema.favorite.user_id, userId),
                 ),
             )
 
