@@ -7,62 +7,24 @@ import { DEFAULT_USER_IMAGE } from '~/lib/constants'
 import { Button } from '../ui/button'
 import { Heart } from 'lucide-react'
 import clsx from 'clsx'
-import {
-    favoriteArticleAction,
-    unfavoriteArticleAction,
-} from '~/app/profile/[username]/actions'
-import { FormEvent, useState } from 'react'
-import { revalidatePath } from 'next/cache'
-import { usePathname } from 'next/navigation'
-import { getFormData } from '~/lib/utils'
+import { useState, useTransition } from 'react'
+import { useUser } from '../user-context'
 
 export type ArticleRowProps = {
     article: ParsedArticleQueryResponse
+    favoriteHandler: (args: {
+        favorited: boolean
+        slug: string
+        username: string
+    }) => Promise<void>
 }
 
 export const ArticleRow = (props: ArticleRowProps) => {
-    const { article } = props
-    const path = usePathname()
+    const { article, favoriteHandler } = props
     const [error, setError] = useState('')
+    const { user } = useUser()
     const [isFavoriting, setIsFavoriting] = useState(false)
-
-    async function onSubmit(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault()
-        setIsFavoriting(true)
-
-        const { favorited, slug } = getFormData<{
-            slug: string
-            favorited: string
-        }>(e)
-
-        if (favorited === 'true') {
-            // unfavorite
-            const { data } = await unfavoriteArticleAction({
-                article: { slug },
-            })
-            if (data?.error) {
-                setError(data.error.message)
-            }
-
-            if (data?.articleId) {
-                revalidatePath(path)
-            }
-        } else {
-            // favorite
-            const { data } = await favoriteArticleAction({
-                article: { slug },
-            })
-            if (data?.error) {
-                setError(data.error.message)
-            }
-
-            if (data?.articleId) {
-                revalidatePath(path)
-            }
-        }
-
-        setIsFavoriting(false)
-    }
+    const [pending, startTransition] = useTransition()
 
     return (
         <div className="py-4">
@@ -90,26 +52,34 @@ export const ArticleRow = (props: ArticleRowProps) => {
                         </span>
                     </div>
                 </div>
-                <form onSubmit={onSubmit}>
-                    <Button
-                        type="submit"
-                        disabled={isFavoriting}
-                        className={clsx(
-                            'h-7 gap-1 rounded-sm border-primary py-0 text-sm text-primary hover:bg-primary hover:text-white',
-                            {
-                                'bg-primary text-white': article.favorited,
-                            },
-                        )}
-                        variant={'outline'}
-                        size={'sm'}
-                    >
-                        <Heart size={14} />
-                        {article.favoritesCount}
-                    </Button>
-                    {error && (
-                        <span className="text-xs text-red-500">{error}</span>
+                <Button
+                    onClick={() =>
+                        startTransition(() => {
+                            if (user) {
+                                favoriteHandler({
+                                    favorited: article.favorited,
+                                    slug: article.slug,
+                                    username: user.username,
+                                })
+                            } else {
+                                setError('You must be logged in to favorite')
+                            }
+                        })
+                    }
+                    disabled={isFavoriting}
+                    className={clsx(
+                        'h-7 gap-1 rounded-sm border-primary py-0 text-sm text-primary hover:bg-primary hover:text-white',
+                        {
+                            'bg-primary text-white': article.favorited,
+                        },
                     )}
-                </form>
+                    variant={'outline'}
+                    size={'sm'}
+                >
+                    <Heart size={14} />
+                    {article.favoritesCount}
+                </Button>
+                {error && <span className="text-xs text-red-500">{error}</span>}
             </div>
         </div>
     )

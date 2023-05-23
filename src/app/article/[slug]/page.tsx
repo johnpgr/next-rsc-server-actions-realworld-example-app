@@ -3,6 +3,8 @@ import { USER_TOKEN } from '~/lib/constants'
 import { articlesService } from '~/services/articles'
 import { authService } from '~/services/auth'
 
+export const runtime = 'edge'
+
 export default async function ArticlePage({
     params,
 }: {

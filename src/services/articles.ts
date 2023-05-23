@@ -1,15 +1,8 @@
 import slugify from 'slugify'
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
 import { db } from '~/db/drizzle-db'
-import { and, desc, eq, exists, isNull, notInArray, or, sql } from 'drizzle-orm'
-import {
-    article,
-    favorite,
-    follow,
-    tag,
-    tag as tagTable,
-    user,
-} from '~/db/schema'
+import { and, desc, eq, exists, isNull, or, sql } from 'drizzle-orm'
+import * as schema from '~/db/schema'
 import { createId, getDateFromULID } from '~/lib/utils'
 import { NewArticleBody, UpdateArticleBody } from '~/app/article/validations'
 
@@ -39,9 +32,9 @@ export type ParsedArticleQueryResponse = {
 }
 
 class ArticlesService {
-    private db: PlanetScaleDatabase
+    private db: PlanetScaleDatabase<typeof schema>
 
-    constructor(db: PlanetScaleDatabase) {
+    constructor(db: PlanetScaleDatabase<typeof schema>) {
         this.db = db
     }
 
@@ -55,38 +48,38 @@ class ArticlesService {
 
         const articles = await this.db
             .select({
-                title: article.title,
-                description: article.description,
-                body: article.body,
-                slug: article.slug,
-                createdAt: article.id,
-                updatedAt: article.updated_at,
+                title: schema.article.title,
+                description: schema.article.description,
+                body: schema.article.body,
+                slug: schema.article.slug,
+                createdAt: schema.article.id,
+                updatedAt: schema.article.updated_at,
                 author: {
-                    username: user.username,
-                    bio: user.bio,
-                    image: user.image,
+                    username: schema.user.username,
+                    bio: schema.user.bio,
+                    image: schema.user.image,
                 },
-                tagList: sql`GROUP_CONCAT(${tagTable.name} SEPARATOR ',')`,
+                tagList: sql`GROUP_CONCAT(${schema.tag.name} SEPARATOR ',')`,
                 favoritesCount: sql`COALESCE(f.favoritesCount, 0)`,
-                favorited: sql`IF(${favorite.article_id} IS NOT NULL, 1, 0)`,
+                favorited: sql`IF(${schema.favorite.article_id} IS NOT NULL, 1, 0)`,
             })
-            .from(article)
-            .innerJoin(user, eq(article.author_id, user.id))
-            .leftJoin(tagTable, eq(article.id, tagTable.article_id))
+            .from(schema.article)
+            .innerJoin(schema.user, eq(schema.article.author_id, schema.user.id))
+            .leftJoin(schema.tag, eq(schema.article.id, schema.tag.article_id))
             .leftJoin(
                 sql`
-                    (SELECT ${favorite.article_id}, COUNT(*) AS favoritesCount
-                    FROM ${favorite}
-                    GROUP BY ${favorite.article_id}) 
+                    (SELECT ${schema.favorite.article_id}, COUNT(*) AS favoritesCount
+                    FROM ${schema.favorite}
+                    GROUP BY ${schema.favorite.article_id}) 
                     AS f
                 `,
-                eq(article.id, sql`f.article_id`),
+                eq(schema.article.id, sql`f.article_id`),
             )
             .leftJoin(
-                favorite,
+                schema.favorite,
                 and(
-                    eq(article.id, favorite.article_id),
-                    eq(favorite.user_id, sql`${currentUserId}`),
+                    eq(schema.article.id, schema.favorite.article_id),
+                    eq(schema.favorite.user_id, sql`${currentUserId}`),
                 ),
             )
             .where(
@@ -94,22 +87,22 @@ class ArticlesService {
                     and(
                         or(
                             isNull(sql`${authorName}`),
-                            eq(user.username, sql`${authorName}`),
+                            eq(schema.user.username, sql`${authorName}`),
                         ),
                         or(
                             isNull(sql`${favoritedBy}`),
                             exists(sql`(
                                 SELECT 1
-                                FROM ${favorite}
-                                JOIN ${user}
-                                ON ${favorite.user_id} = ${user.id}
-                                WHERE ${article.id} = ${favorite.article_id}
-                                AND ${user.username} = ${favoritedBy}
+                                FROM ${schema.favorite}
+                                JOIN ${schema.user}
+                                ON ${schema.favorite.user_id} = ${schema.user.id}
+                                WHERE ${schema.article.id} = ${schema.favorite.article_id}
+                                AND ${schema.user.username} = ${favoritedBy}
                             )`),
                         ),
                     ),
                     and(
-                        or(isNull(sql`${tag}`), eq(tagTable.name, sql`${tag}`)),
+                        or(isNull(sql`${tag}`), eq(schema.tag.name, sql`${tag}`)),
                         or(
                             //@ts-ignore
                             eq(sql`${feedType}`, sql`'global'`),
@@ -118,17 +111,17 @@ class ArticlesService {
                                 eq(sql`${feedType}`, sql`'user'`),
                                 exists(sql`(
                                     SELECT 1
-                                    FROM ${follow}
-                                    WHERE ${follow.follower_id} = ${currentUserId}
-                                    AND ${follow.following_id} = ${article.author_id}
+                                    FROM ${schema.follow}
+                                    WHERE ${schema.follow.follower_id} = ${currentUserId}
+                                    AND ${schema.follow.following_id} = ${schema.article.author_id}
                                 )`),
                             ),
                         ),
                     ),
                 ),
             )
-            .groupBy(article.id)
-            .orderBy(desc(article.id))
+            .groupBy(schema.article.id)
+            .orderBy(desc(schema.article.id))
             .limit(limit)
             .offset(offset)
 
@@ -151,43 +144,43 @@ class ArticlesService {
     ): Promise<ParsedArticleQueryResponse | null> {
         const [found] = await this.db
             .select({
-                title: article.title,
-                description: article.description,
-                body: article.body,
-                slug: article.slug,
-                createdAt: article.id,
-                updatedAt: article.updated_at,
+                title: schema.article.title,
+                description: schema.article.description,
+                body: schema.article.body,
+                slug: schema.article.slug,
+                createdAt: schema.article.id,
+                updatedAt: schema.article.updated_at,
                 author: {
-                    username: user.username,
-                    bio: user.bio,
-                    image: user.image,
+                    username: schema.user.username,
+                    bio: schema.user.bio,
+                    image: schema.user.image,
                 },
                 tagList: sql`(
                     SELECT GROUP_CONCAT(t.name SEPARATOR ',')
                     FROM tag t
-                    WHERE t.article_id = ${article.id})
+                    WHERE t.article_id = ${schema.article.id})
                 `,
                 favoritesCount: sql`COALESCE(favorites.favoritesCount, 0)`,
-                favorited: sql`IF(${favorite.user_id} IS NOT NULL, 1, 0)`,
+                favorited: sql`IF(${schema.favorite.user_id} IS NOT NULL, 1, 0)`,
             })
-            .from(article)
-            .innerJoin(user, eq(article.author_id, user.id))
+            .from(schema.article)
+            .innerJoin(schema.user, eq(schema.article.author_id, schema.user.id))
             .leftJoin(
                 sql`(
                 SELECT article_id, COUNT(*) AS favoritesCount
                 FROM favorite
                 GROUP BY article_id
             ) AS favorites`,
-                eq(article.id, sql`favorites.article_id`),
+                eq(schema.article.id, sql`favorites.article_id`),
             )
             .leftJoin(
-                favorite,
+                schema.favorite,
                 and(
-                    eq(article.id, favorite.article_id),
-                    eq(favorite.user_id, sql`${userId}`),
+                    eq(schema.article.id, schema.favorite.article_id),
+                    eq(schema.favorite.user_id, sql`${userId}`),
                 ),
             )
-            .where(eq(article.slug, slug))
+            .where(eq(schema.article.slug, slug))
 
         if (!found) {
             return null
@@ -233,7 +226,7 @@ class ArticlesService {
         if (tagList && tagList.length > 0) {
             for (const _tag of tagList) {
                 insertTagsPromises.push(
-                    this.db.insert(tag).values({
+                    this.db.insert(schema.tag).values({
                         id: createId(),
                         name: _tag,
                         article_id: articleId,
@@ -242,7 +235,7 @@ class ArticlesService {
             }
         }
 
-        const { rowsAffected } = await this.db.insert(article).values({
+        const { rowsAffected } = await this.db.insert(schema.article).values({
             id: articleId,
             title,
             description,
@@ -277,24 +270,24 @@ class ArticlesService {
         } = args.body.article
 
         const [{ id }] = await this.db
-            .select({ id: article.id })
-            .from(article)
-            .where(eq(article.slug, args.slug))
+            .select({ id: schema.article.id })
+            .from(schema.article)
+            .where(eq(schema.article.slug, args.slug))
 
         const slug = title ? slugify(title) : undefined
         const insertTagsPromises = []
 
         const existingTags = await this.db
-            .select({ tagName: tag.name })
-            .from(tag)
-            .where(eq(tag.article_id, id))
+            .select({ tagName: schema.tag.name })
+            .from(schema.tag)
+            .where(eq(schema.tag.article_id, id))
 
         // Insert new tags that are not in the old tag list
         if (tagList && tagList.length > 0) {
             for (const _tag of tagList) {
                 if (!existingTags.find((tag) => tag.tagName === _tag)) {
                     insertTagsPromises.push(
-                        this.db.insert(tag).values({
+                        this.db.insert(schema.tag).values({
                             id: createId(),
                             name: _tag,
                             article_id: id,
@@ -305,21 +298,21 @@ class ArticlesService {
             //Remove tags that are not in the new tag list
             for (const _tag of existingTags) {
                 if (!tagList.find((tag) => tag === _tag.tagName)) {
-                    await this.db.delete(tag).where(eq(tag.name, _tag.tagName))
+                    await this.db.delete(schema.tag).where(eq(schema.tag.name, _tag.tagName))
                 }
             }
         }
 
         //Update article
         const { rowsAffected } = await this.db
-            .update(article)
+            .update(schema.article)
             .set({
                 title,
                 description,
                 body: articleBody,
                 slug,
             })
-            .where(eq(article.id, id))
+            .where(eq(schema.article.id, id))
 
         if (rowsAffected === 0) {
             throw new Error('Failed to update article')
@@ -330,9 +323,9 @@ class ArticlesService {
 
         if (!slug) {
             const [{ slug }] = await this.db
-                .select({ slug: article.slug })
-                .from(article)
-                .where(eq(article.id, id))
+                .select({ slug: schema.article.slug })
+                .from(schema.article)
+                .where(eq(schema.article.id, id))
                 .limit(1)
 
             return this.getArticleBySlug(
@@ -349,19 +342,21 @@ class ArticlesService {
 
     async isArticleAuthor(userId: string, slug: string): Promise<boolean> {
         const [found] = await this.db
-            .select({ authorId: article.author_id })
-            .from(article)
-            .where(eq(article.slug, slug))
+            .select({ authorId: schema.article.author_id })
+            .from(schema.article)
+            .where(eq(schema.article.slug, slug))
             .limit(1)
+        
+        if(!found) return false
 
         return found.authorId === userId
     }
 
     async getArticleIdBySlug(slug: string): Promise<string | null> {
         const [found] = await this.db
-            .select({ id: article.id })
-            .from(article)
-            .where(eq(article.slug, slug))
+            .select({ id: schema.article.id })
+            .from(schema.article)
+            .where(eq(schema.article.slug, slug))
             .limit(1)
 
         return found?.id ?? null
@@ -369,8 +364,8 @@ class ArticlesService {
 
     async deleteArticle(slug: string): Promise<boolean> {
         const { rowsAffected } = await this.db
-            .delete(article)
-            .where(eq(article.slug, slug))
+            .delete(schema.article)
+            .where(eq(schema.article.slug, slug))
         return rowsAffected > 0
     }
 }

@@ -3,9 +3,10 @@ import { Editor } from '../editor'
 import { USER_TOKEN } from '~/lib/constants'
 import { authService } from '~/services/auth'
 import { articlesService } from '~/services/articles'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
-export const runtime = 'edge'
+//runtime edge doesnt work here
+export const runtime = 'nodejs'
 
 export default async function EditorPage({
     params,

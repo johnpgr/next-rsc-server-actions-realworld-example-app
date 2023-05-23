@@ -6,6 +6,7 @@ import { DEFAULT_USER_IMAGE, HEADER_HEIGHT, USER_TOKEN } from '~/lib/constants'
 import { authService } from '~/services/auth'
 import { profileService } from '~/services/profile'
 import { ProfileTabs } from './profile-tabs'
+import { unstable_cache as cache } from 'next/cache'
 
 export const runtime = 'edge'
 
@@ -19,11 +20,20 @@ export default async function ProfilePage({
     const token = cookies().get(USER_TOKEN)?.value
 
     const currentUser = token
-        ? await authService.getPayloadFromToken(token)
+        ? await cache(
+              async () => await authService.getPayloadFromToken(token),
+              [token],
+              { revalidate: 60 },
+          )()
         : null
 
     const currentUserId = currentUser
-        ? await authService.getUserIdByUserName(currentUser.username)
+        ? await cache(
+              async () =>
+                  await authService.getUserIdByUserName(currentUser.username),
+              [`ID:${currentUser.username}`],
+              { revalidate: 60 },
+          )()
         : null
 
     const profile = await profileService.getProfileByUsername(

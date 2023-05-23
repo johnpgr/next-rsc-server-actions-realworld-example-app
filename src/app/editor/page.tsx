@@ -1,7 +1,8 @@
 import { AuthRequiredPage } from '~/components/auth-required-page'
 import { Editor } from './editor'
 
-export const runtime = 'edge'
+//runtime edge doesnt work here
+export const runtime = 'nodejs'
 
 export default function EditorPage() {
     return (

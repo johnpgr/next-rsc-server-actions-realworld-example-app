@@ -4,6 +4,8 @@ import { PageSearchParams, getSearchParams } from '~/lib/utils'
 import { articlesService } from '~/services/articles'
 import { authService } from '~/services/auth'
 
+export const runtime = 'edge'
+
 export default async function ArticlesPage({
     searchParams,
 }: {
