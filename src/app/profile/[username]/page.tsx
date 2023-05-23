@@ -14,9 +14,7 @@ export default async function UserArticlesPage({
         ? await authService.getPayloadFromToken(token)
         : null
 
-    const currentUserId = currentUser
-        ? await authService.getUserIdByUserName(currentUser.username)
-        : null
+    const currentUserId = currentUser ? await authService.getUserIdByUserName(currentUser.username) : null
 
     const articles = await articlesService.getArticles({
         currentUserId,
@@ -29,5 +27,6 @@ export default async function UserArticlesPage({
             favoritedBy: null,
         },
     })
+
     return <pre>{JSON.stringify(articles, null, 4)}</pre>
 }

@@ -18,6 +18,7 @@ import { useUser } from './user-context'
 import Image from 'next/image'
 import { ChevronDown, LogOut, Settings, User } from 'lucide-react'
 import Link from 'next/link'
+import { DEFAULT_USER_IMAGE } from '~/lib/constants'
 
 export default function UserButton() {
     const { user, logout } = useUser()
@@ -25,10 +26,10 @@ export default function UserButton() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="link" className="flex items-center gap-1">
-                    {user && user.image ? (
+                    {user ? (
                         <Image
                             className="rounded-full"
-                            src={user.image}
+                            src={user.image ?? DEFAULT_USER_IMAGE}
                             alt={user.username}
                             width={24}
                             height={24}
@@ -39,17 +40,20 @@ export default function UserButton() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                     <Link
                         href={`/profile/${user?.username}`}
-                        className="flex items-center gap-1"
+                        className="flex cursor-pointer items-center gap-1"
                     >
                         <User size={16} />
                         Profile
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <Link href="/settings" className="flex items-center gap-1">
+                <DropdownMenuItem asChild>
+                    <Link
+                        href="/settings"
+                        className="flex cursor-pointer items-center gap-1"
+                    >
                         <Settings size={16} />
                         Settings
                     </Link>
