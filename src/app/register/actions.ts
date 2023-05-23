@@ -1,5 +1,5 @@
 'use server'
-import { action } from '~/lib/utils'
+import { action } from '~/lib/actions'
 import { registerInputSchema } from './validation'
 import { authService } from '~/services/auth'
 import { SafeUser } from '~/types/user'
