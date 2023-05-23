@@ -132,10 +132,12 @@ class ArticlesService {
             .limit(limit)
             .offset(offset)
 
+
         //parse the response
         for (let article of articles) {
             article.createdAt = getDateFromULID(article.createdAt).toISOString()
-            article.tagList = article.tagList && (article.tagList as string).split(',')
+            article.tagList =
+                article.tagList && (article.tagList as string).split(',')
             article.favorited = article.favorited === 1
             article.favoritesCount = parseInt(article.favoritesCount as string)
         }

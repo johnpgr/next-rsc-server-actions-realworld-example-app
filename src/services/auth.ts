@@ -98,11 +98,13 @@ class AuthService {
     /**
      * @throws {Error}
      */
-    async registerUser(
-        email: string,
-        password: string,
-        username: string,
-    ): Promise<User> {
+    async registerUser(input: {
+        email: string
+        password: string
+        username: string
+        image: string
+    }): Promise<User> {
+        const { email, password, username, image } = input
         const [foundEmail] = await this.db
             .select()
             .from(user)
@@ -125,6 +127,7 @@ class AuthService {
             id: createId(),
             email,
             password_id,
+            image,
             username,
         })
 

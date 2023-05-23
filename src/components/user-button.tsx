@@ -16,7 +16,7 @@ import {
 } from '~/components/ui/dropdown-menu'
 import { useUser } from './user-context'
 import Image from 'next/image'
-import { ChevronDown, LogOut, Settings, User, UserCircle2 } from 'lucide-react'
+import { ChevronDown, LogOut, Settings, User } from 'lucide-react'
 import Link from 'next/link'
 
 export default function UserButton() {
@@ -30,19 +30,20 @@ export default function UserButton() {
                             className="rounded-full"
                             src={user.image}
                             alt={user.username}
-                            width={20}
-                            height={20}
+                            width={24}
+                            height={24}
                         />
-                    ) : (
-                        <UserCircle2 size={20} />
-                    )}
+                    ) : null}
                     {user?.username}
                     <ChevronDown size={16} />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuItem>
-                    <Link href="/profile" className="flex items-center gap-1">
+                    <Link
+                        href={`/profile/${user?.username}`}
+                        className="flex items-center gap-1"
+                    >
                         <User size={16} />
                         Profile
                     </Link>
@@ -54,7 +55,10 @@ export default function UserButton() {
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className='flex items-center gap-1'>
+                <DropdownMenuItem
+                    onClick={logout}
+                    className="flex items-center gap-1"
+                >
                     <LogOut size={16} />
                     Logout
                 </DropdownMenuItem>

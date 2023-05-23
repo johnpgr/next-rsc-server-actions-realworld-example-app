@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { defaultErrorMessage, errorBody, jsonResponse } from '~/lib/utils'
 import { authService } from '~/services/auth'
-import { editUserInputSchema } from '~/app/profile/(edit-user)/validation'
+import { editUserInputSchema } from '~/app/profile/[username]/validation'
 import { ZodError } from 'zod'
 
 export const runtime = 'edge'

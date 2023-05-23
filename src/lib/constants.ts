@@ -14,3 +14,7 @@ export const JWT_EXPIRATION_TIME = {
 export function getJwtSecretKey(): string {
     return env.JWT_SECRET
 }
+
+export const DEFAULT_USER_IMAGE = 'https://api.realworld.io/images/smiley-cyrus.jpeg'
+
+export const HEADER_HEIGHT = '64px'

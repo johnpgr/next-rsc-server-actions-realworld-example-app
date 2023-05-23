@@ -6,11 +6,12 @@ import { useUser } from '~/components/user-context'
 import { Edit, Home, User, UserCircle, UserCircle2 } from 'lucide-react'
 import Image from 'next/image'
 import UserButton from './user-button'
+import { HEADER_HEIGHT } from '~/lib/constants'
 
 export const Nav = () => {
     const { user } = useUser()
     return (
-        <nav className="flex w-full items-center justify-end bg-neutral-100 p-4">
+        <nav className="flex w-full items-center justify-end bg-background px-4" style={{height: HEADER_HEIGHT}}>
             <Button asChild variant="link">
                 <Link href="/" className="flex items-center gap-1">
                     <Home size={16} />

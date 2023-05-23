@@ -17,7 +17,7 @@ export class ProfileService {
 
     async getProfile(
         userId: string,
-        currentUserId?: string,
+        currentUserId: string | null = null,
     ): Promise<Profile | null> {
         const result = await this.db
             .select({
@@ -35,6 +35,39 @@ export class ProfileService {
             })
             .from(user)
             .where(eq(user.id, userId))
+            .limit(1)
+
+        const profile = result[0]
+
+        if (!profile) return null
+
+        //@ts-ignore
+        profile.following = profile.following === '1'
+
+        //@ts-ignore
+        return profile
+    }
+
+    async getProfileByUsername(
+        username: string,
+        currentUserId: string | null = null,
+    ): Promise<Profile | null> {
+        const result = await this.db
+            .select({
+                username: user.username,
+                bio: user.bio,
+                image: user.image,
+                following: sql<string>`
+                    EXISTS (
+                        SELECT 1
+                        FROM ${follow}
+                        WHERE ${and(
+                            eq(follow.follower_id, currentUserId || ''),
+                            eq(follow.following_id, user.id),
+                        )})`,
+            })
+            .from(user)
+            .where(eq(user.username, username))
             .limit(1)
 
         const profile = result[0]
