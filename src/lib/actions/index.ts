@@ -1,7 +1,7 @@
 'use server'
-
+import { createSafeActionClient } from 'next-safe-action'
 import { cookies } from 'next/headers'
-import { USER_TOKEN } from './constants'
+import { USER_TOKEN } from '../constants'
 import { authService } from '~/services/auth'
 
 export async function getAuthData() {
@@ -13,3 +13,10 @@ export async function getAuthData() {
 
     return { user }
 }
+
+export const action = createSafeActionClient({
+    serverErrorLogFunction: console.error,
+    getAuthData,
+})
+
+

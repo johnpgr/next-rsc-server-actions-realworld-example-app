@@ -1,6 +1,6 @@
 'use server'
 
-import { action } from '~/lib/utils'
+import { action } from '~/lib/actions'
 import { authService } from '~/services/auth'
 import {
     newArticleBodySchema,

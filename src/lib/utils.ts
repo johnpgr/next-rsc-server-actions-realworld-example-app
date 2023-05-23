@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server'
 import { decodeTime, ulidFactory } from 'ulid-workers'
-import { createSafeActionClient } from 'next-safe-action'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { FormEvent } from 'react'
 import { env } from '~/config/env.mjs'
-import { getAuthData } from './get-auth-data'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -36,11 +34,6 @@ export function getBaseUrl(): string {
         return env.NEXT_PUBLIC_VERCEL_URL
     }
 }
-
-export const action = createSafeActionClient({
-    serverErrorLogFunction: console.error,
-    getAuthData
-})
 
 export function getFormData<T extends object>(
     e: FormEvent<HTMLFormElement>,

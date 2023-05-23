@@ -24,7 +24,7 @@ export default async function FavoritesPage({
         params: {
             authorName: null,
             tag: null,
-            limit: 10,
+            limit: 6,
             offset: 0,
             favoritedBy: params.username,
         },

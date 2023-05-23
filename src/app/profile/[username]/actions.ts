@@ -1,26 +1,106 @@
 'use server'
-import { getBaseUrl, action } from '~/lib/utils'
-import { editUserInputSchema } from './validation'
-import {
-    getCurrentUserResponseSchema,
-    CurrentUserResponse,
-} from '~/app/api/user/(get,put)/validation'
+import { action } from '~/lib/actions'
+import { favoriteArticleSchema } from './validation'
+import { authService } from '~/services/auth'
+import { articlesService } from '~/services/articles'
+import { favoritesService } from '~/services/favorites'
 
-export const editUserAction = action(
-    { input: editUserInputSchema },
-    async (data) => {
-        const res = await fetch(`${getBaseUrl()}/api/user`, {
-            method: 'PUT',
-            body: JSON.stringify(data),
-            next: {
-                revalidate: 0,
-            },
+export const favoriteArticleAction = action(
+    {
+        input: favoriteArticleSchema,
+        withAuth: true,
+    },
+    async (data, { user }) => {
+        if (!user)
+            return {
+                error: {
+                    message: 'You must be logged in to favorite an article.',
+                    code: 403,
+                },
+            }
+
+        const { slug } = data.article
+        const { username } = user
+
+        const userId = await authService.getUserIdByUserName(username)
+        const articleId = await articlesService.getArticleIdBySlug(slug)
+
+        if (!articleId)
+            return {
+                error: {
+                    message: 'Article not found.',
+                    code: 404,
+                },
+            }
+
+        const favorited = await favoritesService.userHasFavoritedArticle({
+            articleId,
+            userId,
         })
 
-        const json = (await res.json()) as CurrentUserResponse
+        if (favorited)
+            return {
+                error: {
+                    message: 'Article already favorited.',
+                    code: 403,
+                },
+            }
 
-        const parsed = getCurrentUserResponseSchema.parse(json)
+        await favoritesService.favoriteArticle({
+            articleId,
+            userId,
+        })
 
-        return parsed
+        return { articleId }
     },
+)
+
+export const unfavoriteArticleAction = action(
+    {
+        input: favoriteArticleSchema,
+        withAuth: true,
+    },
+    async (data, { user }) => {
+        if (!user)
+            return {
+                error: {
+                    message: 'You must be logged in to favorite an article.',
+                    code: 403,
+                },
+            }
+
+        const { slug } = data.article
+        const { username } = user
+
+        const userId = await authService.getUserIdByUserName(username)
+        const articleId = await articlesService.getArticleIdBySlug(slug)
+
+        if (!articleId)
+            return {
+                error: {
+                    message: 'Article not found.',
+                    code: 404,
+                },
+            }
+
+        const favorited = await favoritesService.userHasFavoritedArticle({
+            articleId,
+            userId,
+        })
+
+        if (!favorited)
+            return {
+                error: {
+                    message: 'Article not favorited.',
+                    code: 403,
+                },
+            }
+
+        await favoritesService.unfavoriteArticle({
+            articleId,
+            userId,
+        })
+
+        return { articleId }
+    }
 )

@@ -1,7 +1,10 @@
 import { cookies } from 'next/headers'
+import { ArticleRow } from '~/components/article-row'
 import { USER_TOKEN } from '~/lib/constants'
 import { articlesService } from '~/services/articles'
 import { authService } from '~/services/auth'
+
+export const runtime = 'edge'
 
 export default async function UserArticlesPage({
     params,
@@ -14,7 +17,9 @@ export default async function UserArticlesPage({
         ? await authService.getPayloadFromToken(token)
         : null
 
-    const currentUserId = currentUser ? await authService.getUserIdByUserName(currentUser.username) : null
+    const currentUserId = currentUser
+        ? await authService.getUserIdByUserName(currentUser.username)
+        : null
 
     const articles = await articlesService.getArticles({
         currentUserId,
@@ -22,11 +27,17 @@ export default async function UserArticlesPage({
         params: {
             authorName: params.username,
             tag: null,
-            limit: 10,
+            limit: 6,
             offset: 0,
             favoritedBy: null,
         },
     })
 
-    return <pre>{JSON.stringify(articles, null, 4)}</pre>
+    return (
+        <ul className='divide-y'>
+            {articles.map((article) => (
+                <ArticleRow key={article.slug} article={article} />
+            ))}
+        </ul>
+    )
 }

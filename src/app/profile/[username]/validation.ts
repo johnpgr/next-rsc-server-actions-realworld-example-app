@@ -11,3 +11,9 @@ export const editUserInputSchema = z.object({
 })
 
 export type EditUserInput = z.infer<typeof editUserInputSchema>
+
+export const favoriteArticleSchema = z.object({
+    article: z.object({
+        slug: z.string(),
+    }),
+})
