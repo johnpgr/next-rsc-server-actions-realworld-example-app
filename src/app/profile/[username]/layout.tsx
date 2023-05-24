@@ -10,7 +10,6 @@ import {
 import { authService } from '~/modules/auth/auth.service'
 import { usersService } from '~/modules/users/users.service'
 import { ProfileTabs } from '~/components/profile/profile-tabs'
-import { unstable_cache as cache } from 'next/cache'
 
 export const runtime = 'edge'
 
@@ -23,15 +22,7 @@ export default async function ProfilePage({
 }) {
     const token = cookies().get(USER_TOKEN)?.value
 
-    const user = token
-        ? await cache(
-              async () => authService.getPayloadFromToken(token),
-              [token],
-              {
-                  revalidate: 10,
-              },
-          )()
-        : null
+    const user = token ? await authService.getPayloadFromToken(token) : null
 
     const profile = await usersService.getUserProfile(params.username, user?.id)
 

@@ -6,7 +6,6 @@ import { UserContextProvider } from '~/components/auth/user-context'
 import { Nav } from '~/components/nav'
 import { cookies } from 'next/headers'
 import { USER_TOKEN } from '~/config/constants'
-import { unstable_cache as cache } from 'next/cache'
 import { authService } from '~/modules/auth/auth.service'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -24,15 +23,7 @@ export default async function RootLayout({
     children: React.ReactNode
 }) {
     const token = cookies().get(USER_TOKEN)?.value
-    const user = token
-        ? await cache(
-              async () => authService.getPayloadFromToken(token),
-              [token],
-              {
-                  revalidate: 10,
-              },
-          )()
-        : null
+    const user = token ? await authService.getPayloadFromToken(token) : null
 
     return (
         <html lang="en">
