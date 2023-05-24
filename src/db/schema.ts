@@ -1,15 +1,7 @@
-import { article, tag } from '~/modules/articles/articles.models'
-import { user, password } from '~/modules/auth/auth.models'
-import { comment } from '~/modules/comments/comments.models'
-import { favorite } from '~/modules/favorites/favorites.models'
-import { follow } from '~/modules/follows/follows.models'
+export * from '../modules/articles/articles.models'
+export * from '../modules/auth/auth.models'
+export * from '../modules/comments/comments.models'
+export * from '../modules/favorites/favorites.models'
+export * from '../modules/follows/follows.models'
 
-export const schema = {
-    article,
-    tag,
-    user,
-    password,
-    comment,
-    favorite,
-    follow,
-}
+

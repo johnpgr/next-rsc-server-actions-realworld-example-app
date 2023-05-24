@@ -1,26 +1,22 @@
-import { FormEvent } from "react"
+'use server'
+import { createSafeActionClient } from 'next-safe-action'
+import { cookies } from 'next/headers'
+import { USER_TOKEN } from '../config/constants'
+import { authService } from '~/modules/auth/auth.service'
 
-export function getFormData<T extends object>(
-    e: FormEvent<HTMLFormElement>,
-): T {
-    const formData = new FormData(e.currentTarget)
-    const input = Object.fromEntries(formData.entries()) as unknown as T
-    return input
+export async function getAuthData() {
+    const token = cookies().get(USER_TOKEN)?.value
+
+    if (!token) return { user: null }
+
+    const user = await authService.getPayloadFromToken(token)
+
+    return { user }
 }
 
+export const action = createSafeActionClient({
+    serverErrorLogFunction: console.error,
+    getAuthData,
+})
 
-export function errorBody(errors: string[]) {
-    return {
-        errors: {
-            body: errors,
-        },
-    }
-}
 
-export function defaultErrorMessage(e: unknown) {
-    if (e instanceof Error) {
-        return e.message
-    }
-
-    throw new Error('UNKNOWN ERROR')
-}

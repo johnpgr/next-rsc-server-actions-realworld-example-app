@@ -1,11 +1,11 @@
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
 import { db } from '~/db'
 import { Profile, type User } from './users.types'
-import { schema } from '~/db/schema'
+import * as schema from '~/db/schema'
 import { and, eq, sql } from 'drizzle-orm'
 import { createId } from '~/utils/ulid'
 import { EditUser } from './users.validation'
-import { hashPassword } from '~/lib/crypto'
+import { hash as hashPassword } from 'bcryptjs'
 
 export class UserService {
     private db: PlanetScaleDatabase<typeof schema>
@@ -50,6 +50,7 @@ export class UserService {
 
         const result = await this.db
             .select({
+                id: schema.user.id,
                 username: schema.user.username,
                 bio: schema.user.bio,
                 image: schema.user.image,
@@ -80,11 +81,11 @@ export class UserService {
      * @throws {Error}
      */
     async updateUser(username: string, input: EditUser): Promise<User> {
-        const { user: userInput } = input
+        const { user } = input
 
         const { rowsAffected } = await this.db
             .update(schema.user)
-            .set(userInput)
+            .set(user)
             .where(eq(schema.user.username, username))
 
         if (rowsAffected === 0) throw new Error('Something went wrong')
@@ -98,26 +99,6 @@ export class UserService {
         if (!updatedUser) throw new Error('Something went wrong')
 
         return updatedUser
-    }
-
-    /**
-     * @throws {Error}
-     */
-    private async persistPasswordForUser(
-        password: string,
-    ): Promise<{ password_id: string }> {
-        const { salt, hashedPassword } = await hashPassword(password)
-
-        const id = createId()
-        const { rowsAffected } = await this.db.insert(schema.password).values({
-            id,
-            password: hashedPassword,
-            salt,
-        })
-
-        if (rowsAffected === 0) throw new Error('Something went wrong')
-
-        return { password_id: id }
     }
 
     /**
@@ -146,12 +127,10 @@ export class UserService {
 
         if (foundUsername) throw new Error('Username already in use')
 
-        const { password_id } = await this.persistPasswordForUser(password)
-
         const { rowsAffected } = await this.db.insert(schema.user).values({
             id: createId(),
             email,
-            password_id,
+            password: await hashPassword(password, 12),
             image,
             username,
         })

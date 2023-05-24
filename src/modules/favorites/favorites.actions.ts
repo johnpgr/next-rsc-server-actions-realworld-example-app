@@ -1,5 +1,5 @@
 'use server'
-import { action } from '~/lib/actions'
+import { action } from '~/utils/actions'
 import { favoriteArticleSchema } from './favorites.validation'
 import { favoritesService } from './favorites.service'
 import { articlesService } from '../articles/articles.service'

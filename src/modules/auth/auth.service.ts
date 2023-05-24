@@ -1,12 +1,11 @@
 import { eq } from 'drizzle-orm'
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
-import { User, NewPassword } from '../users/users.types'
-import { schema } from '~/db/schema'
+import { User } from '../users/users.types'
+import * as schema from '~/db/schema'
 import { db } from '~/db'
 import { SignJWT, errors, jwtVerify } from 'jose'
 import { JWT_EXPIRATION_TIME } from '~/config/constants'
-import { comparePasswords, hashPassword } from '~/lib/crypto'
-import { EditUser } from '../users/users.validation'
+import { compare as comparePasswords } from 'bcryptjs'
 import { createId } from '~/utils/ulid'
 import { env } from '~/config/env.mjs'
 import { UserJWTPayload } from './auth.types'
@@ -21,27 +20,6 @@ class AuthService {
     /**
      * @throws {Error}
      */
-    private async getPasswordForUser(
-        password_id: string,
-    ): Promise<Omit<NewPassword, 'id'>> {
-        const [password] = await this.db
-            .select({
-                salt: schema.password.salt,
-                password: schema.password.password,
-            })
-            .from(schema.password)
-            .where(eq(schema.password.id, password_id))
-            .limit(1)
-
-        if (!password) throw new Error('Something went wrong')
-
-        return password
-    }
-
-
-    /**
-     * @throws {Error}
-     */
     async verifyCredentials(email: string, password: string): Promise<User> {
         const [found] = await this.db
             .select()
@@ -51,10 +29,7 @@ class AuthService {
 
         if (!found) throw new Error('Email or password is invalid')
 
-        const { password: hashedPassword, salt } =
-            await this.getPasswordForUser(found.password_id)
-
-        const valid = await comparePasswords(password, hashedPassword, salt)
+        const valid = await comparePasswords(password, found.password)
 
         if (!valid) throw new Error('Email or password is invalid')
 

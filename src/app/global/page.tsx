@@ -1,7 +1,9 @@
 import { cookies } from 'next/headers'
 import { USER_TOKEN } from '~/config/constants'
 import { PageSearchParams, getSearchParams } from '~/utils/search-params'
+import { articlesService } from '~/modules/articles/articles.service'
 import { authService } from '~/modules/auth/auth.service'
+import { ArticleRow } from '~/components/articles/article-row'
 import { Suspense } from 'react'
 import { ArticleList } from '~/components/articles/article-list'
 
@@ -41,12 +43,12 @@ export default async function ArticlesPage({
         : null
 
     return (
-        <Suspense fallback={<div className='p-4'>Loading articles...</div>}>
+        <Suspense fallback={<div className="p-4">Loading articles...</div>}>
             {/* @ts-expect-error Async server component */}
             <ArticleList
+                feedType="global"
                 currentUserId={currentUser?.id ?? null}
                 parsedParams={parsedParams}
-                feedType='user'
             />
         </Suspense>
     )

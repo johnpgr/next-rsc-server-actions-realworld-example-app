@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import { FormEvent, useState } from 'react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
-import { getFormData } from '~/utils/actions' 
-import { registerAction } from '~/modules/auth/auth.actions' 
-import { passwordRegex } from '~/modules/auth/auth.validation' 
+import { getFormData } from '~/utils/forms'
+import { registerAction } from '~/modules/auth/auth.actions'
+import { passwordRegex } from '~/modules/auth/auth.validation'
 import { useAuth } from '~/components/auth/user-context'
 
 export const runtime = 'nodejs'
@@ -64,8 +64,16 @@ export default function RegisterPage() {
                 </p>
             )}
             <form onSubmit={onSubmit} className="flex flex-col gap-4">
-                <Input name="username" type="text" placeholder="Username" />
-                <Input name="email" type="email" placeholder="Email" />
+                <Input
+                    name="username"
+                    type="text"
+                    placeholder="Username"
+                />
+                <Input
+                    name="email"
+                    type="email"
+                    placeholder="Email"
+                />
                 <Input
                     name="password"
                     onBlur={(e) => {

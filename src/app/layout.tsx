@@ -1,5 +1,4 @@
 import '~/styles/globals.css'
-import { Source_Sans_Pro } from 'next/font/google'
 import { RefreshTokenComponent } from '~/components/auth/refresh-token'
 import { Toaster } from '~/components/ui/toaster'
 import { UserContextProvider } from '~/components/auth/user-context'
@@ -7,6 +6,7 @@ import { Nav } from '~/components/nav'
 import { cookies } from 'next/headers'
 import { USER_TOKEN } from '~/config/constants'
 import { authService } from '~/modules/auth/auth.service'
+import { ArticlePageLayout } from '~/components/articles/article-page-layout'
 
 export const runtime = 'edge'
 
@@ -29,7 +29,11 @@ export default async function RootLayout({
                 <UserContextProvider initial={user}>
                     <RefreshTokenComponent />
                     <Nav />
-                    <main>{children}</main>
+                    <main>
+                        <ArticlePageLayout currentUser={user?.username}>
+                            {children}
+                        </ArticlePageLayout>
+                    </main>
                 </UserContextProvider>
                 <Toaster />
             </body>

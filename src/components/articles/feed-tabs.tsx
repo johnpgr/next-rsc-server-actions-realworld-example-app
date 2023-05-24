@@ -6,8 +6,8 @@ import clsx from 'clsx'
 
 export const FeedTabs = (props: { username?: string | null }) => {
     const path = usePathname()
-    const globalFeedLink = `/`
-    const yourFeedLink = `/feed`
+    const yourFeedLink = '/'
+    const globalFeedLink = '/global'
 
     return (
         <div className="flex items-center gap-2 border-b text-sm">

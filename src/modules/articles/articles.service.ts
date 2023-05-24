@@ -2,7 +2,7 @@ import slugify from 'slugify'
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
 import { db } from '~/db'
 import { and, desc, eq, exists, isNull, or, sql } from 'drizzle-orm'
-import { schema } from '~/db/schema'
+import * as schema from '~/db/schema'
 import { createId, getDateFromULID } from '~/utils/ulid'
 import {
     ParsedArticleQueryResponse,

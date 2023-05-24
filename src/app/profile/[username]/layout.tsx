@@ -45,8 +45,12 @@ export default async function ProfilePage({
                         {profile.username}
                     </h1>
                     <ProfileActionButton
-                        username={profile.username}
+                        user={{
+                            id: profile.id,
+                            name: profile.username,
+                        }}
                         currentUsername={user?.username ?? null}
+                        following={profile.following}
                     />
                 </div>
             </div>

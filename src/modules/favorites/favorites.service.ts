@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm'
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
 import { db } from '~/db'
-import {schema} from '~/db/schema'
+import * as schema from '~/db/schema'
 import { createId } from '~/utils/ulid'
 import { articlesService } from '../articles/articles.service'
 import { type ParsedArticleQueryResponse } from '../articles/articles.types' 

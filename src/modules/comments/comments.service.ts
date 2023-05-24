@@ -1,5 +1,5 @@
 import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
-import {schema} from '~/db/schema'
+import * as schema from '~/db/schema'
 import { CreateComment } from './comments.validation' 
 import { createId, getDateFromULID } from '~/utils/ulid'
 import { db } from '~/db/'

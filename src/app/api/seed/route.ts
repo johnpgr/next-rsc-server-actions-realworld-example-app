@@ -1,5 +1,5 @@
 import { db } from '~/db'
-import { schema } from '~/db/schema'
+import * as schema from '~/db/schema'
 import { faker } from '@faker-js/faker'
 import { createId } from '~/utils/ulid'
 import { jsonResponse } from '~/utils/api'
@@ -21,7 +21,7 @@ async function seedArticles(n: number) {
         email: faker.internet.email(),
         bio: faker.lorem.paragraph(),
         image: faker.image.avatar(),
-        password_id: faker.string.uuid(),
+        password: faker.string.uuid(),
     }
 
     await db.insert(schema.user).values(user)
@@ -50,7 +50,7 @@ async function seedArticles(n: number) {
     }
 }
 
-export async function GET() {
+export async function POST() {
     try {
         await seedArticles(10)
         return jsonResponse(200, {

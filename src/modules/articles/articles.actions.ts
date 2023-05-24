@@ -1,5 +1,5 @@
 'use server'
-import { action } from '~/lib/actions'
+import { action } from '~/utils/actions'
 import {
     newArticleBodySchema,
     updateArticleBodySchema,

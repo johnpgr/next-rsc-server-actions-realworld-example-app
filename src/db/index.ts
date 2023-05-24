@@ -1,6 +1,6 @@
 import { connect } from '@planetscale/database'
 import { drizzle } from 'drizzle-orm/planetscale-serverless'
-import { schema } from './schema'
+import * as schema from './schema'
 import { env } from '~/config/env.mjs'
 
 // Create the connection.

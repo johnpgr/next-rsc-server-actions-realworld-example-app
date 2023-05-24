@@ -1,19 +1,18 @@
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless";
-import { schema } from "~/db/schema";
-import { usersService } from "../users/users.service";
-import { and, eq } from "drizzle-orm";
-import { createId } from "~/utils/ulid";
-import { Profile } from "../users/users.types";
-import { db } from "~/db";
+import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
+import * as schema from '~/db/schema'
+import { usersService } from '../users/users.service'
+import { and, eq } from 'drizzle-orm'
+import { createId } from '~/utils/ulid'
+import { Profile } from '../users/users.types'
+import { db } from '~/db'
 
 class FollowsService {
     private db: PlanetScaleDatabase<typeof schema>
-    constructor(db: PlanetScaleDatabase<typeof schema>) { this.db = db }
+    constructor(db: PlanetScaleDatabase<typeof schema>) {
+        this.db = db
+    }
 
- async followUser(
-        followerId: string,
-        followingId: string,
-    ): Promise<Profile> {
+    async followUser(followerId: string, followingId: string): Promise<void> {
         const [alreadyFollowing] = await this.db
             .select()
             .from(schema.follow)
@@ -34,23 +33,18 @@ class FollowsService {
             throw new Error(`Already following user: ${found.username}`)
         }
 
-        await this.db.insert(schema.follow).values({
+        const { rowsAffected } = await this.db.insert(schema.follow).values({
             id: createId(),
             follower_id: followerId,
             following_id: followingId,
         })
 
-        const profile = await usersService.getUserProfile(followingId, followerId)
-
-        if (!profile) throw new Error('Profile not found')
-
-        return profile
+        if (rowsAffected !== 1) {
+            throw new Error('Failed to follow user')
+        }
     }
 
-    async unfollowUser(
-        followerId: string,
-        followingId: string,
-    ): Promise<Profile> {
+    async unfollowUser(followerId: string, followingId: string): Promise<void> {
         const [alreadyFollowing] = await this.db
             .select()
             .from(schema.follow)
@@ -71,7 +65,7 @@ class FollowsService {
             throw new Error(`Not following user: ${found.username}`)
         }
 
-        await this.db
+        const { rowsAffected } = await this.db
             .delete(schema.follow)
             .where(
                 and(
@@ -80,11 +74,9 @@ class FollowsService {
                 ),
             )
 
-        const profile = await usersService.getUserProfile(followingId, followerId)
-
-        if (!profile) throw new Error('Profile not found')
-
-        return profile
+        if (rowsAffected !== 1) {
+            throw new Error('Failed to unfollow user')
+        }
     }
 }
 

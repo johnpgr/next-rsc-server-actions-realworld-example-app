@@ -6,7 +6,7 @@ import {
     editArticleAction,
     publishArticleAction,
 } from '~/modules/articles/articles.actions'
-import { getFormData } from '~/utils/actions'
+import { getFormData } from '~/utils/forms'
 import { useRouter } from 'next/navigation'
 import { FormEvent, useState } from 'react'
 import { Spinner } from '~/components/spinner'

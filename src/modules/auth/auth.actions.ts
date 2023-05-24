@@ -1,5 +1,5 @@
 'use server'
-import { action } from '~/lib/actions'
+import { action } from '~/utils/actions'
 import { loginInputSchema, registerInputSchema } from './auth.validation'
 import { authService } from './auth.service'
 import { DEFAULT_USER_IMAGE, USER_TOKEN } from '~/config/constants'
