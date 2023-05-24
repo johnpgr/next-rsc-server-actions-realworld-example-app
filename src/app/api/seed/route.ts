@@ -1,7 +1,8 @@
-import { db } from '~/db/drizzle-db'
-import { article, tag, user as userTable } from '~/db/schema'
+import { db } from '~/db'
+import { schema } from '~/db/schema'
 import { faker } from '@faker-js/faker'
-import { createId, jsonResponse } from '~/lib/utils'
+import { createId } from '~/utils/ulid'
+import { jsonResponse } from '~/utils/api'
 import { env } from '~/config/env.mjs'
 import { redirect } from 'next/navigation'
 
@@ -21,11 +22,11 @@ async function seedArticles(n: number) {
         password_id: faker.string.uuid(),
     }
 
-    await db.insert(userTable).values(user)
+    await db.insert(schema.user).values(user)
 
     for (let i = 0; i < n; i++) {
         const articleId = createId()
-        await db.insert(article).values({
+        await db.insert(schema.article).values({
             id: articleId,
             title: faker.lorem.sentence(),
             description: faker.lorem.sentence(),
@@ -38,7 +39,7 @@ async function seedArticles(n: number) {
 
         for (const tagItem of tagList) {
             const tagId = createId()
-            await db.insert(tag).values({
+            await db.insert(schema.tag).values({
                 id: tagId,
                 name: tagItem,
                 article_id: articleId,

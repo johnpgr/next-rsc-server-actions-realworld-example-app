@@ -1,11 +1,15 @@
 import { cookies } from 'next/headers'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { ProfileActionButton } from './profile-action-button'
-import { DEFAULT_USER_IMAGE, HEADER_HEIGHT, USER_TOKEN } from '~/lib/constants'
-import { authService } from '~/services/auth'
-import { profileService } from '~/services/profile'
-import { ProfileTabs } from './profile-tabs'
+import { ProfileActionButton } from '~/components/profile/profile-action-button'
+import {
+    DEFAULT_USER_IMAGE,
+    HEADER_HEIGHT,
+    USER_TOKEN,
+} from '~/config/constants'
+import { authService } from '~/modules/auth/auth.service'
+import { usersService } from '~/modules/users/users.service'
+import { ProfileTabs } from '~/components/profile/profile-tabs'
 import { unstable_cache as cache } from 'next/cache'
 
 export const runtime = 'edge'
@@ -19,27 +23,17 @@ export default async function ProfilePage({
 }) {
     const token = cookies().get(USER_TOKEN)?.value
 
-    const currentUser = token
+    const user = token
         ? await cache(
-              async () => await authService.getPayloadFromToken(token),
+              async () => authService.getPayloadFromToken(token),
               [token],
-              { revalidate: 60 },
+              {
+                  revalidate: 10,
+              },
           )()
         : null
 
-    const currentUserId = currentUser
-        ? await cache(
-              async () =>
-                  await authService.getUserIdByUserName(currentUser.username),
-              [`ID:${currentUser.username}`],
-              { revalidate: 60 },
-          )()
-        : null
-
-    const profile = await profileService.getProfileByUsername(
-        params.username,
-        currentUserId,
-    )
+    const profile = await usersService.getUserProfile(params.username, user?.id)
 
     if (!profile) {
         return notFound()
@@ -60,8 +54,8 @@ export default async function ProfilePage({
                         {profile.username}
                     </h1>
                     <ProfileActionButton
-                        currentUsername={currentUser?.username ?? null}
                         username={profile.username}
+                        currentUsername={user?.username ?? null}
                     />
                 </div>
             </div>

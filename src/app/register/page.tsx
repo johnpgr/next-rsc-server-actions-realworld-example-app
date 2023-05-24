@@ -5,16 +5,16 @@ import { useRouter } from 'next/navigation'
 import { FormEvent, useState } from 'react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
-import { getFormData } from '~/lib/utils'
-import { registerAction } from './actions'
-import { passwordRegex } from './validation'
-import { useUser } from '~/components/user-context'
+import { getFormData } from '~/utils/actions' 
+import { registerAction } from '~/modules/auth/auth.actions' 
+import { passwordRegex } from '~/modules/auth/auth.validation' 
+import { useAuth } from '~/components/auth/user-context'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 
 export default function RegisterPage() {
     const router = useRouter()
-    const { login } = useUser()
+    const { login } = useAuth()
     const [isPending, setIsPending] = useState(false)
     const [error, setError] = useState<string>('')
     const [passwordError, setPasswordError] = useState<string | undefined>()

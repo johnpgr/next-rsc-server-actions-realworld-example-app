@@ -1,10 +1,9 @@
 import { cookies } from 'next/headers'
-import { ArticleRow } from '~/components/article-row'
-import { USER_TOKEN } from '~/lib/constants'
-import { articlesService } from '~/services/articles'
-import { authService } from '~/services/auth'
-import { unstable_cache as cache, revalidateTag } from 'next/cache'
-import { favoritesService } from '~/services/favorites'
+import { ArticleRow } from '~/components/articles/article-row'
+import { USER_TOKEN } from '~/config/constants'
+import { articlesService } from '~/modules/articles/articles.service'
+import { unstable_cache as cache } from 'next/cache'
+import { authService } from '~/modules/auth/auth.service'
 
 export const runtime = 'nodejs'
 
@@ -14,82 +13,32 @@ export default async function UserArticlesPage({
     params: { username: string }
 }) {
     const token = cookies().get(USER_TOKEN)?.value
-
-    const currentUser = token
+    const user = token
         ? await cache(
-              async () => await authService.getPayloadFromToken(token),
+              async () => authService.getPayloadFromToken(token),
               [token],
-              { revalidate: 60 },
+              {
+                  revalidate: 10,
+              },
           )()
         : null
 
-    const currentUserId = currentUser
-        ? await cache(
-              async () =>
-                  await authService.getUserIdByUserName(currentUser.username),
-              [`ID:${currentUser.username}`],
-              { revalidate: 60 },
-          )()
-        : null
-
-    const articles = await cache(
-        async () =>
-            await articlesService.getArticles({
-                currentUserId,
-                feedType: 'global',
-                params: {
-                    authorName: params.username,
-                    tag: null,
-                    limit: 6,
-                    offset: 0,
-                    favoritedBy: null,
-                },
-            }),
-        [`ARTICLES_BY_AUTHOR:${params.username}`],
-        {
-            revalidate: 60 * 60 * 24,
-            tags: [`ARTICLES_BY_AUTHOR:${params.username}`],
+    const articles = await articlesService.getArticles({
+        currentUserId: user?.id ?? null,
+        feedType: 'global',
+        params: {
+            authorName: params.username,
+            favoritedBy: null,
+            tag: null,
+            limit: 10,
+            offset: 0,
         },
-    )()
+    })
 
-    async function handleFavorite(args: {
-        favorited: boolean
-        slug: string
-        username: string
-    }) {
-        'use server'
-        const { favorited, slug, username} = args
-
-        const userId = await authService.getUserIdByUserName(username)
-
-        if (favorited) {
-            // unfavorite
-            const articleId = await articlesService.getArticleIdBySlug(slug)
-            if (!articleId) return
-
-            await favoritesService.unfavoriteArticle({
-                articleId,
-                userId
-            })
-        } else {
-            // favorite
-            const articleId = await articlesService.getArticleIdBySlug(slug)
-            if (!articleId) return
-            await favoritesService.favoriteArticle({
-                articleId,
-                userId
-            })
-        }
-        revalidateTag(`ARTICLE_BY_AUTHOR:${params.username}`)
-    }
     return (
         <ul className="divide-y">
             {articles.map((article) => (
-                <ArticleRow
-                    favoriteHandler={handleFavorite}
-                    key={article.slug}
-                    article={article}
-                />
+                <ArticleRow key={article.slug} article={article} />
             ))}
         </ul>
     )

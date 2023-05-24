@@ -3,7 +3,7 @@ import {
     HASH_KEY_LENGTH,
     HASH_ALGORITHM,
     HASH_ITERATIONS,
-} from './constants'
+} from '../config/constants'
 
 // Function to generate a random salt
 function generateSalt() {

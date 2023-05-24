@@ -3,17 +3,17 @@ import Link from 'next/link'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Dot, Loader2 } from 'lucide-react'
-import { loginAction } from './actions'
-import { getFormData } from '~/lib/utils'
+import { loginAction } from '~/modules/auth/auth.actions'
+import { getFormData } from '~/utils/actions'
 import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useUser } from '~/components/user-context'
+import { useAuth } from '~/components/auth/user-context'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 
 export default function LoginPage() {
     const router = useRouter()
-    const { login } = useUser()
+    const { login } = useAuth()
     const [isPending, setIsPending] = useState(false)
     const [error, setError] = useState<string | undefined>()
 
@@ -36,7 +36,7 @@ export default function LoginPage() {
         if (data?.error) {
             setError(data.error.message)
         }
-        
+
         if (data?.user) {
             login(data.user)
             router.push('/')

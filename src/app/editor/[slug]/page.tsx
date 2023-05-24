@@ -1,8 +1,8 @@
 import { cookies } from 'next/headers'
-import { Editor } from '../editor'
-import { USER_TOKEN } from '~/lib/constants'
-import { authService } from '~/services/auth'
-import { articlesService } from '~/services/articles'
+import { Editor } from '~/components/editor'
+import { USER_TOKEN } from '~/config/constants'
+import { authService } from '~/modules/auth/auth.service'
+import { articlesService } from '~/modules/articles/articles.service'
 import { notFound, redirect } from 'next/navigation'
 
 //runtime edge doesnt work here
@@ -19,18 +19,17 @@ export default async function EditorPage({
         ? await authService.getPayloadFromToken(token)
         : null
 
-    const id = currentUser
-        ? await authService.getUserIdByUserName(currentUser.username)
-        : null
+    if (!currentUser) redirect('/login')
 
-    if (!id) {
-        redirect('/login')
-    }
+    const article = await articlesService.getArticleBySlug(
+        params.slug,
+        currentUser.id,
+    )
 
-    const article = await articlesService.getArticleBySlug(params.slug, id)
+    if (!article) return notFound()
 
     const isArticleAuthor = await articlesService.isArticleAuthor(
-        id,
+        currentUser.id,
         params.slug,
     )
 

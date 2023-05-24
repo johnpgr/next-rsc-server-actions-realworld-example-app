@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
-import { USER_TOKEN } from '~/lib/constants'
-import { articlesService } from '~/services/articles'
-import { authService } from '~/services/auth'
+import { USER_TOKEN } from '~/config/constants'
+import { articlesService } from '~/modules/articles/articles.service'
+import { authService } from '~/modules/auth/auth.service'
 
 export const runtime = 'edge'
 
@@ -16,10 +16,7 @@ export default async function ArticlePage({
         ? await authService.getPayloadFromToken(token)
         : null
 
-    const id = currentUser
-        ? await authService.getUserIdByUserName(currentUser.username)
-        : null
+    const article = await articlesService.getArticleBySlug(params.slug, currentUser?.id)
 
-    const article = await articlesService.getArticleBySlug(params.slug, id)
     return <pre>{JSON.stringify(article, null, 4)}</pre>
 }

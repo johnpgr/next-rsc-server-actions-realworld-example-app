@@ -1,5 +1,5 @@
-import { AuthRequiredPage } from '~/components/auth-required-page'
-import { Editor } from './editor'
+import { AuthRequiredPage } from '~/components/auth/auth-required-page' 
+import { Editor } from '~/components/editor'
 
 //runtime edge doesnt work here
 export const runtime = 'nodejs'
