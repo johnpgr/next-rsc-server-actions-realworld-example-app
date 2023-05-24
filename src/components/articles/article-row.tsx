@@ -13,6 +13,7 @@ import {
     favoriteArticleAction,
     unfavoriteArticleAction,
 } from '~/modules/favorites/favorites.actions'
+import { Badge } from '../ui/badge'
 
 export type ArticleRowProps = {
     article: ParsedArticleQueryResponse
@@ -23,8 +24,39 @@ export const ArticleRow = (props: ArticleRowProps) => {
     const { toast } = useToast()
     const [pending, startTransition] = useTransition()
 
+    function handleFavorite() {
+        startTransition(async () => {
+            if (!article.favorited) {
+                const { data } = await favoriteArticleAction({
+                    article: {
+                        slug: article.slug,
+                    },
+                })
+
+                if (data?.error) {
+                    toast({
+                        title: 'Error',
+                        description: data.error.message,
+                    })
+                }
+            } else {
+                const { data } = await unfavoriteArticleAction({
+                    article: {
+                        slug: article.slug,
+                    },
+                })
+                if (data?.error) {
+                    toast({
+                        title: 'Error',
+                        description: data.error.message,
+                    })
+                }
+            }
+        })
+    }
+
     return (
-        <div className="py-4">
+        <div className="space-y-2 py-4">
             <div className="flex justify-between">
                 <div className="flex items-center gap-2">
                     <Image
@@ -41,7 +73,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
                         >
                             {article.author.username}
                         </Link>
-                        <span className="text-xs text-zinc-300">
+                        <span className="-mt-1 text-xs text-gray-300">
                             {format(
                                 new Date(article.createdAt),
                                 'MMMM d, yyyy',
@@ -50,36 +82,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
                     </div>
                 </div>
                 <Button
-                    onClick={() =>
-                        startTransition(async () => {
-                            if (!article.favorited) {
-                                const { data } = await favoriteArticleAction({
-                                    article: {
-                                        slug: article.slug,
-                                    },
-                                })
-
-                                if (data?.error) {
-                                    toast({
-                                        title: 'Error',
-                                        description: data.error.message,
-                                    })
-                                }
-                            } else {
-                                const { data } = await unfavoriteArticleAction({
-                                    article: {
-                                        slug: article.slug,
-                                    },
-                                })
-                                if (data?.error) {
-                                    toast({
-                                        title: 'Error',
-                                        description: data.error.message,
-                                    })
-                                }
-                            }
-                        })
-                    }
+                    onClick={handleFavorite}
                     disabled={pending}
                     className={clsx(
                         'h-7 gap-1 rounded-sm border-primary py-0 text-sm text-primary hover:bg-primary hover:text-white',
@@ -94,6 +97,28 @@ export const ArticleRow = (props: ArticleRowProps) => {
                     {article.favoritesCount}
                 </Button>
             </div>
+            <Link href={`/article/${article.slug}`}>
+                <h1 className="text-2xl font-semibold text-stone-700">
+                    {article.title}
+                </h1>
+                <p className="text-gray-400">{article.description}</p>
+                <div className="mt-2 flex w-full items-center justify-between">
+                    <span className="text-xs text-gray-300">Read more...</span>
+                    <div className="space-x-1">
+                        {article.tagList && article.tagList.length > 0
+                            ? article.tagList.map((tag, i) => (
+                                  <Badge
+                                      key={`tag:${tag}_${i}`}
+                                      variant={'outline'}
+                                      className="font-normal text-gray-400"
+                                  >
+                                      {tag}
+                                  </Badge>
+                              ))
+                            : null}
+                    </div>
+                </div>
+            </Link>
         </div>
     )
 }

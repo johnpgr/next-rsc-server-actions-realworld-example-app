@@ -1,5 +1,5 @@
 import '~/styles/globals.css'
-import { Inter } from 'next/font/google'
+import { Source_Sans_Pro } from 'next/font/google'
 import { RefreshTokenComponent } from '~/components/auth/refresh-token'
 import { Toaster } from '~/components/ui/toaster'
 import { UserContextProvider } from '~/components/auth/user-context'
@@ -7,8 +7,6 @@ import { Nav } from '~/components/nav'
 import { cookies } from 'next/headers'
 import { USER_TOKEN } from '~/config/constants'
 import { authService } from '~/modules/auth/auth.service'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const runtime = 'edge'
 
@@ -27,11 +25,11 @@ export default async function RootLayout({
 
     return (
         <html lang="en">
-            <body className={inter.className}>
+            <body>
                 <UserContextProvider initial={user}>
                     <RefreshTokenComponent />
                     <Nav />
-                    {children}
+                    <main>{children}</main>
                 </UserContextProvider>
                 <Toaster />
             </body>

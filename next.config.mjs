@@ -11,7 +11,7 @@ const nextConfig = {
         serverActions: true,
     },
     images: {
-        domains: ['api.realworld.io'],
+        domains: ['api.realworld.io', 'cloudflare-ipfs.com'],
     },
 }
 

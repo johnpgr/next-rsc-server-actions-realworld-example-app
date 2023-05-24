@@ -8,6 +8,7 @@ export const ProfileTabs = (props: { username: string }) => {
     const path = usePathname()
     const myArticlesLink = `/profile/${props.username}`
     const favoritesLink = `/profile/${props.username}/favorites`
+
     return (
         <div className="flex items-center gap-2 text-sm border-b">
             <Link

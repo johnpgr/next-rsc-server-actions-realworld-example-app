@@ -3,6 +3,8 @@ import { USER_TOKEN } from '~/config/constants'
 import { PageSearchParams, getSearchParams } from '~/utils/search-params'
 import { articlesService } from '~/modules/articles/articles.service'
 import { authService } from '~/modules/auth/auth.service'
+import { ArticleRow } from '~/components/articles/article-row'
+import { FeedTabs } from '~/components/articles/feed-tabs'
 
 export const runtime = 'edge'
 
@@ -44,5 +46,15 @@ export default async function ArticlesPage({
         feedType: 'global',
         params: parsedParams,
     })
-    return <pre>{JSON.stringify(articles, null, 4)}</pre>
+
+    return (
+        <div className="container mx-auto mt-6 max-w-5xl">
+            <FeedTabs username={currentUser?.username} />
+            <ul className="divide-y">
+                {articles.map((article) => (
+                    <ArticleRow article={article} key={article.slug} />
+                ))}
+            </ul>
+        </div>
+    )
 }
