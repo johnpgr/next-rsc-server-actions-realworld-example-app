@@ -6,6 +6,8 @@ import { jsonResponse } from '~/utils/api'
 import { env } from '~/config/env.mjs'
 import { redirect } from 'next/navigation'
 
+export const runtime = 'nodejs'
+
 async function seedArticles(n: number) {
     if (env.NODE_ENV !== 'development') {
         redirect('/')

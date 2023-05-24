@@ -5,7 +5,6 @@ import Cookies from 'js-cookie'
 import { cache, use, useEffect, useRef } from 'react'
 import { getBaseUrl } from '~/utils/api'
 import { useAuth } from './user-context'
-import { RefreshToken } from '~/app/api/auth/token/refresh/refresh-token'
 
 const getNewToken = cache(
     async (token: string) =>
@@ -36,7 +35,9 @@ export const RefreshTokenComponent = () => {
             // Get a new token
             const res = use(getNewToken(token))
 
-            const { exp: newExp } = (await res.json()) as RefreshToken
+            const { exp: newExp } = (await res.json()) as {
+                exp: number
+            }
 
             // Restart the token refresh process with the new access token
             startTokenRefresh(newExp)

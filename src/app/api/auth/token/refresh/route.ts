@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server'
 import { jsonResponse } from '~/utils/api'
-import { refreshToken } from './refresh-token'
 import { authService } from '~/modules/auth/auth.service'
 import { cookies } from 'next/headers'
 import { USER_TOKEN } from '~/config/constants'
@@ -12,7 +11,7 @@ export async function POST(req: NextRequest) {
     if (!token) return jsonResponse(401, { message: 'Unauthorized' })
 
     try {
-        const newToken = await refreshToken(token)
+        const newToken = await authService.refreshToken(token)
         const user = await authService.getPayloadFromToken(newToken)
         if (!user) throw new Error('Something went wrong refreshing the token')
 
