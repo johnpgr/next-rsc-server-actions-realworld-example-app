@@ -5,7 +5,7 @@ import { authService } from './auth.service'
 import { DEFAULT_USER_IMAGE, USER_TOKEN } from '~/config/constants'
 import { usersService } from '../users/users.service'
 import { cookies } from 'next/headers'
-import { revalidatePath } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 
 export const loginAction = action({ input: loginInputSchema }, async (data) => {
     try {
@@ -26,7 +26,7 @@ export const loginAction = action({ input: loginInputSchema }, async (data) => {
 
         if (!userToken) throw new Error('Failed to login')
 
-        revalidatePath('/')
+        revalidateTag('user_article_list')
 
         cookies().set(USER_TOKEN, token)
 
@@ -65,7 +65,7 @@ export const registerAction = action(
             const token = await authService.createToken(safeUser)
             const userToken = await authService.getPayloadFromToken(token)
 
-            revalidatePath('/')
+            revalidateTag('user_article_list')
 
             cookies().set(USER_TOKEN, token)
 

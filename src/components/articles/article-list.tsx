@@ -1,6 +1,7 @@
 import React from 'react'
 import { articlesService } from '~/modules/articles/articles.service'
 import { ArticleRow } from './article-row'
+import { unstable_cache as cache } from 'next/cache'
 
 type ParsedParams = {
     limit: number
@@ -19,11 +20,18 @@ export const ArticleList = async ({
     feedType: 'global' | 'user'
     parsedParams: ParsedParams
 }) => {
-    const articles = await articlesService.getArticles({
-        currentUserId,
-        feedType,
-        params: parsedParams,
-    })
+    const articles = await cache(
+        () =>
+            articlesService.getArticles({
+                currentUserId,
+                feedType,
+                params: parsedParams,
+            }),
+        [`${feedType}_article_list`],
+        {
+            tags: [`${feedType}_article_list`],
+        },
+    )()
 
     return (
         <ul className="divide-y">
