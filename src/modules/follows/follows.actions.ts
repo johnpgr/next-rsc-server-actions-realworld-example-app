@@ -19,6 +19,7 @@ export const followUserAction = action(
             const followingUser = await usersService.getUser(data.followingId)
 
             revalidatePath(`/profile/${followingUser?.username}`)
+            revalidatePath('/')
         } catch (error) {
             return {
                 error: { message: (error as Error).message, code: 400 },
@@ -42,6 +43,7 @@ export const unfollowUserAction = action(
             const followingUser = await usersService.getUser(data.followingId)
 
             revalidatePath(`/profile/${followingUser?.username}`)
+            revalidatePath('/')
         } catch (error) {
             return {
                 error: { message: (error as Error).message, code: 400 },
