@@ -57,7 +57,7 @@ export const editArticleAction = action(
             }
         }
 
-        const article = await articlesService.updateArticle(data, user.id)
+        const article = await articlesService.updateArticle(data)
 
         return { article }
     },

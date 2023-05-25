@@ -1,13 +1,13 @@
 import { InferModel } from "drizzle-orm"
-import { article } from "./articles.models"
+import { article } from "~/db/schema"
 
-export type ParsedArticleQueryResponse = {
+export type Article = {
     title: string
     description: string
     body: string
     slug: string
-    createdAt: string
-    updatedAt: string
+    createdAt: Date
+    updatedAt: Date
     author: {
         username: string
         bio: string
@@ -25,6 +25,8 @@ export type GetArticlesParams = {
     limit: number
     offset: number
 }
+
+export type ArticleModel = InferModel<typeof article>
 
 export type NewArticle = InferModel<typeof article, "insert"> & {
     tagList: string[]

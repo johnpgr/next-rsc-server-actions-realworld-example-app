@@ -2,14 +2,19 @@ import { Adapter, AdapterAccount, VerificationToken } from "next-auth/adapters"
 import { and, eq } from "drizzle-orm"
 import * as schema from "./schema"
 import { db } from "."
+import { randomUUID } from "crypto"
+import { hash } from "bcryptjs"
 
 export function DrizzleAdapter(database: typeof db): Adapter {
     return {
+        //This method should not be used to create user
         createUser: async (data) => {
             const user = await database
                 .insert(schema.user)
                 .values({
                     ...data,
+                    password: await hash(randomUUID(),12),
+
                 })
                 .returning()
 

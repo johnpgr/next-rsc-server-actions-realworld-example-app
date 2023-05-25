@@ -7,17 +7,15 @@ const articlePages = ["/", "/global"]
 
 export const ArticlePageLayout = ({
     children,
-    currentUser,
 }: {
     children: React.ReactNode
-    currentUser?: string | null
 }) => {
     const path = usePathname()
 
     if (articlePages.includes(path))
         return (
             <div className="container mx-auto mt-6 max-w-5xl">
-                <FeedTabs username={currentUser} />
+                <FeedTabs />
                 {children}
             </div>
         )

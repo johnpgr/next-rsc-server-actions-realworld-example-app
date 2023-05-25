@@ -1,29 +1,27 @@
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import * as schema from "~/db/schema"
 import { CreateComment } from "./comments.validation"
-import { createId, getDateFromULID } from "~/utils/ulid"
 import { db } from "~/db/"
 import { and, desc, eq, sql } from "drizzle-orm"
-import { Comment } from "./comments.types"
+import { Comment, CommentModel } from "./comments.types"
 
 class CommentService {
-    private db: PlanetScaleDatabase<typeof schema>
+    private database:typeof db 
 
-    constructor(db: PlanetScaleDatabase<typeof schema>) {
-        this.db = db
+    constructor(database: typeof db) {
+        this.database = database
     }
 
     async getCommentsFromArticleId(
         articleId: string,
         currentUserId: string | null,
     ): Promise<Comment[]> {
-        const comments = await this.db
+        const comments = await this.database
             .select({
                 id: schema.comment.id,
                 body: schema.comment.body,
                 updatedAt: schema.comment.updated_at,
                 author: {
-                    username: schema.user.username,
+                    username: schema.user.name,
                     bio: schema.user.bio,
                     image: schema.user.image,
                     following: sql`IF(${schema.follow.id} IS NULL, FALSE, TRUE)`,
@@ -42,9 +40,6 @@ class CommentService {
             .orderBy(desc(schema.comment.id))
 
         for (const comment of comments) {
-            //@ts-ignore
-            comment.createdAt = getDateFromULID(comment.id)
-
             if (!comment.author) {
                 continue
             }
@@ -58,29 +53,26 @@ class CommentService {
         comment: CreateComment
         articleId: string
         authorId: string
-    }): Promise<void> {
+    }): Promise<CommentModel> {
         const { articleId, authorId } = args
         const { body } = args.comment
 
-        const { rowsAffected } = await this.db.insert(schema.comment).values({
+        const [comment] = await this.database.insert(schema.comment).values({
             body,
-            id: createId(),
             article_id: articleId,
             author_id: authorId,
-        })
+        }).returning()
 
-        if (rowsAffected !== 1) {
-            throw new Error("Failed to create comment")
-        }
+        return comment
     }
 
     async deleteComment(args: {
         commentId: string
         userId: string
-    }): Promise<void> {
+    }): Promise<CommentModel> {
         const { commentId, userId } = args
 
-        const { rowsAffected } = await this.db
+        const [comment] = await this.database
             .delete(schema.comment)
             .where(
                 and(
@@ -88,10 +80,9 @@ class CommentService {
                     eq(schema.comment.author_id, userId),
                 ),
             )
+        .returning()
 
-        if (rowsAffected !== 1) {
-            throw new Error("Failed to delete comment")
-        }
+        return comment
     }
 
     async isCommentAuthor(args: {
@@ -100,7 +91,7 @@ class CommentService {
     }): Promise<boolean> {
         const { commentId, userId } = args
 
-        const [{ authorId }] = await this.db
+        const [{ authorId }] = await this.database
             .select({ authorId: schema.comment.author_id })
             .from(schema.comment)
             .where(eq(schema.comment.id, commentId))

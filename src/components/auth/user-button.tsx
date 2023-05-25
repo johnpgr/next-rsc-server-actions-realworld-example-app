@@ -7,38 +7,39 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import { useAuth } from "./user-context"
 import Image from "next/image"
-import { ChevronDown, LogOut, Settings, User } from "lucide-react"
+import { ChevronDown, LogOut, Settings, User as UserIcon } from "lucide-react"
 import Link from "next/link"
 import { DEFAULT_USER_IMAGE } from "~/config/constants"
+import { signOut, useSession } from "next-auth/react"
+import { type Session } from "next-auth"
 
 export default function UserButton() {
-    const { user, logout } = useAuth()
+    const {data:session} = useSession()
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="link" className="flex items-center gap-1">
-                    {user ? (
+                    {session?.user ? (
                         <Image
                             className="rounded-full"
-                            src={user.image ?? DEFAULT_USER_IMAGE}
-                            alt={user.username}
+                            src={session.user.image ?? DEFAULT_USER_IMAGE}
+                            alt={session.user.name ?? "Unknown user"}
                             width={24}
                             height={24}
                         />
                     ) : null}
-                    {user?.username}
+                    {session?.user?.name ?? "Unknown user"}
                     <ChevronDown size={16} />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuItem asChild>
                     <Link
-                        href={`/profile/${user?.username}`}
+                        href={`/profile/${session?.user?.name}`}
                         className="flex cursor-pointer items-center gap-1"
                     >
-                        <User size={16} />
+                        <UserIcon size={16} />
                         Profile
                     </Link>
                 </DropdownMenuItem>
@@ -53,8 +54,8 @@ export default function UserButton() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                    onClick={logout}
-                    className="flex items-center gap-1"
+                    onClick={() => signOut()}
+                    className="flex items-center gap-1 cursor-pointer"
                 >
                     <LogOut size={16} />
                     Logout

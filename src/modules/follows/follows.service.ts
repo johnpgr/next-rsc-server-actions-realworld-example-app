@@ -1,19 +1,16 @@
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import * as schema from "~/db/schema"
-import { usersService } from "../users/users.service"
 import { and, eq } from "drizzle-orm"
-import { createId } from "~/utils/ulid"
-import { Profile } from "../users/users.types"
+import { type Follow } from "./follows.types"
 import { db } from "~/db"
 
 class FollowsService {
-    private db: PlanetScaleDatabase<typeof schema>
-    constructor(db: PlanetScaleDatabase<typeof schema>) {
-        this.db = db
+    private database: typeof db
+    constructor(database: typeof db) {
+        this.database = database
     }
 
-    async followUser(followerId: string, followingId: string): Promise<void> {
-        const [alreadyFollowing] = await this.db
+    async followUser(followerId: string, followingId: string): Promise<Follow> {
+        const [alreadyFollowing] = await this.database
             .select()
             .from(schema.follow)
             .where(
@@ -25,27 +22,25 @@ class FollowsService {
             .limit(1)
 
         if (alreadyFollowing) {
-            const [found] = await this.db
-                .select({ username: schema.user.username })
-                .from(schema.user)
-                .where(eq(schema.user.id, followingId))
-                .limit(1)
-            throw new Error(`Already following user: ${found.username}`)
+            throw new Error(`Already following userId: ${followingId}`)
         }
 
-        const { rowsAffected } = await this.db.insert(schema.follow).values({
-            id: createId(),
-            follower_id: followerId,
-            following_id: followingId,
-        })
+        const [follow] = await this.database
+            .insert(schema.follow)
+            .values({
+                follower_id: followerId,
+                following_id: followingId,
+            })
+            .returning()
 
-        if (rowsAffected !== 1) {
-            throw new Error("Failed to follow user")
-        }
+        return follow
     }
 
-    async unfollowUser(followerId: string, followingId: string): Promise<void> {
-        const [alreadyFollowing] = await this.db
+    async unfollowUser(
+        followerId: string,
+        followingId: string,
+    ): Promise<Follow> {
+        const [alreadyFollowing] = await this.database
             .select()
             .from(schema.follow)
             .where(
@@ -57,15 +52,10 @@ class FollowsService {
             .limit(1)
 
         if (!alreadyFollowing) {
-            const [found] = await this.db
-                .select({ username: schema.user.username })
-                .from(schema.user)
-                .where(eq(schema.user.id, followingId))
-                .limit(1)
-            throw new Error(`Not following user: ${found.username}`)
+            throw new Error(`Not following userId: ${followingId}`)
         }
 
-        const { rowsAffected } = await this.db
+        const [follow] = await this.database
             .delete(schema.follow)
             .where(
                 and(
@@ -73,10 +63,9 @@ class FollowsService {
                     eq(schema.follow.following_id, followingId),
                 ),
             )
+            .returning()
 
-        if (rowsAffected !== 1) {
-            throw new Error("Failed to unfollow user")
-        }
+        return follow
     }
 }
 

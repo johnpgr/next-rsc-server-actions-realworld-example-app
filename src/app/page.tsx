@@ -1,9 +1,8 @@
-import { cookies } from "next/headers"
-import { USER_TOKEN } from "~/config/constants"
 import { PageSearchParams, getSearchParams } from "~/utils/search-params"
-import { authService } from "~/modules/auth/auth.service"
 import { Suspense } from "react"
 import { ArticleList } from "~/components/articles/article-list"
+import { getServerSession } from "next-auth"
+import { authOptions } from "~/modules/auth/auth.options"
 
 export default async function ArticlesPage({
     searchParams,
@@ -31,21 +30,17 @@ export default async function ArticlesPage({
         authorName: params.author,
         favoritedBy: params.favorited,
     }
+    const session = await getServerSession(authOptions)
 
-    const token = cookies().get(USER_TOKEN)?.value
-
-    const currentUser = token
-        ? await authService.getPayloadFromToken(token)
-        : null
-
-    return (
-        <Suspense fallback={<div className="p-4">Loading articles...</div>}>
-            {/* @ts-expect-error Async server component */}
-            <ArticleList
-                currentUserId={currentUser?.id ?? null}
-                parsedParams={parsedParams}
-                feedType="user"
-            />
-        </Suspense>
-    )
+    return <div>Hello {session?.user?.name ?? "World"}</div>
+    // return (
+    //     <Suspense fallback={<div className="p-4">Loading articles...</div>}>
+    //         {/* @ts-expect-error Async server component */}
+    //         <ArticleList
+    //             currentUserId={session.user?.id ?? null}
+    //             parsedParams={parsedParams}
+    //             feedType="user"
+    //         />
+    //     </Suspense>
+    // )
 }

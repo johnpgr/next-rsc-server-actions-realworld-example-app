@@ -1,17 +1,11 @@
-import { cookies } from "next/headers"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 import { ProfileActionButton } from "~/components/profile/profile-action-button"
-import {
-    DEFAULT_USER_IMAGE,
-    HEADER_HEIGHT,
-    USER_TOKEN,
-} from "~/config/constants"
-import { authService } from "~/modules/auth/auth.service"
+import { DEFAULT_USER_IMAGE, HEADER_HEIGHT } from "~/config/constants"
 import { usersService } from "~/modules/users/users.service"
 import { ProfileTabs } from "~/components/profile/profile-tabs"
-
-export const runtime = "edge"
+import { authOptions } from "~/modules/auth/auth.options"
+import { getServerSession } from "next-auth"
 
 export default async function ProfilePage({
     params,
@@ -20,11 +14,12 @@ export default async function ProfilePage({
     params: { username: string }
     children: React.ReactNode
 }) {
-    const token = cookies().get(USER_TOKEN)?.value
+    const session = await getServerSession(authOptions)
 
-    const user = token ? await authService.getPayloadFromToken(token) : null
-
-    const profile = await usersService.getUserProfile(params.username, user?.id)
+    const profile = await usersService.getUserProfile(
+        params.username,
+        session?.user?.id,
+    )
 
     if (!profile) {
         return notFound()
@@ -36,26 +31,25 @@ export default async function ProfilePage({
                 <div className="flex w-1/2 flex-col items-center justify-center gap-4">
                     <Image
                         src={profile.image ?? DEFAULT_USER_IMAGE}
-                        alt={profile.username}
+                        alt={profile.name ?? "Unknown user"}
                         width={100}
                         height={100}
                         className="rounded-full"
                     />
                     <h1 className="text-xl font-bold text-zinc-700">
-                        {profile.username}
+                        {profile.name ?? "Unknown user"}
                     </h1>
                     <ProfileActionButton
                         user={{
                             id: profile.id,
-                            name: profile.username,
+                            name: profile.name ?? "Unknown user",
                         }}
-                        currentUsername={user?.username ?? null}
                         following={profile.following}
                     />
                 </div>
             </div>
             <div className="container mx-auto mt-6 max-w-5xl">
-                <ProfileTabs username={profile.username} />
+                <ProfileTabs username={profile.name ?? "Unknown user"} />
                 {children}
             </div>
         </div>

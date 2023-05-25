@@ -1,17 +1,11 @@
 "use server"
 import { createSafeActionClient } from "next-safe-action"
-import { cookies } from "next/headers"
-import { USER_TOKEN } from "../config/constants"
-import { authService } from "~/modules/auth/auth.service"
+import { getServerSession } from "next-auth"
+import { authOptions } from "~/modules/auth/auth.options"
 
 export async function getAuthData() {
-    const token = cookies().get(USER_TOKEN)?.value
-
-    if (!token) return { user: null }
-
-    const user = await authService.getPayloadFromToken(token)
-
-    return { user }
+    const session = await getServerSession(authOptions)
+    return { session }
 }
 
 export const action = createSafeActionClient({

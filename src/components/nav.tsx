@@ -1,14 +1,13 @@
 "use client"
-
 import Link from "next/link"
 import { Button } from "~/components/ui/button"
-import { useAuth } from "./auth/user-context"
 import { Edit, Home } from "lucide-react"
 import UserButton from "./auth/user-button"
 import { HEADER_HEIGHT } from "~/config/constants"
+import { useSession } from "next-auth/react"
 
 export const Nav = () => {
-    const { user } = useAuth()
+    const {data:session} = useSession()
     return (
         <nav
             className="flex w-full items-center justify-end bg-background px-4"
@@ -20,7 +19,7 @@ export const Nav = () => {
                     Home
                 </Link>
             </Button>
-            {user && (
+            {session && session.user && (
                 <div className="flex items-center">
                     <Button asChild variant="link">
                         <Link
@@ -31,10 +30,10 @@ export const Nav = () => {
                             New Article
                         </Link>
                     </Button>
-                    <UserButton />
+                    <UserButton/>
                 </div>
             )}
-            {!user && (
+            {!session && (
                 <div>
                     <Button asChild variant="link">
                         <Link href="/login">Sign in</Link>

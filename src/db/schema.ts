@@ -6,7 +6,6 @@ import {
     varchar,
     text,
     uuid,
-    primaryKey,
     integer,
 } from "drizzle-orm/pg-core"
 import { ProviderType } from "next-auth/providers"
@@ -15,15 +14,16 @@ import { ProviderType } from "next-auth/providers"
 export const user = pgTable(
     "user",
     {
-        id: uuid("id").notNull().defaultRandom(),
+        id: uuid("id").notNull().defaultRandom().primaryKey(),
         name: varchar("name", { length: 191 }),
         email: varchar("email", { length: 191 }).notNull(),
+        password: text("password").notNull(),
         emailVerified: timestamp("emailVerified"),
         image: varchar("image", { length: 191 }),
+        bio: text("bio"),
+        created_at: timestamp("created_at").notNull().defaultNow(),
+        updated_at: timestamp("updated_at").notNull().defaultNow(),
     },
-    (user) => ({
-        compositePk: primaryKey(user.id, user.email),
-    }),
 )
 
 export const userToAccountsRelation = relations(user, ({ many }) => ({
@@ -34,7 +34,7 @@ export const userToAccountsRelation = relations(user, ({ many }) => ({
 export const account = pgTable(
     "account",
     {
-        id: uuid("id").notNull().defaultRandom(),
+        id: uuid("id").notNull().defaultRandom().primaryKey(),
         userId: uuid("userId")
             .notNull()
             .references(() => user.id, { onDelete: "cascade" }),
@@ -51,13 +51,6 @@ export const account = pgTable(
         id_token: text("id_token"),
         session_state: varchar("session_state", { length: 191 }),
     },
-    (account) => ({
-        compositePk: primaryKey(
-            account.id,
-            account.provider,
-            account.providerAccountId,
-        ),
-    }),
 )
 
 export const accountsToUserRelation = relations(account, ({ one }) => ({
@@ -70,16 +63,13 @@ export const accountsToUserRelation = relations(account, ({ one }) => ({
 export const session = pgTable(
     "session",
     {
-        id: uuid("id").notNull().defaultRandom(),
+        id: uuid("id").notNull().defaultRandom().primaryKey(),
         sessionToken: varchar("sessionToken", { length: 191 }).notNull(),
         userId: uuid("userId")
             .notNull()
             .references(() => user.id, { onDelete: "cascade" }),
         expires: timestamp("expires").notNull(),
     },
-    (session) => ({
-        compositePk: primaryKey(session.id, session.sessionToken),
-    }),
 )
 
 export const sessionsToUserRelation = relations(session, ({ one }) => ({
@@ -96,9 +86,6 @@ export const verificationToken = pgTable(
         token: varchar("token", { length: 191 }).notNull(),
         expires: timestamp("expires").notNull(),
     },
-    (vt) => ({
-        compositePk: primaryKey(vt.identifier, vt.token),
-    }),
 )
 // End NextAuth
 
@@ -106,7 +93,7 @@ export const article = pgTable(
     "article",
     {
         id: uuid("id").notNull().defaultRandom().primaryKey(),
-        author_id: varchar("author_id", { length: 191 }).notNull(),
+        author_id: uuid("author_id").references(() => user.id),
         slug: varchar("slug", { length: 191 }).notNull(),
         title: varchar("title", { length: 191 }).notNull(),
         description: varchar("description", { length: 191 }).notNull(),
@@ -114,9 +101,9 @@ export const article = pgTable(
         created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at").notNull().defaultNow(),
     },
-    (post) => ({
-        userIdIndex: index("posts__user_id__idx").on(post.author_id),
-    }),
+    // (post) => ({
+    //     userIdIndex: index("posts__user_id__idx").on(post.author_id),
+    // }),
 )
 
 export const userToArticlesRelation = relations(user, ({ many }) => ({
@@ -143,9 +130,9 @@ export const tag = pgTable(
         created_at: timestamp("created_at").defaultNow().notNull(),
         updated_at: timestamp("updated_at").defaultNow().notNull(),
     },
-    (tag) => ({
-        articleIdIndex: index("tags__article_id__idx").on(tag.article_id),
-    }),
+    // (tag) => ({
+    //     articleIdIndex: index("tags__article_id__idx").on(tag.article_id),
+    // }),
 )
 
 export const articleToTagsRelation = relations(article, ({ many }) => ({
@@ -175,12 +162,12 @@ export const comment = pgTable(
         created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at").notNull().defaultNow(),
     },
-    (comment) => ({
-        userIdIndex: index("comments__user_id__idx").on(comment.author_id),
-        articleIdIndex: index("comments__article_id__idx").on(
-            comment.article_id,
-        ),
-    }),
+    // (comment) => ({
+    //     userIdIndex: index("comments__user_id__idx").on(comment.author_id),
+    //     articleIdIndex: index("comments__article_id__idx").on(
+    //         comment.article_id,
+    //     ),
+    // }),
 )
 
 export const userToCommentsRelation = relations(user, ({ many }) => ({
@@ -222,12 +209,12 @@ export const favorite = pgTable(
         created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at").notNull().defaultNow(),
     },
-    (favorite) => ({
-        userIdIndex: index("favorites__user_id__idx").on(favorite.user_id),
-        articleIdIndex: index("favorites__article_id__idx").on(
-            favorite.article_id,
-        ),
-    }),
+    // (favorite) => ({
+    //     userIdIndex: index("favorites__user_id__idx").on(favorite.user_id),
+    //     articleIdIndex: index("favorites__article_id__idx").on(
+    //         favorite.article_id,
+    //     ),
+    // }),
 )
 
 export const userToFavoritesRelation = relations(user, ({ many }) => ({
@@ -269,14 +256,14 @@ export const follow = pgTable(
         created_at: timestamp("created_at").notNull().defaultNow(),
         updated_at: timestamp("updated_at").notNull().defaultNow(),
     },
-    (follow) => ({
-        followerIndex: index("follows__follower_id__idx").on(
-            follow.follower_id,
-        ),
-        followingIndex: index("follows__following_id__idx").on(
-            follow.following_id,
-        ),
-    }),
+    // (follow) => ({
+    //     followerIndex: index("follows__follower_id__idx").on(
+    //         follow.follower_id,
+    //     ),
+    //     followingIndex: index("follows__following_id__idx").on(
+    //         follow.following_id,
+    //     ),
+    // }),
 )
 
 export const userToFollowersRelation = relations(user, ({ many }) => ({

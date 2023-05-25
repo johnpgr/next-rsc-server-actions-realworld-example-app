@@ -3,17 +3,13 @@ import Link from "next/link"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Dot, Loader2 } from "lucide-react"
-import { loginAction } from "~/modules/auth/auth.actions"
 import { getFormData } from "~/utils/forms"
 import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "~/components/auth/user-context"
-
-export const runtime = "nodejs"
+import { signIn } from "next-auth/react"
 
 export default function LoginPage() {
     const router = useRouter()
-    const { login } = useAuth()
     const [isPending, setIsPending] = useState(false)
     const [error, setError] = useState<string | undefined>()
 
@@ -31,14 +27,17 @@ export default function LoginPage() {
             password: input.password,
         }
 
-        const { data } = await loginAction({ user })
+        const res = await signIn("credentials", {
+            redirect: false,
+            email: user.email,
+            password: user.password,
+        })
 
-        if (data?.error) {
-            setError(data.error.message)
+        if (res?.error) {
+            setError(res.error)
         }
 
-        if (data?.user) {
-            login(data.user)
+        if (res?.ok) {
             router.push("/")
         }
 

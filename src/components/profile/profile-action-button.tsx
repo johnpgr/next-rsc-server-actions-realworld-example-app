@@ -8,19 +8,20 @@ import {
     unfollowUserAction,
 } from "~/modules/follows/follows.actions"
 import { useToast } from "../ui/use-toast"
+import { useSession } from "next-auth/react"
 
 type ProfileActionButtonProps = {
     user: { name: string; id: string }
-    currentUsername: string | null
     following: boolean
 }
 export const ProfileActionButton = ({
     user,
-    currentUsername,
     following,
 }: ProfileActionButtonProps) => {
     const [pending, startTransition] = useTransition()
+    const {data:session} = useSession()
     const { toast } = useToast()
+    const currentUsername = session?.user?.name
 
     async function handleFollowUser() {
         startTransition(async () => {

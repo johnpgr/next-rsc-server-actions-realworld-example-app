@@ -6,21 +6,19 @@ import { FormEvent, useState } from "react"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { getFormData } from "~/utils/forms"
-import { registerAction } from "~/modules/auth/auth.actions"
-import { passwordRegex } from "~/modules/auth/auth.validation"
-import { useAuth } from "~/components/auth/user-context"
-
-export const runtime = "nodejs"
+import { registerAction } from "~/modules/auth/auth.actions" 
+import { passwordRegex } from "~/modules/auth/auth.validation" 
+import { signIn } from "next-auth/react"
 
 export default function RegisterPage() {
     const router = useRouter()
-    const { login } = useAuth()
     const [isPending, setIsPending] = useState(false)
     const [error, setError] = useState<string>("")
     const [passwordError, setPasswordError] = useState<string | undefined>()
 
     async function onSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
+        setError("")
         setIsPending(true)
 
         const input = getFormData<{
@@ -35,15 +33,27 @@ export default function RegisterPage() {
             password: input.password,
         }
 
-        const { data } = await registerAction({ user })
+        const { data } = await registerAction(user)
 
         if (data?.error) {
             setError(data.error.message)
         }
 
         if (data?.user) {
-            login(data.user)
-            router.push("/")
+            const res = await signIn("credentials",{
+                redirect:false,
+                email: user.email,
+                password: user.password
+            })
+
+            if(res?.error) {
+                setError(res.error)
+            }
+
+            if(res?.ok){
+                router.push("/")
+            }
+
         }
 
         setIsPending(false)

@@ -4,14 +4,15 @@ import { favoriteArticleSchema } from "./favorites.validation"
 import { favoritesService } from "./favorites.service"
 import { articlesService } from "../articles/articles.service"
 import { revalidatePath } from "next/cache"
+import { usersService } from "../users/users.service"
 
 export const favoriteArticleAction = action(
     {
         input: favoriteArticleSchema,
         withAuth: true,
     },
-    async (data, { user }) => {
-        if (!user)
+    async (data, { session }) => {
+        if (!session || !session.user)
             return {
                 error: {
                     message: "You must be logged in to favorite an article",
@@ -33,7 +34,7 @@ export const favoriteArticleAction = action(
 
         const isFavorited = await favoritesService.userHasFavoritedArticle({
             articleId,
-            userId: user.id,
+            userId: session.user.id,
         })
 
         if (isFavorited)
@@ -46,7 +47,7 @@ export const favoriteArticleAction = action(
 
         const res = await favoritesService.favoriteArticle({
             articleId,
-            userId: user.id,
+            userId: session.user.id,
         })
 
         if (!res)
@@ -56,12 +57,18 @@ export const favoriteArticleAction = action(
                     code: 500,
                 },
             }
+        const article = await articlesService.getArticleById(res.article_id)
+        if (!article)
+            return {
+                error: {
+                    message: "Failed to revalidate",
+                    code: 500,
+                },
+            }
 
-        const { author } = res
+        revalidatePath(`/profile/${article.author.username}`)
 
-        revalidatePath(`/profile/${author.username}`)
-
-        return { article: res }
+        return { article }
     },
 )
 
@@ -70,8 +77,8 @@ export const unfavoriteArticleAction = action(
         input: favoriteArticleSchema,
         withAuth: true,
     },
-    async (data, { user }) => {
-        if (!user)
+    async (data, { session }) => {
+        if (!session || !session.user)
             return {
                 error: {
                     message: "You must be logged in to favorite an article",
@@ -93,7 +100,7 @@ export const unfavoriteArticleAction = action(
 
         const isFavorited = await favoritesService.userHasFavoritedArticle({
             articleId,
-            userId: user.id,
+            userId: session.user.id,
         })
 
         if (!isFavorited)
@@ -106,7 +113,7 @@ export const unfavoriteArticleAction = action(
 
         const res = await favoritesService.unfavoriteArticle({
             articleId,
-            userId: user.id,
+            userId: session.user.id,
         })
 
         if (!res)
@@ -117,10 +124,18 @@ export const unfavoriteArticleAction = action(
                 },
             }
 
-        const { author } = res
+        const article = await articlesService.getArticleById(res.article_id)
 
-        revalidatePath(`/profile/${author.username}`)
+        if (!article)
+            return {
+                error: {
+                    message: "Failed to revalidate",
+                    code: 500,
+                },
+            }
 
-        return { article: res }
+        revalidatePath(`/profile/${article.author.username}`)
+
+        return { article }
     },
 )

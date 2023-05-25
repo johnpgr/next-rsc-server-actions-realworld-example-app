@@ -1,3 +1,6 @@
+import { InferModel } from "drizzle-orm"
+import { comment } from "~/db/schema"
+
 export type Comment = {
     id: string
     body: string
@@ -10,3 +13,5 @@ export type Comment = {
         following: boolean
     }
 }
+
+export type CommentModel = InferModel<typeof comment>

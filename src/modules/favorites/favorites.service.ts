@@ -1,16 +1,15 @@
 import { and, eq } from "drizzle-orm"
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import { db } from "~/db"
 import * as schema from "~/db/schema"
-import { createId } from "~/utils/ulid"
 import { articlesService } from "../articles/articles.service"
-import { type ParsedArticleQueryResponse } from "../articles/articles.types"
+import { type ArticleModel } from "../articles/articles.types"
+import { Favorite } from "./favorites.types"
 
 class FavoritesService {
-    private db: PlanetScaleDatabase<typeof schema>
+    private database: typeof db
 
-    constructor(db: PlanetScaleDatabase<typeof schema>) {
-        this.db = db
+    constructor(database: typeof db) {
+        this.database = database
     }
 
     /**
@@ -19,28 +18,18 @@ class FavoritesService {
     async favoriteArticle(args: {
         articleId: string
         userId: string
-    }): Promise<ParsedArticleQueryResponse | null> {
+    }): Promise<Favorite | null> {
         const { articleId, userId } = args
 
-        const { rowsAffected } = await this.db.insert(schema.favorite).values({
-            id: createId(),
-            article_id: articleId,
-            user_id: userId,
-        })
+        const [favorite] = await this.database
+            .insert(schema.favorite)
+            .values({
+                article_id: articleId,
+                user_id: userId,
+            })
+            .returning()
 
-        if (rowsAffected !== 1) {
-            throw new Error("Failed to favorite article")
-        }
-
-        const [{ slug }] = await this.db
-            .select({ slug: schema.article.slug })
-            .from(schema.article)
-            .where(eq(schema.article.id, articleId))
-            .limit(1)
-
-        if (!slug) throw new Error("Failed to get article slug")
-
-        return await articlesService.getArticleBySlug(slug, userId)
+        return favorite
     }
     /**
      * @throws {Error}
@@ -48,10 +37,10 @@ class FavoritesService {
     async unfavoriteArticle(args: {
         articleId: string
         userId: string
-    }): Promise<ParsedArticleQueryResponse | null> {
+    }): Promise<Favorite | null> {
         const { articleId, userId } = args
 
-        const { rowsAffected } = await this.db
+        const [favorite] = await this.database
             .delete(schema.favorite)
             .where(
                 and(
@@ -59,20 +48,9 @@ class FavoritesService {
                     eq(schema.favorite.user_id, userId),
                 ),
             )
+            .returning()
 
-        if (rowsAffected !== 1) {
-            throw new Error("Failed to unfavorite article")
-        }
-
-        const [{ slug }] = await this.db
-            .select({ slug: schema.article.slug })
-            .from(schema.article)
-            .where(eq(schema.article.id, articleId))
-            .limit(1)
-
-        if (!slug) throw new Error("Failed to get article slug")
-
-        return await articlesService.getArticleBySlug(slug, userId)
+        return favorite
     }
 
     async userHasFavoritedArticle(args: {
@@ -81,7 +59,7 @@ class FavoritesService {
     }): Promise<boolean> {
         const { articleId, userId } = args
 
-        const found = await this.db
+        const found = await this.database
             .select({ id: schema.favorite.id })
             .from(schema.favorite)
             .where(

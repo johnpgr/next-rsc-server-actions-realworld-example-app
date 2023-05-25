@@ -3,15 +3,17 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import clsx from "clsx"
+import { useSession } from "next-auth/react"
 
-export const FeedTabs = (props: { username?: string | null }) => {
+export const FeedTabs = () => {
+    const { data: session } = useSession()
     const path = usePathname()
     const yourFeedLink = "/"
-    const globalFeedLink = props.username ? "/global" : "/"
+    const globalFeedLink = session?.user?.name ? "/global" : "/"
 
     return (
         <div className="flex items-center gap-2 border-b text-sm">
-            {props.username && (
+            {session?.user?.name && (
                 <Link
                     href={yourFeedLink}
                     className={clsx("px-4 py-2", {

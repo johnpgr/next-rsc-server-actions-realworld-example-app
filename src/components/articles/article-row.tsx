@@ -2,7 +2,7 @@
 import Image from "next/image"
 import { format } from "date-fns"
 import Link from "next/link"
-import { type ParsedArticleQueryResponse } from "~/modules/articles/articles.types"
+import { type Article } from "~/modules/articles/articles.types"
 import { DEFAULT_USER_IMAGE } from "~/config/constants"
 import { Button } from "../ui/button"
 import { Heart } from "lucide-react"
@@ -16,7 +16,7 @@ import {
 import { Badge } from "../ui/badge"
 
 export type ArticleRowProps = {
-    article: ParsedArticleQueryResponse
+    article: Article
 }
 
 export const ArticleRow = (props: ArticleRowProps) => {

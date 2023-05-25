@@ -1,20 +1,15 @@
-import { cookies } from "next/headers"
+import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
-import { USER_TOKEN } from "~/config/constants"
-import { authService } from "~/modules/auth/auth.service"
+import { authOptions } from "~/modules/auth/auth.options"
 
 export const UnauthRequiredPage = async ({
     children,
 }: {
     children: React.ReactNode
 }) => {
-    const token = cookies().get(USER_TOKEN)?.value
+    const session = await getServerSession(authOptions)
 
-    if (!token) return <>{children}</>
+    if (!session || !session.user) return <>{children}</>
 
-    const isTokenValid = await authService.getPayloadFromToken(token)
-
-    if (isTokenValid) redirect("/")
-
-    return <>{children}</>
+    redirect("/")
 }

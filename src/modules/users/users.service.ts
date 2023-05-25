@@ -1,57 +1,64 @@
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
 import { db } from "~/db"
 import { Profile, type User } from "./users.types"
 import * as schema from "~/db/schema"
 import { and, eq, sql } from "drizzle-orm"
-import { createId } from "~/utils/ulid"
 import { EditUser } from "./users.validation"
-import { hash as hashPassword } from "bcryptjs"
+import { compare, hash as hashPassword } from "bcryptjs"
 
 export class UserService {
-    private db: PlanetScaleDatabase<typeof schema>
-    constructor(db: PlanetScaleDatabase<typeof schema>) {
-        this.db = db
+    private database: typeof db
+    constructor(database: typeof db) {
+        this.database = database
     }
 
     async getUser(userId: string): Promise<User | null> {
-        const result = await this.db
-            .select({
-                id: schema.user.id,
-                email: schema.user.email,
-                username: schema.user.username,
-                bio: schema.user.bio,
-                image: schema.user.image,
-            })
-            .from(schema.user)
-            .where(eq(schema.user.id, userId))
-            .limit(1)
+        const user = await this.database.query.user.findFirst({
+            where: eq(schema.user.id, userId),
+            columns: {
+                id: true,
+                name: true,
+                email: true,
+                bio: true,
+                image: true,
+            },
+        })
 
-        const user = result[0]
+        return user ?? null
+    }
 
-        if (!user) return null
-
-        return user
+    async getUserByEmail(email: string): Promise<User | null> {
+        const user = await this.database.query.user.findFirst({
+            where: eq(schema.user.email, email),
+            columns: {
+                id: true,
+                name: true,
+                email: true,
+                bio: true,
+                image: true,
+            },
+        })
+        return user ?? null
     }
 
     async getUserProfile(
         username: string,
         currentUserId: string | null = null,
     ): Promise<Profile | null> {
-        const found = await this.db.query.user.findFirst({
+        const found = await this.database.query.user.findFirst({
             columns: {
                 id: true,
             },
-            where: eq(schema.user.username, username),
+            where: eq(schema.user.name, username),
         })
 
         if (!found) return null
 
         const { id: userId } = found
 
-        const result = await this.db
+        const [user] = await this.database
             .select({
                 id: schema.user.id,
-                username: schema.user.username,
+                name: schema.user.name,
                 bio: schema.user.bio,
                 image: schema.user.image,
                 following: sql`
@@ -67,8 +74,6 @@ export class UserService {
             .where(eq(schema.user.id, userId))
             .limit(1)
 
-        const user = result[0]
-
         if (!user) return null
 
         //@ts-ignore
@@ -83,20 +88,11 @@ export class UserService {
     async updateUser(username: string, input: EditUser): Promise<User> {
         const { user } = input
 
-        const { rowsAffected } = await this.db
+        const [updatedUser] = await this.database
             .update(schema.user)
             .set(user)
-            .where(eq(schema.user.username, username))
-
-        if (rowsAffected === 0) throw new Error("Something went wrong")
-
-        const [updatedUser] = await this.db
-            .select()
-            .from(schema.user)
-            .where(eq(schema.user.username, username))
-            .limit(1)
-
-        if (!updatedUser) throw new Error("Something went wrong")
+            .where(eq(schema.user.name, username))
+            .returning()
 
         return updatedUser
     }
@@ -111,41 +107,69 @@ export class UserService {
         image: string
     }): Promise<User> {
         const { email, password, username, image } = input
-        const [foundEmail] = await this.db
-            .select()
-            .from(schema.user)
-            .where(eq(schema.user.email, email))
-            .limit(1)
+        const foundEmail = await this.database.query.user.findFirst({
+            where: eq(schema.user.email, email),
+            columns: {
+                email: true,
+            },
+        })
 
         if (foundEmail) throw new Error("Email already in use")
 
-        const [foundUsername] = await this.db
-            .select()
-            .from(schema.user)
-            .where(eq(schema.user.username, username))
-            .limit(1)
+        const foundUsername = await this.database.query.user.findFirst({
+            where: eq(schema.user.name, username),
+            columns: {
+                name: true,
+            },
+        })
 
         if (foundUsername) throw new Error("Username already in use")
 
-        const { rowsAffected } = await this.db.insert(schema.user).values({
-            id: createId(),
-            email,
-            password: await hashPassword(password, 12),
-            image,
-            username,
+        const [createdUser] = await this.database
+            .insert(schema.user)
+            .values({
+                email,
+                password: await hashPassword(password, 12),
+                image,
+                name: username,
+            })
+            .returning({
+                id: schema.user.id,
+                name: schema.user.name,
+                email: schema.user.email,
+                bio: schema.user.bio,
+                image: schema.user.image,
+            })
+
+        return createdUser
+    }
+
+    async verifyCredentials(
+        email: string,
+        password: string,
+    ): Promise<User | null> {
+        const user = await this.database.query.user.findFirst({
+            where: eq(schema.user.email, email),
+            columns: {
+                id: true,
+                name: true,
+                email: true,
+                bio: true,
+                image: true,
+                password: true,
+            },
         })
 
-        if (rowsAffected === 0) throw new Error("Something went wrong")
+        if (!user) return null
 
-        const [newUser] = await this.db
-            .select()
-            .from(schema.user)
-            .where(eq(schema.user.email, email))
-            .limit(1)
+        const isPasswordValid = await compare(password, user.password)
 
-        if (!newUser) throw new Error("Something went wrong")
+        if (!isPasswordValid) return null
 
-        return newUser
+        //@ts-ignore
+        delete user.password
+
+        return user
     }
 }
 
