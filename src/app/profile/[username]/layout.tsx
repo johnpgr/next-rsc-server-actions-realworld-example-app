@@ -1,17 +1,17 @@
-import { cookies } from 'next/headers'
-import Image from 'next/image'
-import { notFound } from 'next/navigation'
-import { ProfileActionButton } from '~/components/profile/profile-action-button'
+import { cookies } from "next/headers"
+import Image from "next/image"
+import { notFound } from "next/navigation"
+import { ProfileActionButton } from "~/components/profile/profile-action-button"
 import {
     DEFAULT_USER_IMAGE,
     HEADER_HEIGHT,
     USER_TOKEN,
-} from '~/config/constants'
-import { authService } from '~/modules/auth/auth.service'
-import { usersService } from '~/modules/users/users.service'
-import { ProfileTabs } from '~/components/profile/profile-tabs'
+} from "~/config/constants"
+import { authService } from "~/modules/auth/auth.service"
+import { usersService } from "~/modules/users/users.service"
+import { ProfileTabs } from "~/components/profile/profile-tabs"
 
-export const runtime = 'edge'
+export const runtime = "edge"
 
 export default async function ProfilePage({
     params,

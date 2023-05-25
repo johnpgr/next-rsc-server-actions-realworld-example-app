@@ -1,5 +1,5 @@
-import { InferModel } from 'drizzle-orm'
-import { article } from './articles.models'
+import { InferModel } from "drizzle-orm"
+import { article } from "./articles.models"
 
 export type ParsedArticleQueryResponse = {
     title: string
@@ -26,7 +26,7 @@ export type GetArticlesParams = {
     offset: number
 }
 
-export type NewArticle = InferModel<typeof article, 'insert'> & {
+export type NewArticle = InferModel<typeof article, "insert"> & {
     tagList: string[]
 }
 

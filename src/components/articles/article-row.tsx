@@ -1,19 +1,19 @@
-'use client'
-import Image from 'next/image'
-import { format } from 'date-fns'
-import Link from 'next/link'
-import { type ParsedArticleQueryResponse } from '~/modules/articles/articles.types'
-import { DEFAULT_USER_IMAGE } from '~/config/constants'
-import { Button } from '../ui/button'
-import { Heart } from 'lucide-react'
-import clsx from 'clsx'
-import { useTransition } from 'react'
-import { useToast } from '../ui/use-toast'
+"use client"
+import Image from "next/image"
+import { format } from "date-fns"
+import Link from "next/link"
+import { type ParsedArticleQueryResponse } from "~/modules/articles/articles.types"
+import { DEFAULT_USER_IMAGE } from "~/config/constants"
+import { Button } from "../ui/button"
+import { Heart } from "lucide-react"
+import clsx from "clsx"
+import { useTransition } from "react"
+import { useToast } from "../ui/use-toast"
 import {
     favoriteArticleAction,
     unfavoriteArticleAction,
-} from '~/modules/favorites/favorites.actions'
-import { Badge } from '../ui/badge'
+} from "~/modules/favorites/favorites.actions"
+import { Badge } from "../ui/badge"
 
 export type ArticleRowProps = {
     article: ParsedArticleQueryResponse
@@ -35,7 +35,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
 
                 if (data?.error) {
                     toast({
-                        title: 'Error',
+                        title: "Error",
                         description: data.error.message,
                     })
                 }
@@ -47,7 +47,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
                 })
                 if (data?.error) {
                     toast({
-                        title: 'Error',
+                        title: "Error",
                         description: data.error.message,
                     })
                 }
@@ -76,7 +76,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
                         <span className="-mt-1 text-xs text-gray-300">
                             {format(
                                 new Date(article.createdAt),
-                                'MMMM d, yyyy',
+                                "MMMM d, yyyy",
                             )}
                         </span>
                     </div>
@@ -85,13 +85,13 @@ export const ArticleRow = (props: ArticleRowProps) => {
                     onClick={handleFavorite}
                     disabled={pending}
                     className={clsx(
-                        'h-7 gap-1 rounded-sm border-primary py-0 text-sm text-primary hover:bg-primary hover:text-white',
+                        "h-7 gap-1 rounded-sm border-primary py-0 text-sm text-primary hover:bg-primary hover:text-white",
                         {
-                            'bg-primary text-white': article.favorited,
+                            "bg-primary text-white": article.favorited,
                         },
                     )}
-                    variant={'outline'}
-                    size={'sm'}
+                    variant={"outline"}
+                    size={"sm"}
                 >
                     <Heart size={14} />
                     {article.favoritesCount}
@@ -109,7 +109,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
                             ? article.tagList.map((tag, i) => (
                                   <Badge
                                       key={`tag:${tag}_${i}`}
-                                      variant={'outline'}
+                                      variant={"outline"}
                                       className="font-normal text-gray-400"
                                   >
                                       {tag}

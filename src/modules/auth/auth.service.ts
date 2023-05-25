@@ -1,14 +1,14 @@
-import { eq } from 'drizzle-orm'
-import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
-import { User } from '../users/users.types'
-import * as schema from '~/db/schema'
-import { db } from '~/db'
-import { SignJWT, errors, jwtVerify } from 'jose'
-import { JWT_EXPIRATION_TIME } from '~/config/constants'
-import { compare as comparePasswords } from 'bcryptjs'
-import { createId } from '~/utils/ulid'
-import { env } from '~/config/env.mjs'
-import { UserJWTPayload } from './auth.types'
+import { eq } from "drizzle-orm"
+import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
+import { User } from "../users/users.types"
+import * as schema from "~/db/schema"
+import { db } from "~/db"
+import { SignJWT, errors, jwtVerify } from "jose"
+import { JWT_EXPIRATION_TIME } from "~/config/constants"
+import { compare as comparePasswords } from "bcryptjs"
+import { createId } from "~/utils/ulid"
+import { env } from "~/config/env.mjs"
+import { UserJWTPayload } from "./auth.types"
 
 class AuthService {
     private db: PlanetScaleDatabase<typeof schema>
@@ -27,20 +27,20 @@ class AuthService {
             .where(eq(schema.user.email, email))
             .limit(1)
 
-        if (!found) throw new Error('Email or password is invalid')
+        if (!found) throw new Error("Email or password is invalid")
 
         const valid = await comparePasswords(password, found.password)
 
-        if (!valid) throw new Error('Email or password is invalid')
+        if (!valid) throw new Error("Email or password is invalid")
 
         return found
     }
 
     async createToken(
-        user: Omit<User, 'password_id' | 'updated_at'>,
+        user: Omit<User, "password_id" | "updated_at">,
     ): Promise<string> {
         return await new SignJWT(user)
-            .setProtectedHeader({ alg: 'HS512' })
+            .setProtectedHeader({ alg: "HS512" })
             .setJti(createId())
             .setIssuedAt()
             .setExpirationTime(JWT_EXPIRATION_TIME.string)
@@ -75,7 +75,7 @@ class AuthService {
     async refreshToken(token: string): Promise<string> {
         const payload = await this.getPayloadFromToken(token)
 
-        if (!payload) throw new Error('Token to refresh is invalid')
+        if (!payload) throw new Error("Token to refresh is invalid")
 
         const newToken = await this.createToken(payload)
 

@@ -1,7 +1,5 @@
 import { UnauthRequiredPage } from "~/components/auth/unauthed-required-page"
 
-export const runtime = 'edge'
-
 export default function LoginPageLayout({
     children,
 }: {

@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import clsx from 'clsx'
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import clsx from "clsx"
 
 export const ProfileTabs = (props: { username: string }) => {
     const path = usePathname()
@@ -10,13 +10,13 @@ export const ProfileTabs = (props: { username: string }) => {
     const favoritesLink = `/profile/${props.username}/favorites`
 
     return (
-        <div className="flex items-center gap-2 text-sm border-b">
+        <div className="flex items-center gap-2 border-b text-sm">
             <Link
                 href={myArticlesLink}
-                className={clsx('px-4 py-2', {
-                    'border-b-2 border-primary text-primary':
+                className={clsx("px-4 py-2", {
+                    "border-b-2 border-primary text-primary":
                         path === myArticlesLink,
-                    'text-zinc-500 transition-colors hover:text-zinc-800':
+                    "text-zinc-500 transition-colors hover:text-zinc-800":
                         path !== myArticlesLink,
                 })}
             >
@@ -24,10 +24,10 @@ export const ProfileTabs = (props: { username: string }) => {
             </Link>
             <Link
                 href={favoritesLink}
-                className={clsx('px-4 py-2 ', {
-                    'border-b-2 border-primary text-primary':
+                className={clsx("px-4 py-2 ", {
+                    "border-b-2 border-primary text-primary":
                         path === favoritesLink,
-                    'text-zinc-500 transition-colors hover:text-zinc-800':
+                    "text-zinc-500 transition-colors hover:text-zinc-800":
                         path !== favoritesLink,
                 })}
             >

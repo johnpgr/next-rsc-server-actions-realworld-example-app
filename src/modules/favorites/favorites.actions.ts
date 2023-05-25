@@ -1,9 +1,9 @@
-'use server'
-import { action } from '~/utils/actions'
-import { favoriteArticleSchema } from './favorites.validation'
-import { favoritesService } from './favorites.service'
-import { articlesService } from '../articles/articles.service'
-import { revalidatePath } from 'next/cache'
+"use server"
+import { action } from "~/utils/actions"
+import { favoriteArticleSchema } from "./favorites.validation"
+import { favoritesService } from "./favorites.service"
+import { articlesService } from "../articles/articles.service"
+import { revalidatePath } from "next/cache"
 
 export const favoriteArticleAction = action(
     {
@@ -14,7 +14,7 @@ export const favoriteArticleAction = action(
         if (!user)
             return {
                 error: {
-                    message: 'You must be logged in to favorite an article',
+                    message: "You must be logged in to favorite an article",
                     code: 403,
                 },
             }
@@ -26,7 +26,7 @@ export const favoriteArticleAction = action(
         if (!articleId)
             return {
                 error: {
-                    message: 'Article not found',
+                    message: "Article not found",
                     code: 404,
                 },
             }
@@ -39,7 +39,7 @@ export const favoriteArticleAction = action(
         if (isFavorited)
             return {
                 error: {
-                    message: 'Article already favorited',
+                    message: "Article already favorited",
                     code: 403,
                 },
             }
@@ -52,7 +52,7 @@ export const favoriteArticleAction = action(
         if (!res)
             return {
                 error: {
-                    message: 'Failed to favorite article',
+                    message: "Failed to favorite article",
                     code: 500,
                 },
             }
@@ -74,7 +74,7 @@ export const unfavoriteArticleAction = action(
         if (!user)
             return {
                 error: {
-                    message: 'You must be logged in to favorite an article',
+                    message: "You must be logged in to favorite an article",
                     code: 403,
                 },
             }
@@ -86,7 +86,7 @@ export const unfavoriteArticleAction = action(
         if (!articleId)
             return {
                 error: {
-                    message: 'Article not found',
+                    message: "Article not found",
                     code: 404,
                 },
             }
@@ -99,7 +99,7 @@ export const unfavoriteArticleAction = action(
         if (!isFavorited)
             return {
                 error: {
-                    message: 'Article not favorited',
+                    message: "Article not favorited",
                     code: 403,
                 },
             }
@@ -112,7 +112,7 @@ export const unfavoriteArticleAction = action(
         if (!res)
             return {
                 error: {
-                    message: 'Failed to unfavorite article',
+                    message: "Failed to unfavorite article",
                     code: 500,
                 },
             }

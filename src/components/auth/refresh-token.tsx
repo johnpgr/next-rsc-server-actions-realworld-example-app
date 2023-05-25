@@ -1,20 +1,20 @@
-'use client'
+"use client"
 
-import { USER_TOKEN } from '~/config/constants'
-import Cookies from 'js-cookie'
-import { cache, use, useEffect, useRef } from 'react'
-import { getBaseUrl } from '~/utils/api'
-import { useAuth } from './user-context'
+import { USER_TOKEN } from "~/config/constants"
+import Cookies from "js-cookie"
+import { cache, use, useEffect, useRef } from "react"
+import { getBaseUrl } from "~/utils/api"
+import { useAuth } from "./user-context"
 
 const getNewToken = cache(
     async (token: string) =>
         await fetch(`${getBaseUrl()}/api/auth/token/refresh`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
                 Authorization: `Token ${token}`,
             },
-            cache: 'no-store',
+            cache: "no-store",
         }),
 )
 

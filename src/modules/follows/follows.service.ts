@@ -1,10 +1,10 @@
-import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
-import * as schema from '~/db/schema'
-import { usersService } from '../users/users.service'
-import { and, eq } from 'drizzle-orm'
-import { createId } from '~/utils/ulid'
-import { Profile } from '../users/users.types'
-import { db } from '~/db'
+import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
+import * as schema from "~/db/schema"
+import { usersService } from "../users/users.service"
+import { and, eq } from "drizzle-orm"
+import { createId } from "~/utils/ulid"
+import { Profile } from "../users/users.types"
+import { db } from "~/db"
 
 class FollowsService {
     private db: PlanetScaleDatabase<typeof schema>
@@ -40,7 +40,7 @@ class FollowsService {
         })
 
         if (rowsAffected !== 1) {
-            throw new Error('Failed to follow user')
+            throw new Error("Failed to follow user")
         }
     }
 
@@ -75,7 +75,7 @@ class FollowsService {
             )
 
         if (rowsAffected !== 1) {
-            throw new Error('Failed to unfollow user')
+            throw new Error("Failed to unfollow user")
         }
     }
 }

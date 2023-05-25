@@ -1,23 +1,23 @@
-'use client'
+"use client"
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import clsx from 'clsx'
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import clsx from "clsx"
 
 export const FeedTabs = (props: { username?: string | null }) => {
     const path = usePathname()
-    const yourFeedLink = '/'
-    const globalFeedLink = '/global'
+    const yourFeedLink = "/"
+    const globalFeedLink = props.username ? "/global" : "/"
 
     return (
         <div className="flex items-center gap-2 border-b text-sm">
             {props.username && (
                 <Link
                     href={yourFeedLink}
-                    className={clsx('px-4 py-2', {
-                        'border-b-2 border-primary text-primary':
+                    className={clsx("px-4 py-2", {
+                        "border-b-2 border-primary text-primary":
                             path === yourFeedLink,
-                        'text-zinc-500 transition-colors hover:text-zinc-800':
+                        "text-zinc-500 transition-colors hover:text-zinc-800":
                             path !== yourFeedLink,
                     })}
                 >
@@ -26,10 +26,10 @@ export const FeedTabs = (props: { username?: string | null }) => {
             )}
             <Link
                 href={globalFeedLink}
-                className={clsx('px-4 py-2 ', {
-                    'border-b-2 border-primary text-primary':
+                className={clsx("px-4 py-2 ", {
+                    "border-b-2 border-primary text-primary":
                         path === globalFeedLink,
-                    'text-zinc-500 transition-colors hover:text-zinc-800':
+                    "text-zinc-500 transition-colors hover:text-zinc-800":
                         path !== globalFeedLink,
                 })}
             >

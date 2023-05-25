@@ -1,11 +1,9 @@
-import { cookies } from 'next/headers'
-import { USER_TOKEN } from '~/config/constants'
-import { PageSearchParams, getSearchParams } from '~/utils/search-params'
-import { authService } from '~/modules/auth/auth.service'
-import { Suspense } from 'react'
-import { ArticleList } from '~/components/articles/article-list'
-
-export const runtime = 'edge'
+import { cookies } from "next/headers"
+import { USER_TOKEN } from "~/config/constants"
+import { PageSearchParams, getSearchParams } from "~/utils/search-params"
+import { authService } from "~/modules/auth/auth.service"
+import { Suspense } from "react"
+import { ArticleList } from "~/components/articles/article-list"
 
 export default async function ArticlesPage({
     searchParams,
@@ -13,11 +11,11 @@ export default async function ArticlesPage({
     searchParams: PageSearchParams
 }) {
     const params = getSearchParams(searchParams, [
-        'tag',
-        'limit',
-        'offset',
-        'author',
-        'favorited',
+        "tag",
+        "limit",
+        "offset",
+        "author",
+        "favorited",
     ])
 
     const parsedParams = {
@@ -41,12 +39,12 @@ export default async function ArticlesPage({
         : null
 
     return (
-        <Suspense fallback={<div className='p-4'>Loading articles...</div>}>
+        <Suspense fallback={<div className="p-4">Loading articles...</div>}>
             {/* @ts-expect-error Async server component */}
             <ArticleList
                 currentUserId={currentUser?.id ?? null}
                 parsedParams={parsedParams}
-                feedType='user'
+                feedType="user"
             />
         </Suspense>
     )

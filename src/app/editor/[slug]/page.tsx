@@ -1,12 +1,12 @@
-import { cookies } from 'next/headers'
-import { Editor } from '~/components/editor'
-import { USER_TOKEN } from '~/config/constants'
-import { authService } from '~/modules/auth/auth.service'
-import { articlesService } from '~/modules/articles/articles.service'
-import { notFound, redirect } from 'next/navigation'
+import { cookies } from "next/headers"
+import { Editor } from "~/components/editor"
+import { USER_TOKEN } from "~/config/constants"
+import { authService } from "~/modules/auth/auth.service"
+import { articlesService } from "~/modules/articles/articles.service"
+import { notFound, redirect } from "next/navigation"
 
 //runtime edge doesnt work here
-export const runtime = 'nodejs'
+export const runtime = "nodejs"
 
 export default async function EditorPage({
     params,
@@ -19,7 +19,7 @@ export default async function EditorPage({
         ? await authService.getPayloadFromToken(token)
         : null
 
-    if (!currentUser) redirect('/login')
+    if (!currentUser) redirect("/login")
 
     const article = await articlesService.getArticleBySlug(
         params.slug,
@@ -33,7 +33,7 @@ export default async function EditorPage({
         params.slug,
     )
 
-    if (!isArticleAuthor) redirect('/')
+    if (!isArticleAuthor) redirect("/")
 
     return <Editor slug={params.slug} article={article} />
 }

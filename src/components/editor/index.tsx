@@ -1,15 +1,15 @@
-'use client'
-import { Textarea } from '~/components/ui/textarea'
-import { Input } from '../ui/input'
-import { Button } from '~/components/ui/button'
+"use client"
+import { Textarea } from "~/components/ui/textarea"
+import { Input } from "../ui/input"
+import { Button } from "~/components/ui/button"
 import {
     editArticleAction,
     publishArticleAction,
-} from '~/modules/articles/articles.actions'
-import { getFormData } from '~/utils/forms'
-import { useRouter } from 'next/navigation'
-import { FormEvent, useState } from 'react'
-import { Spinner } from '~/components/spinner'
+} from "~/modules/articles/articles.actions"
+import { getFormData } from "~/utils/forms"
+import { useRouter } from "next/navigation"
+import { FormEvent, useState } from "react"
+import { Spinner } from "~/components/spinner"
 
 type EditorProps = {
     slug?: string
@@ -23,7 +23,7 @@ type EditorProps = {
 
 export const Editor = (props: EditorProps) => {
     const router = useRouter()
-    const [error, setError] = useState<string>('')
+    const [error, setError] = useState<string>("")
     const [validationError, setValidationError] = useState<string[]>([])
     const [isPending, setIsPending] = useState(false)
 
@@ -38,7 +38,7 @@ export const Editor = (props: EditorProps) => {
             tags: string
         }>(e)
 
-        const tags = input.tags !== '' ? input.tags.split(',') : []
+        const tags = input.tags !== "" ? input.tags.split(",") : []
 
         const { data, validationError } = props.slug
             ? await editArticleAction({
@@ -109,21 +109,21 @@ export const Editor = (props: EditorProps) => {
                 />
                 <Input
                     onKeyDown={(e) => {
-                        if (e.key === ' ') {
+                        if (e.key === " ") {
                             e.preventDefault()
-                            console.log('space press')
-                            e.currentTarget.value += ','
+                            console.log("space press")
+                            e.currentTarget.value += ","
                         }
                     }}
                     name="tags"
                     placeholder="Enter tags"
                     defaultValue={
-                        props.article?.tags && props.article?.tags.join(' ')
+                        props.article?.tags && props.article?.tags.join(" ")
                     }
                 />
                 <Button className="ml-auto gap-1" disabled={isPending}>
                     {isPending ? <Spinner size={16} /> : null}
-                    {props.slug ? 'Update article' : 'Publish article'}
+                    {props.slug ? "Update article" : "Publish article"}
                 </Button>
             </form>
         </div>

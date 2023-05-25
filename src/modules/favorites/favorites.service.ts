@@ -1,10 +1,10 @@
-import { and, eq } from 'drizzle-orm'
-import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
-import { db } from '~/db'
-import * as schema from '~/db/schema'
-import { createId } from '~/utils/ulid'
-import { articlesService } from '../articles/articles.service'
-import { type ParsedArticleQueryResponse } from '../articles/articles.types' 
+import { and, eq } from "drizzle-orm"
+import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
+import { db } from "~/db"
+import * as schema from "~/db/schema"
+import { createId } from "~/utils/ulid"
+import { articlesService } from "../articles/articles.service"
+import { type ParsedArticleQueryResponse } from "../articles/articles.types"
 
 class FavoritesService {
     private db: PlanetScaleDatabase<typeof schema>
@@ -29,7 +29,7 @@ class FavoritesService {
         })
 
         if (rowsAffected !== 1) {
-            throw new Error('Failed to favorite article')
+            throw new Error("Failed to favorite article")
         }
 
         const [{ slug }] = await this.db
@@ -38,7 +38,7 @@ class FavoritesService {
             .where(eq(schema.article.id, articleId))
             .limit(1)
 
-        if (!slug) throw new Error('Failed to get article slug')
+        if (!slug) throw new Error("Failed to get article slug")
 
         return await articlesService.getArticleBySlug(slug, userId)
     }
@@ -61,7 +61,7 @@ class FavoritesService {
             )
 
         if (rowsAffected !== 1) {
-            throw new Error('Failed to unfavorite article')
+            throw new Error("Failed to unfavorite article")
         }
 
         const [{ slug }] = await this.db
@@ -70,7 +70,7 @@ class FavoritesService {
             .where(eq(schema.article.id, articleId))
             .limit(1)
 
-        if (!slug) throw new Error('Failed to get article slug')
+        if (!slug) throw new Error("Failed to get article slug")
 
         return await articlesService.getArticleBySlug(slug, userId)
     }

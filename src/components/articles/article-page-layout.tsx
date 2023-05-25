@@ -1,9 +1,9 @@
-'use client'
-import React from 'react'
-import { FeedTabs } from './feed-tabs'
-import { usePathname } from 'next/navigation'
+"use client"
+import React from "react"
+import { FeedTabs } from "./feed-tabs"
+import { usePathname } from "next/navigation"
 
-const articlePages = ['/', '/global']
+const articlePages = ["/", "/global"]
 
 export const ArticlePageLayout = ({
     children,

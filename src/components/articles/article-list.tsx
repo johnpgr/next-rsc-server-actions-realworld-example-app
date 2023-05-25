@@ -1,7 +1,7 @@
-import React from 'react'
-import { articlesService } from '~/modules/articles/articles.service'
-import { ArticleRow } from './article-row'
-import { unstable_cache as cache } from 'next/cache'
+import React from "react"
+import { articlesService } from "~/modules/articles/articles.service"
+import { ArticleRow } from "./article-row"
+import { unstable_cache as cache } from "next/cache"
 
 type ParsedParams = {
     limit: number
@@ -17,7 +17,7 @@ export const ArticleList = async ({
     feedType,
 }: {
     currentUserId: string | null
-    feedType: 'global' | 'user'
+    feedType: "global" | "user"
     parsedParams: ParsedParams
 }) => {
     const articles = await cache(

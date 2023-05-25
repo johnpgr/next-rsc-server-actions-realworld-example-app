@@ -4,12 +4,12 @@ import { getBaseUrl } from "~/utils/api"
 
 export const fetchUser = cache(async (token: string) => {
     const res = await fetch(`${getBaseUrl()}/api/auth/me`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Token ${token}`,
         },
-        cache: 'no-store',
+        cache: "no-store",
     })
 
     const json = (await res.json()) as {

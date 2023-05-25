@@ -1,13 +1,13 @@
-'use client'
-import { Button } from '~/components/ui/button'
-import Link from 'next/link'
-import { Plus, Settings } from 'lucide-react'
-import { useTransition } from 'react'
+"use client"
+import { Button } from "~/components/ui/button"
+import Link from "next/link"
+import { Plus, Settings } from "lucide-react"
+import { useTransition } from "react"
 import {
     followUserAction,
     unfollowUserAction,
-} from '~/modules/follows/follows.actions'
-import { useToast } from '../ui/use-toast'
+} from "~/modules/follows/follows.actions"
+import { useToast } from "../ui/use-toast"
 
 type ProfileActionButtonProps = {
     user: { name: string; id: string }
@@ -31,7 +31,7 @@ export const ProfileActionButton = ({
 
                 if (data?.error) {
                     toast({
-                        title: 'Error',
+                        title: "Error",
                         description: data.error.message,
                     })
                 }
@@ -41,7 +41,7 @@ export const ProfileActionButton = ({
                 })
                 if (data?.error) {
                     toast({
-                        title: 'Error',
+                        title: "Error",
                         description: data.error.message,
                     })
                 }
@@ -53,7 +53,7 @@ export const ProfileActionButton = ({
         <div className="ml-auto">
             {currentUsername === user.name ? (
                 <Button
-                    size={'sm'}
+                    size={"sm"}
                     variant="outline"
                     className="bg-white hover:border-zinc-500 hover:bg-white"
                     asChild
@@ -66,11 +66,11 @@ export const ProfileActionButton = ({
                 <Button
                     disabled={pending}
                     onClick={handleFollowUser}
-                    size={'sm'}
+                    size={"sm"}
                     variant="outline"
                     className="flex items-center gap-1 bg-white hover:border-zinc-500 hover:bg-white"
                 >
-                    <Plus size={16} /> {following ? 'Unfollow' : 'Follow'}{' '}
+                    <Plus size={16} /> {following ? "Unfollow" : "Follow"}{" "}
                     {user.name}
                 </Button>
             )}

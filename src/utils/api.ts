@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { env } from "~/config/env.mjs";
+import { NextResponse } from "next/server"
+import { env } from "~/config/env.mjs"
 
 /**
  * Returns a Response object with a JSON body
@@ -10,7 +10,7 @@ export function jsonResponse(status: number, data: any, init?: ResponseInit) {
         status,
         headers: {
             ...init?.headers,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         },
     })
 }
@@ -20,8 +20,8 @@ export function jsonResponse(status: number, data: any, init?: ResponseInit) {
  */
 export function getBaseUrl(): string {
     // vercel deployment url or localhost
-    if (process.env.NODE_ENV === 'development') {
-        return 'http://localhost:3000'
+    if (process.env.NODE_ENV === "development") {
+        return "http://localhost:3000"
     } else {
         return env.NEXT_PUBLIC_VERCEL_URL
     }

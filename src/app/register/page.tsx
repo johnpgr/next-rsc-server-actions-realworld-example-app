@@ -1,22 +1,22 @@
-'use client'
-import { Dot, Loader2 } from 'lucide-react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { FormEvent, useState } from 'react'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { getFormData } from '~/utils/forms'
-import { registerAction } from '~/modules/auth/auth.actions'
-import { passwordRegex } from '~/modules/auth/auth.validation'
-import { useAuth } from '~/components/auth/user-context'
+"use client"
+import { Dot, Loader2 } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { FormEvent, useState } from "react"
+import { Button } from "~/components/ui/button"
+import { Input } from "~/components/ui/input"
+import { getFormData } from "~/utils/forms"
+import { registerAction } from "~/modules/auth/auth.actions"
+import { passwordRegex } from "~/modules/auth/auth.validation"
+import { useAuth } from "~/components/auth/user-context"
 
-export const runtime = 'nodejs'
+export const runtime = "nodejs"
 
 export default function RegisterPage() {
     const router = useRouter()
     const { login } = useAuth()
     const [isPending, setIsPending] = useState(false)
-    const [error, setError] = useState<string>('')
+    const [error, setError] = useState<string>("")
     const [passwordError, setPasswordError] = useState<string | undefined>()
 
     async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -43,7 +43,7 @@ export default function RegisterPage() {
 
         if (data?.user) {
             login(data.user)
-            router.push('/')
+            router.push("/")
         }
 
         setIsPending(false)
@@ -64,23 +64,15 @@ export default function RegisterPage() {
                 </p>
             )}
             <form onSubmit={onSubmit} className="flex flex-col gap-4">
-                <Input
-                    name="username"
-                    type="text"
-                    placeholder="Username"
-                />
-                <Input
-                    name="email"
-                    type="email"
-                    placeholder="Email"
-                />
+                <Input name="username" type="text" placeholder="Username" />
+                <Input name="email" type="email" placeholder="Email" />
                 <Input
                     name="password"
                     onBlur={(e) => {
                         const valid = passwordRegex.test(e.currentTarget.value)
                         if (!valid)
                             setPasswordError(
-                                'Password must be at least 8 characters long, contain at least one uppercase letter, one number and one special character.',
+                                "Password must be at least 8 characters long, contain at least one uppercase letter, one number and one special character.",
                             )
                         else setPasswordError(undefined)
                     }}

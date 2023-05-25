@@ -1,9 +1,9 @@
-'use server'
-import { action } from '~/utils/actions'
-import { followUserSchema } from './follows.validation'
-import { followsService } from './follows.service'
-import { revalidatePath } from 'next/cache'
-import { usersService } from '../users/users.service'
+"use server"
+import { action } from "~/utils/actions"
+import { followUserSchema } from "./follows.validation"
+import { followsService } from "./follows.service"
+import { revalidatePath, revalidateTag } from "next/cache"
+import { usersService } from "../users/users.service"
 
 export const followUserAction = action(
     {
@@ -12,14 +12,15 @@ export const followUserAction = action(
     },
     async (data, { user }) => {
         try {
-            if (!user) throw new Error('You must be logged in to follow a user')
+            if (!user) throw new Error("You must be logged in to follow a user")
 
-            await followsService.followUser(user.id, data.followingId)
-
-            const followingUser = await usersService.getUser(data.followingId)
+            const [followingUser] = await Promise.all([
+                await usersService.getUser(data.followingId),
+                await followsService.followUser(user.id, data.followingId),
+            ])
 
             revalidatePath(`/profile/${followingUser?.username}`)
-            revalidatePath('/')
+            revalidateTag("user_article_list")
         } catch (error) {
             return {
                 error: { message: (error as Error).message, code: 400 },
@@ -36,14 +37,15 @@ export const unfollowUserAction = action(
     async (data, { user }) => {
         try {
             if (!user)
-                throw new Error('You must be logged in to unfollow a user')
+                throw new Error("You must be logged in to unfollow a user")
 
-            await followsService.unfollowUser(user.id, data.followingId)
-
-            const followingUser = await usersService.getUser(data.followingId)
+            const [followingUser] = await Promise.all([
+                await usersService.getUser(data.followingId),
+                await followsService.unfollowUser(user.id, data.followingId),
+            ])
 
             revalidatePath(`/profile/${followingUser?.username}`)
-            revalidatePath('/')
+            revalidateTag("user_article_list")
         } catch (error) {
             return {
                 error: { message: (error as Error).message, code: 400 },

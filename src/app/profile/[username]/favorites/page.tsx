@@ -1,9 +1,7 @@
-import { cookies } from 'next/headers'
-import { USER_TOKEN } from '~/config/constants'
-import { articlesService } from '~/modules/articles/articles.service'
-import { authService } from '~/modules/auth/auth.service'
-
-export const runtime = 'edge'
+import { cookies } from "next/headers"
+import { USER_TOKEN } from "~/config/constants"
+import { articlesService } from "~/modules/articles/articles.service"
+import { authService } from "~/modules/auth/auth.service"
 
 export default async function FavoritesPage({
     params,
@@ -18,7 +16,7 @@ export default async function FavoritesPage({
 
     const articles = await articlesService.getArticles({
         currentUserId: currentUser?.id ?? null,
-        feedType: 'global',
+        feedType: "global",
         params: {
             authorName: null,
             tag: null,

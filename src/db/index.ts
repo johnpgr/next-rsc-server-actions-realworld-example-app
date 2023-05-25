@@ -1,7 +1,7 @@
-import { connect } from '@planetscale/database'
-import { drizzle } from 'drizzle-orm/planetscale-serverless'
-import * as schema from './schema'
-import { env } from '~/config/env.mjs'
+import { connect } from "@planetscale/database"
+import { drizzle } from "drizzle-orm/planetscale-serverless"
+import * as schema from "./schema"
+import { env } from "~/config/env.mjs"
 
 // Create the connection.
 const connection = connect({
@@ -11,6 +11,6 @@ const connection = connect({
 })
 
 export const db = drizzle(connection, {
-    logger: env.NODE_ENV === 'development' ? true : false,
+    logger: env.NODE_ENV === "development" ? true : false,
     schema,
 })

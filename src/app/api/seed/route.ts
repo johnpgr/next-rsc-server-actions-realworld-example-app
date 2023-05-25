@@ -1,16 +1,16 @@
-import { db } from '~/db'
-import * as schema from '~/db/schema'
-import { faker } from '@faker-js/faker'
-import { createId } from '~/utils/ulid'
-import { jsonResponse } from '~/utils/api'
-import { env } from '~/config/env.mjs'
-import { redirect } from 'next/navigation'
+import { db } from "~/db"
+import * as schema from "~/db/schema"
+import { faker } from "@faker-js/faker"
+import { createId } from "~/utils/ulid"
+import { jsonResponse } from "~/utils/api"
+import { env } from "~/config/env.mjs"
+import { redirect } from "next/navigation"
 
-export const runtime = 'nodejs'
+export const runtime = "nodejs"
 
 async function seedArticles(n: number) {
-    if (env.NODE_ENV !== 'development') {
-        redirect('/')
+    if (env.NODE_ENV !== "development") {
+        redirect("/")
     }
 
     const userId = createId()
@@ -37,7 +37,7 @@ async function seedArticles(n: number) {
             author_id: user.id,
         })
 
-        const tagList = faker.lorem.words(3).split(' ')
+        const tagList = faker.lorem.words(3).split(" ")
 
         for (const tagItem of tagList) {
             const tagId = createId()

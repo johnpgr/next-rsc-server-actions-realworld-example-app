@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod"
 
 export const favoriteArticleSchema = z.object({
     article: z.object({

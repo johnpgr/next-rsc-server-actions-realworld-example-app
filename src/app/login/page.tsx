@@ -1,15 +1,15 @@
-'use client'
-import Link from 'next/link'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Dot, Loader2 } from 'lucide-react'
-import { loginAction } from '~/modules/auth/auth.actions'
-import { getFormData } from '~/utils/forms'
-import { FormEvent, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '~/components/auth/user-context'
+"use client"
+import Link from "next/link"
+import { Button } from "~/components/ui/button"
+import { Input } from "~/components/ui/input"
+import { Dot, Loader2 } from "lucide-react"
+import { loginAction } from "~/modules/auth/auth.actions"
+import { getFormData } from "~/utils/forms"
+import { FormEvent, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "~/components/auth/user-context"
 
-export const runtime = 'nodejs'
+export const runtime = "nodejs"
 
 export default function LoginPage() {
     const router = useRouter()
@@ -39,7 +39,7 @@ export default function LoginPage() {
 
         if (data?.user) {
             login(data.user)
-            router.push('/')
+            router.push("/")
         }
 
         setIsPending(false)

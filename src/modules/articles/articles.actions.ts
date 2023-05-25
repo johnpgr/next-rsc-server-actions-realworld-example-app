@@ -1,10 +1,10 @@
-'use server'
-import { action } from '~/utils/actions'
+"use server"
+import { action } from "~/utils/actions"
 import {
     newArticleBodySchema,
     updateArticleBodySchema,
-} from './articles.validations'
-import { articlesService } from './articles.service'
+} from "./articles.validations"
+import { articlesService } from "./articles.service"
 
 export const publishArticleAction = action(
     { input: newArticleBodySchema, withAuth: true },
@@ -12,7 +12,7 @@ export const publishArticleAction = action(
         if (!user)
             return {
                 error: {
-                    message: 'You need to be logged in to publish an article',
+                    message: "You need to be logged in to publish an article",
                     code: 401,
                 },
             }
@@ -22,7 +22,7 @@ export const publishArticleAction = action(
         if (!article)
             return {
                 error: {
-                    message: 'An article with the same slug already exists',
+                    message: "An article with the same slug already exists",
                     code: 409,
                 },
             }
@@ -37,7 +37,7 @@ export const editArticleAction = action(
         if (!user) {
             return {
                 error: {
-                    message: 'You need to be logged in to edit an article',
+                    message: "You need to be logged in to edit an article",
                     code: 401,
                 },
             }
@@ -51,7 +51,7 @@ export const editArticleAction = action(
         if (!isArticleAuthor) {
             return {
                 error: {
-                    message: 'You are not the author of this article',
+                    message: "You are not the author of this article",
                     code: 403,
                 },
             }

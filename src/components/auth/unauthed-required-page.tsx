@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { USER_TOKEN } from '~/config/constants'
-import { authService } from '~/modules/auth/auth.service'
+import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
+import { USER_TOKEN } from "~/config/constants"
+import { authService } from "~/modules/auth/auth.service"
 
 export const UnauthRequiredPage = async ({
     children,
@@ -14,7 +14,7 @@ export const UnauthRequiredPage = async ({
 
     const isTokenValid = await authService.getPayloadFromToken(token)
 
-    if (isTokenValid) redirect('/')
+    if (isTokenValid) redirect("/")
 
     return <>{children}</>
 }

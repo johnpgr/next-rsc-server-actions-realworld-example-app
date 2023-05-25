@@ -1,6 +1,6 @@
-import { UnauthRequiredPage } from '~/components/auth/unauthed-required-page'
+import { UnauthRequiredPage } from "~/components/auth/unauthed-required-page"
 
-export const runtime = 'edge'
+export const runtime = "edge"
 
 export default function RegisterPageLayout({
     children,

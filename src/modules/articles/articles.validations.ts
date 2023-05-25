@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod"
 
 export const articleSchema = z.object({
     title: z.string(),
@@ -25,10 +25,13 @@ export const getArticlesSchema = z.object({
 const articleInputSchema = z.object({
     title: z
         .string()
-        .min(1, 'Article title must have at least 1 character.')
-        .max(191, 'Article title length is too big.'),
-    description: z.string().min(1, 'Article description must have at least 1 character.').max(191, 'Article description is too big.'),
-    body: z.string().min(1, 'Article body must have at least 1 character'),
+        .min(1, "Article title must have at least 1 character.")
+        .max(191, "Article title length is too big."),
+    description: z
+        .string()
+        .min(1, "Article description must have at least 1 character.")
+        .max(191, "Article description is too big."),
+    body: z.string().min(1, "Article body must have at least 1 character"),
     tagList: z.array(z.string()).optional(),
 })
 

@@ -8,7 +8,6 @@ export function getFormData<T extends object>(
     return input
 }
 
-
 export function errorBody(errors: string[]) {
     return {
         errors: {
@@ -22,5 +21,5 @@ export function defaultErrorMessage(e: unknown) {
         return e.message
     }
 
-    throw new Error('UNKNOWN ERROR')
+    throw new Error("UNKNOWN ERROR")
 }

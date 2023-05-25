@@ -1,17 +1,17 @@
-'use client'
-import { Button } from '~/components/ui/button'
+"use client"
+import { Button } from "~/components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu'
-import { useAuth } from './user-context'
-import Image from 'next/image'
-import { ChevronDown, LogOut, Settings, User } from 'lucide-react'
-import Link from 'next/link'
-import { DEFAULT_USER_IMAGE } from '~/config/constants'
+} from "~/components/ui/dropdown-menu"
+import { useAuth } from "./user-context"
+import Image from "next/image"
+import { ChevronDown, LogOut, Settings, User } from "lucide-react"
+import Link from "next/link"
+import { DEFAULT_USER_IMAGE } from "~/config/constants"
 
 export default function UserButton() {
     const { user, logout } = useAuth()

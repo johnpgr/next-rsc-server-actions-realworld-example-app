@@ -1,9 +1,9 @@
-'use client'
-import React from 'react'
-import Cookies from 'js-cookie'
-import { USER_TOKEN } from '~/config/constants'
-import { UserJWTPayload } from '~/modules/auth/auth.types'
-import { fetchUser } from './fetch-user'
+"use client"
+import React from "react"
+import Cookies from "js-cookie"
+import { USER_TOKEN } from "~/config/constants"
+import { UserJWTPayload } from "~/modules/auth/auth.types"
+import { fetchUser } from "./fetch-user"
 
 export type UserContextType = {
     user: UserJWTPayload | null
@@ -64,7 +64,7 @@ export const useAuth = () => {
     const ctx = React.useContext(UserContext)
 
     if (!ctx)
-        throw new Error('useUser must be used within a UserContextProvider')
+        throw new Error("useUser must be used within a UserContextProvider")
 
     return ctx
 }

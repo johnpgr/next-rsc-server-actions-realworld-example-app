@@ -1,10 +1,10 @@
-import { cookies } from 'next/headers'
-import { ArticleRow } from '~/components/articles/article-row'
-import { USER_TOKEN } from '~/config/constants'
-import { articlesService } from '~/modules/articles/articles.service'
-import { authService } from '~/modules/auth/auth.service'
+import { cookies } from "next/headers"
+import { ArticleRow } from "~/components/articles/article-row"
+import { USER_TOKEN } from "~/config/constants"
+import { articlesService } from "~/modules/articles/articles.service"
+import { authService } from "~/modules/auth/auth.service"
 
-export const runtime = 'nodejs'
+export const runtime = "nodejs"
 
 export default async function UserArticlesPage({
     params,
@@ -16,7 +16,7 @@ export default async function UserArticlesPage({
 
     const articles = await articlesService.getArticles({
         currentUserId: user?.id ?? null,
-        feedType: 'global',
+        feedType: "global",
         params: {
             authorName: params.username,
             favoritedBy: null,

@@ -1,11 +1,11 @@
-'use server'
-import { action } from '~/utils/actions'
-import { loginInputSchema, registerInputSchema } from './auth.validation'
-import { authService } from './auth.service'
-import { DEFAULT_USER_IMAGE, USER_TOKEN } from '~/config/constants'
-import { usersService } from '../users/users.service'
-import { cookies } from 'next/headers'
-import { revalidateTag } from 'next/cache'
+"use server"
+import { action } from "~/utils/actions"
+import { loginInputSchema, registerInputSchema } from "./auth.validation"
+import { authService } from "./auth.service"
+import { DEFAULT_USER_IMAGE, USER_TOKEN } from "~/config/constants"
+import { usersService } from "../users/users.service"
+import { cookies } from "next/headers"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 export const loginAction = action({ input: loginInputSchema }, async (data) => {
     try {
@@ -24,9 +24,9 @@ export const loginAction = action({ input: loginInputSchema }, async (data) => {
         const token = await authService.createToken(safeUser)
         const userToken = await authService.getPayloadFromToken(token)
 
-        if (!userToken) throw new Error('Failed to login')
+        if (!userToken) throw new Error("Failed to login")
 
-        revalidateTag('user_article_list')
+        revalidateTag("user_article_list")
 
         cookies().set(USER_TOKEN, token)
 
@@ -65,7 +65,7 @@ export const registerAction = action(
             const token = await authService.createToken(safeUser)
             const userToken = await authService.getPayloadFromToken(token)
 
-            revalidateTag('user_article_list')
+            revalidateTag("user_article_list")
 
             cookies().set(USER_TOKEN, token)
 

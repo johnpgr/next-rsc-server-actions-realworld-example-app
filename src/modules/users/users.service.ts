@@ -1,11 +1,11 @@
-import { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless'
-import { db } from '~/db'
-import { Profile, type User } from './users.types'
-import * as schema from '~/db/schema'
-import { and, eq, sql } from 'drizzle-orm'
-import { createId } from '~/utils/ulid'
-import { EditUser } from './users.validation'
-import { hash as hashPassword } from 'bcryptjs'
+import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless"
+import { db } from "~/db"
+import { Profile, type User } from "./users.types"
+import * as schema from "~/db/schema"
+import { and, eq, sql } from "drizzle-orm"
+import { createId } from "~/utils/ulid"
+import { EditUser } from "./users.validation"
+import { hash as hashPassword } from "bcryptjs"
 
 export class UserService {
     private db: PlanetScaleDatabase<typeof schema>
@@ -59,7 +59,7 @@ export class UserService {
                         SELECT 1
                         FROM ${schema.follow}
                         WHERE ${and(
-                            eq(schema.follow.follower_id, currentUserId || ''),
+                            eq(schema.follow.follower_id, currentUserId || ""),
                             eq(schema.follow.following_id, userId),
                         )})`,
             })
@@ -72,7 +72,7 @@ export class UserService {
         if (!user) return null
 
         //@ts-ignore
-        user.following = user.following === '1'
+        user.following = user.following === "1"
 
         return user as Profile
     }
@@ -88,7 +88,7 @@ export class UserService {
             .set(user)
             .where(eq(schema.user.username, username))
 
-        if (rowsAffected === 0) throw new Error('Something went wrong')
+        if (rowsAffected === 0) throw new Error("Something went wrong")
 
         const [updatedUser] = await this.db
             .select()
@@ -96,7 +96,7 @@ export class UserService {
             .where(eq(schema.user.username, username))
             .limit(1)
 
-        if (!updatedUser) throw new Error('Something went wrong')
+        if (!updatedUser) throw new Error("Something went wrong")
 
         return updatedUser
     }
@@ -117,7 +117,7 @@ export class UserService {
             .where(eq(schema.user.email, email))
             .limit(1)
 
-        if (foundEmail) throw new Error('Email already in use')
+        if (foundEmail) throw new Error("Email already in use")
 
         const [foundUsername] = await this.db
             .select()
@@ -125,7 +125,7 @@ export class UserService {
             .where(eq(schema.user.username, username))
             .limit(1)
 
-        if (foundUsername) throw new Error('Username already in use')
+        if (foundUsername) throw new Error("Username already in use")
 
         const { rowsAffected } = await this.db.insert(schema.user).values({
             id: createId(),
@@ -135,7 +135,7 @@ export class UserService {
             username,
         })
 
-        if (rowsAffected === 0) throw new Error('Something went wrong')
+        if (rowsAffected === 0) throw new Error("Something went wrong")
 
         const [newUser] = await this.db
             .select()
@@ -143,7 +143,7 @@ export class UserService {
             .where(eq(schema.user.email, email))
             .limit(1)
 
-        if (!newUser) throw new Error('Something went wrong')
+        if (!newUser) throw new Error("Something went wrong")
 
         return newUser
     }
