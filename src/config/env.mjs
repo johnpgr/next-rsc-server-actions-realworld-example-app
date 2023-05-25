@@ -8,10 +8,6 @@ export const env = createEnv({
      */
     server: {
         DB_URL: z.string().url(),
-        DB_USERNAME: z.string(),
-        DB_PASSWORD: z.string(),
-        DB_HOST: z.string(),
-        JWT_SECRET: z.string(),
         NODE_ENV: z.enum(["development", "test", "production"]),
     },
 
@@ -32,10 +28,6 @@ export const env = createEnv({
     runtimeEnv: {
         NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
         DB_URL: process.env.DB_URL,
-        DB_USERNAME: process.env.DB_USERNAME,
-        DB_PASSWORD: process.env.DB_PASSWORD,
-        DB_HOST: process.env.DB_HOST,
-        JWT_SECRET: process.env.JWT_SECRET,
         NODE_ENV: process.env.NODE_ENV,
     },
 })

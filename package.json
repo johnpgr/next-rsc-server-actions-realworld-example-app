@@ -7,11 +7,12 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "db:push": "drizzle-kit push:mysql",
+        "db:generate": "drizzle-kit generate:pg",
+        "db:migrate": "curl http://localhost:3000/api/migrate",
         "db:seed": "curl http://localhost:3000/api/seed"
     },
     "dependencies": {
-        "@planetscale/database": "^1.7.0",
+        "@neondatabase/serverless": "0.4.0",
         "@radix-ui/react-accordion": "^1.1.1",
         "@radix-ui/react-alert-dialog": "^1.0.3",
         "@radix-ui/react-aspect-ratio": "^1.0.2",
@@ -54,6 +55,7 @@
         "js-cookie": "^3.0.5",
         "lucide-react": "^0.216.0",
         "next": "13.4.4-canary.9",
+        "next-auth": "^4.22.1",
         "next-safe-action": "^2.5.5",
         "postcss": "8.4.23",
         "react": "18.2.0",

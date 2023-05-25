@@ -50,7 +50,7 @@ async function seedArticles(n: number) {
     }
 }
 
-export async function POST() {
+export async function GET() {
     try {
         await seedArticles(10)
         return jsonResponse(200, {
