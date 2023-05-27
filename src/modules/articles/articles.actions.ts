@@ -17,7 +17,7 @@ export const publishArticleAction = action(
                 },
             }
 
-        const article = await articlesService.createArticle(data, user.id)
+        const article = await articlesService.create(data, user.id)
 
         if (!article)
             return {
@@ -43,7 +43,7 @@ export const editArticleAction = action(
             }
         }
 
-        const isArticleAuthor = await articlesService.isArticleAuthor(
+        const isArticleAuthor = await articlesService.isAuthor(
             user.id,
             data.slug,
         )
@@ -57,7 +57,7 @@ export const editArticleAction = action(
             }
         }
 
-        const article = await articlesService.updateArticle(data)
+        const article = await articlesService.update(data)
 
         return { article }
     },

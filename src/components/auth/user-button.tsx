@@ -12,7 +12,6 @@ import { ChevronDown, LogOut, Settings, User as UserIcon } from "lucide-react"
 import Link from "next/link"
 import { DEFAULT_USER_IMAGE } from "~/config/constants"
 import { signOut, useSession } from "next-auth/react"
-import { type Session } from "next-auth"
 
 export default function UserButton() {
     const {data:session} = useSession()

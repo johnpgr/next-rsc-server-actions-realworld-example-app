@@ -4,6 +4,7 @@ import * as schema from "~/db/schema"
 import { and, eq, sql } from "drizzle-orm"
 import { EditUser } from "./users.validation"
 import { compare, hash as hashPassword } from "bcryptjs"
+import { createId } from "~/utils/id"
 
 export class UserService {
     private database: typeof db
@@ -55,7 +56,7 @@ export class UserService {
 
         const { id: userId } = found
 
-        const [user] = await this.database
+        const user = await this.database
             .select({
                 id: schema.user.id,
                 name: schema.user.name,
@@ -73,6 +74,7 @@ export class UserService {
             .from(schema.user)
             .where(eq(schema.user.id, userId))
             .limit(1)
+            .get()
 
         if (!user) return null
 
@@ -88,11 +90,12 @@ export class UserService {
     async updateUser(username: string, input: EditUser): Promise<User> {
         const { user } = input
 
-        const [updatedUser] = await this.database
+        const updatedUser = await this.database
             .update(schema.user)
             .set(user)
             .where(eq(schema.user.name, username))
             .returning()
+            .get()
 
         return updatedUser
     }
@@ -125,9 +128,10 @@ export class UserService {
 
         if (foundUsername) throw new Error("Username already in use")
 
-        const [createdUser] = await this.database
+        const createdUser = await this.database
             .insert(schema.user)
             .values({
+                id: createId(),
                 email,
                 password: await hashPassword(password, 12),
                 image,
@@ -140,6 +144,7 @@ export class UserService {
                 bio: schema.user.bio,
                 image: schema.user.image,
             })
+            .get()
 
         return createdUser
     }
@@ -148,6 +153,7 @@ export class UserService {
         email: string,
         password: string,
     ): Promise<User | null> {
+        console.time("get user from db")
         const user = await this.database.query.user.findFirst({
             where: eq(schema.user.email, email),
             columns: {
@@ -159,6 +165,7 @@ export class UserService {
                 password: true,
             },
         })
+        console.timeEnd("get user from db")
 
         if (!user) return null
 

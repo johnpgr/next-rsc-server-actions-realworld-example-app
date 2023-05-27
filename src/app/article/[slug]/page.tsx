@@ -1,22 +1,19 @@
+import { getServerSession } from "next-auth"
 import { cookies } from "next/headers"
 import { USER_TOKEN } from "~/config/constants"
 import { articlesService } from "~/modules/articles/articles.service"
-import { authService } from "~/modules/auth/auth.service"
+import { authOptions } from "~/modules/auth/auth.options"
 
 export default async function ArticlePage({
     params,
 }: {
     params: { slug: string }
 }) {
-    const token = cookies().get(USER_TOKEN)?.value
+    const session = await getServerSession(authOptions)
 
-    const currentUser = token
-        ? await authService.getPayloadFromToken(token)
-        : null
-
-    const article = await articlesService.getArticleBySlug(
+    const article = await articlesService.getBySlug(
         params.slug,
-        currentUser?.id,
+        session?.user?.id,
     )
 
     return <pre>{JSON.stringify(article, null, 4)}</pre>

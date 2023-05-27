@@ -10,10 +10,10 @@ export type Article = {
     updatedAt: Date
     author: {
         username: string
-        bio: string
-        image: string
+        bio: string | null
+        image: string | null
     }
-    tagList: string[]
+    tagList?: string[]
     favoritesCount: number
     favorited: boolean
 }

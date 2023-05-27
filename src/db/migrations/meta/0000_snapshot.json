@@ -1,41 +1,33 @@
 {
   "version": "5",
-  "dialect": "pg",
-  "id": "670e9f17-20bd-4346-b03f-57e28ebbe9ad",
+  "dialect": "sqlite",
+  "id": "711df4b9-2e2a-4f6e-99e0-9b6462ce281a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
       "name": "account",
-      "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "userId": {
           "name": "userId",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "type": {
           "name": "type",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "provider": {
           "name": "provider",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "providerAccountId": {
           "name": "providerAccountId",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -55,17 +47,18 @@
           "name": "expires_at",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "token_type": {
           "name": "token_type",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
         "scope": {
           "name": "scope",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -77,7 +70,7 @@
         },
         "session_state": {
           "name": "session_state",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         }
@@ -94,44 +87,48 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onDelete": "cascade"
         }
       },
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {
+        "account_provider_providerAccountId_pk": {
+          "columns": [
+            "provider",
+            "providerAccountId"
+          ]
+        }
+      }
     },
     "article": {
       "name": "article",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "author_id": {
           "name": "author_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
         "slug": {
           "name": "slug",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "title": {
           "name": "title",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "description": {
           "name": "description",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -141,22 +138,24 @@
           "primaryKey": false,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "posts__user_id__idx": {
+          "name": "posts__user_id__idx",
+          "columns": [
+            "author_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "article_author_id_user_id_fk": {
           "name": "article_author_id_user_id_fk",
@@ -167,33 +166,29 @@
           ],
           "columnsTo": [
             "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          ]
         }
       },
       "compositePrimaryKeys": {}
     },
     "comment": {
       "name": "comment",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "author_id": {
           "name": "author_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "article_id": {
           "name": "article_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -202,23 +197,24 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "comments__user_id__idx": {
+          "name": "comments__user_id__idx",
+          "columns": [
+            "author_id"
+          ],
+          "isUnique": false
+        },
+        "comments__article_id__idx": {
+          "name": "comments__article_id__idx",
+          "columns": [
+            "article_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "comment_author_id_user_id_fk": {
           "name": "comment_author_id_user_id_fk",
@@ -229,9 +225,7 @@
           ],
           "columnsTo": [
             "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          ]
         },
         "comment_article_id_article_id_fk": {
           "name": "comment_article_id_article_id_fk",
@@ -243,51 +237,49 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {}
     },
     "favorite": {
       "name": "favorite",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "user_id": {
           "name": "user_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "article_id": {
           "name": "article_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "favorites__user_id__idx": {
+          "name": "favorites__user_id__idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "favorites__article_id__idx": {
+          "name": "favorites__article_id__idx",
+          "columns": [
+            "article_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "favorite_user_id_user_id_fk": {
           "name": "favorite_user_id_user_id_fk",
@@ -299,8 +291,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onDelete": "cascade"
         },
         "favorite_article_id_article_id_fk": {
           "name": "favorite_article_id_article_id_fk",
@@ -312,51 +303,49 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {}
     },
     "follow": {
       "name": "follow",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "follower_id": {
           "name": "follower_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "following_id": {
           "name": "following_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "follows__follower_id__idx": {
+          "name": "follows__follower_id__idx",
+          "columns": [
+            "follower_id"
+          ],
+          "isUnique": false
+        },
+        "follows__following_id__idx": {
+          "name": "follows__following_id__idx",
+          "columns": [
+            "following_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "follow_follower_id_user_id_fk": {
           "name": "follow_follower_id_user_id_fk",
@@ -368,8 +357,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onDelete": "cascade"
         },
         "follow_following_id_user_id_fk": {
           "name": "follow_following_id_user_id_fk",
@@ -381,40 +369,32 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {}
     },
     "session": {
       "name": "session",
-      "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "sessionToken": {
           "name": "sessionToken",
-          "type": "varchar(191)",
-          "primaryKey": false,
+          "type": "text",
+          "primaryKey": true,
           "notNull": true
         },
         "userId": {
           "name": "userId",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "expires": {
           "name": "expires",
-          "type": "timestamp",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -429,51 +409,42 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {}
     },
     "tag": {
       "name": "tag",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "name": {
           "name": "name",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "article_id": {
           "name": "article_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "tags__article_id__idx": {
+          "name": "tags__article_id__idx",
+          "columns": [
+            "article_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "tag_article_id_article_id_fk": {
           "name": "tag_article_id_article_id_fk",
@@ -485,32 +456,23 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {}
     },
     "user": {
       "name": "user",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "name": {
           "name": "name",
-          "type": "varchar(191)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -520,17 +482,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "emailVerified": {
           "name": "emailVerified",
-          "type": "timestamp",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
-        },
-        "image": {
-          "name": "image",
-          "type": "varchar(191)",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "bio": {
           "name": "bio",
@@ -538,19 +501,19 @@
           "primaryKey": false,
           "notNull": false
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
+        "image": {
+          "name": "image",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
@@ -559,34 +522,40 @@
     },
     "verificationToken": {
       "name": "verificationToken",
-      "schema": "",
       "columns": {
         "identifier": {
           "name": "identifier",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "token": {
           "name": "token",
-          "type": "varchar(191)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "expires": {
           "name": "expires",
-          "type": "timestamp",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {
+        "verificationToken_identifier_token_pk": {
+          "columns": [
+            "identifier",
+            "token"
+          ]
+        }
+      }
     }
   },
   "enums": {},
-  "schemas": {},
   "_meta": {
     "schemas": {},
     "tables": {},

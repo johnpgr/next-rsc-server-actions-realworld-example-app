@@ -1,16 +1,14 @@
-import { Pool } from "@neondatabase/serverless"
-import { drizzle } from "drizzle-orm/neon-serverless"
-// import { migrate } from "drizzle-orm/neon-serverless/migrator"
+import { createClient } from "@libsql/client"
+import { drizzle } from "drizzle-orm/libsql"
 import * as schema from "./schema"
 import { env } from "~/config/env.mjs"
 
-const pool = new Pool({ connectionString: env.DB_URL })
+const client = createClient({
+    url: env.DB_URL,
+    authToken: env.DB_TOKEN,
+})
 
-export const db = drizzle(pool, {
+export const db = drizzle(client, {
     logger: env.NODE_ENV === "development" ? true : false,
     schema,
 })
-
-// migrate(db, {
-//     migrationsFolder: "./src/db/migrations",
-// })

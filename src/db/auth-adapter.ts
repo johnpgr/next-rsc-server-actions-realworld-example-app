@@ -1,81 +1,87 @@
-import { Adapter, AdapterAccount, VerificationToken } from "next-auth/adapters"
+// Most of the code is taken from: https://github.com/nextauthjs/next-auth/pull/7165
 import { and, eq } from "drizzle-orm"
-import * as schema from "./schema"
+import type { Adapter, VerificationToken } from "next-auth/adapters"
 import { db } from "."
-import { randomUUID } from "crypto"
-import { hash } from "bcryptjs"
+import * as schema from "./schema"
+import { createId } from "~/utils/id"
 
 export function DrizzleAdapter(database: typeof db): Adapter {
     return {
-        //This method should not be used to create user
-        createUser: async (data) => {
-            const user = await database
+        createUser: (data) => {
+            return database
                 .insert(schema.user)
                 .values({
                     ...data,
-                    password: await hash(randomUUID(),12),
-
+                    name: data.name ?? "Unknown user",
+                    password: createId(),
+                    id: createId(),
                 })
                 .returning()
-
-            return user[0]
+                .get()
         },
-        getUser: async (id) => {
-            const user = await database.query.user.findFirst({
-                where: eq(schema.user.id, id),
-            })
-
-            return user ?? null
+        getUser: (id) => {
+            return (
+                database
+                    .select()
+                    .from(schema.user)
+                    .where(eq(schema.user.id, id))
+                    .get() ?? null
+            )
         },
-        getUserByEmail: async (email) => {
-            const user = await database.query.user.findFirst({
-                where: eq(schema.user.email, email),
-            })
-
-            return user ?? null
+        getUserByEmail: (email) => {
+            return (
+                database
+                    .select()
+                    .from(schema.user)
+                    .where(eq(schema.user.email, email))
+                    .get() ?? null
+            )
         },
-        createSession: async (data) => {
-            const [session] = await database
+        createSession: (session) => {
+            return database
                 .insert(schema.session)
-                .values(data)
+                .values(session)
                 .returning()
-            return session
+                .get()
         },
-        getSessionAndUser: async (sessionToken) => {
-            const sessionAndUser2 = await database
-                .select({
-                    session: schema.session,
-                    user: schema.user,
-                })
-                .from(schema.session)
-                .where(eq(schema.session.sessionToken, sessionToken))
-                .innerJoin(
-                    schema.user,
-                    eq(schema.user.id, schema.session.userId),
-                )
-            return sessionAndUser2[0] ?? null
+        getSessionAndUser: (sessionToken) => {
+            return (
+                database
+                    .select({
+                        session: schema.session,
+                        user: schema.user,
+                    })
+                    .from(schema.session)
+                    .where(eq(schema.session.sessionToken, sessionToken))
+                    .innerJoin(
+                        schema.user,
+                        eq(schema.user.id, schema.session.userId),
+                    )
+                    .get() ?? null
+            )
         },
-        updateUser: async (user) => {
-            const updated = await database
+        updateUser: (user) => {
+            return database
                 .update(schema.user)
-                .set(user)
+                .set(schema.user)
                 .where(eq(schema.user.id, user.id))
                 .returning()
-            return updated[0]
+                .get()
         },
-        updateSession: async (session) => {
-            const updated = await database
+        updateSession: (session) => {
+            return database
                 .update(schema.session)
                 .set(session)
                 .where(eq(schema.session.sessionToken, session.sessionToken))
                 .returning()
-            return updated[0]
+                .get()
         },
         linkAccount: async (rawAccount) => {
-            const [updatedAccount] = await database
+            const updatedAccount = await database
                 .insert(schema.account)
                 .values(rawAccount)
                 .returning()
+                .get()
 
             const account: ReturnType<Adapter["linkAccount"]> = {
                 ...updatedAccount,
@@ -90,46 +96,49 @@ export function DrizzleAdapter(database: typeof db): Adapter {
 
             return account
         },
-        getUserByAccount: async (account) => {
-            const user = await database
-                .select({
-                    id: schema.user.id,
-                    email: schema.user.email,
-                    emailVerified: schema.user.emailVerified,
-                    image: schema.user.image,
-                    name: schema.user.name,
-                })
-                .from(schema.user)
-                .innerJoin(
-                    schema.account,
-                    and(
-                        eq(
-                            schema.account.providerAccountId,
-                            account.providerAccountId,
+        getUserByAccount: (account) => {
+            return (
+                database
+                    .select({
+                        id: schema.user.id,
+                        email: schema.user.email,
+                        emailVerified: schema.user.emailVerified,
+                        image: schema.user.image,
+                        name: schema.user.name,
+                    })
+                    .from(schema.user)
+                    .innerJoin(
+                        schema.account,
+                        and(
+                            eq(
+                                schema.account.providerAccountId,
+                                account.providerAccountId,
+                            ),
+                            eq(schema.account.provider, account.provider),
                         ),
-                        eq(schema.account.provider, account.provider),
-                    ),
-                )
-                .limit(1)
-            return user[0]
+                    )
+                    .get() ?? null
+            )
         },
-        deleteSession: async (sessionToken) => {
-            const session = await database
-                .delete(schema.session)
-                .where(eq(schema.session.sessionToken, sessionToken))
-                .returning()
-            return session[0]
+        deleteSession: (sessionToken) => {
+            return (
+                database
+                    .delete(schema.session)
+                    .where(eq(schema.session.sessionToken, sessionToken))
+                    .returning()
+                    .get() ?? null
+            )
         },
-        createVerificationToken: async (verificationToken) => {
-            const vt = await database
+        createVerificationToken: (verificationToken) => {
+            return database
                 .insert(schema.verificationToken)
                 .values(verificationToken)
                 .returning()
-            return vt[0]
+                .get()
         },
         useVerificationToken: async (verificationToken) => {
             try {
-                const vt = await database
+                return (database
                     .delete(schema.verificationToken)
                     .where(
                         and(
@@ -144,33 +153,33 @@ export function DrizzleAdapter(database: typeof db): Adapter {
                         ),
                     )
                     .returning()
-                return vt[0]
+                    .get() ?? null) as Promise<VerificationToken | null>
             } catch {
                 throw new Error("No verification token found.")
             }
         },
-        deleteUser: async (id) => {
-            const user = await database
+        deleteUser: (id) => {
+            return database
                 .delete(schema.user)
                 .where(eq(schema.user.id, id))
                 .returning()
-            return user[0]
+                .get()
         },
-        unlinkAccount: async (data) => {
-            const account = await database
+        unlinkAccount: (account) => {
+            database
                 .delete(schema.account)
                 .where(
                     and(
                         eq(
                             schema.account.providerAccountId,
-                            data.providerAccountId,
+                            account.providerAccountId,
                         ),
-                        eq(schema.account.provider, data.provider),
+                        eq(schema.account.provider, account.provider),
                     ),
                 )
-                .returning()
+                .run()
 
-            return account[0] as AdapterAccount
+            return undefined
         },
     }
 }

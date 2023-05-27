@@ -2,7 +2,7 @@
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
  * for Docker builds.
  */
-await import('./src/config/env.mjs')
+await import("./src/config/env.mjs")
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -11,7 +11,11 @@ const nextConfig = {
         serverActions: true,
     },
     images: {
-        domains: ['api.realworld.io', 'cloudflare-ipfs.com'],
+        domains: [
+            "api.realworld.io",
+            "cloudflare-ipfs.com",
+            "avatars.githubusercontent.com",
+        ],
     },
 }
 

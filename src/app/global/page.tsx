@@ -1,5 +1,4 @@
 import { PageSearchParams, getSearchParams } from "~/utils/search-params"
-import { articlesService } from "~/modules/articles/articles.service"
 import { Suspense } from "react"
 import { ArticleList } from "~/components/articles/article-list"
 import { getServerSession } from "next-auth"
@@ -34,15 +33,14 @@ export default async function ArticlesPage({
 
     const session = await getServerSession(authOptions)
 
-    return <div>Hello {session?.user?.name ?? "World"}</div>
-    // return (
-    //     <Suspense fallback={<div className="p-4">Loading articles...</div>}>
-    //         {/* @ts-expect-error Async server component */}
-    //         <ArticleList
-    //             currentUserId={currentUser?.id ?? null}
-    //             parsedParams={parsedParams}
-    //             feedType="global"
-    //         />
-    //     </Suspense>
-    // )
+    return (
+        <Suspense fallback={<div className="p-4">Loading articles...</div>}>
+            {/* @ts-expect-error Async server component */}
+            <ArticleList
+                currentUserId={session?.user?.id ?? null}
+                parsedParams={parsedParams}
+                feedType="global"
+            />
+        </Suspense>
+    )
 }

@@ -7,11 +7,12 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "db:generate": "drizzle-kit generate:pg",
-        "db:seed": "curl http://localhost:3000/api/seed"
+        "db:seed": "curl -X POST http://localhost:3000/api/db/seed",
+        "db:generate": "drizzle-kit generate:sqlite",
+        "db:migrate": "curl -X POST http://localhost:3000/api/db/migrate"
     },
     "dependencies": {
-        "@neondatabase/serverless": "0.4.0",
+        "@libsql/client": "^0.1.6",
         "@radix-ui/react-accordion": "^1.1.1",
         "@radix-ui/react-alert-dialog": "^1.0.3",
         "@radix-ui/react-aspect-ratio": "^1.0.2",
@@ -50,10 +51,8 @@
         "cmdk": "^0.2.0",
         "date-fns": "^2.30.0",
         "drizzle-orm": "^0.26.1",
-        "jose": "^4.14.4",
-        "js-cookie": "^3.0.5",
         "lucide-react": "^0.216.0",
-        "next": "13.4.3",
+        "next": "13.4.4",
         "next-auth": "^4.22.1",
         "next-safe-action": "^2.5.5",
         "postcss": "8.4.23",
@@ -64,7 +63,8 @@
         "tailwind-merge": "^1.12.0",
         "tailwindcss": "3.3.2",
         "tailwindcss-animate": "^1.0.5",
-        "ulid-workers": "^2.1.0",
+        "tozod": "^3.0.0",
+        "ulid": "^2.3.0",
         "zod": "^3.21.4"
     },
     "devDependencies": {

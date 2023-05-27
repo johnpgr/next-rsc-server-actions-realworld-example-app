@@ -1,35 +1,28 @@
 import { cookies } from "next/headers"
 import { Editor } from "~/components/editor"
 import { USER_TOKEN } from "~/config/constants"
-import { authService } from "~/modules/auth/auth.service"
 import { articlesService } from "~/modules/articles/articles.service"
 import { notFound, redirect } from "next/navigation"
-
-//runtime edge doesnt work here
-export const runtime = "nodejs"
+import { authOptions } from "~/modules/auth/auth.options"
+import { getServerSession } from "next-auth"
 
 export default async function EditorPage({
     params,
 }: {
     params: { slug: string }
 }) {
-    const token = cookies().get(USER_TOKEN)?.value
+    const session = await getServerSession(authOptions)
+    if (!session || !session.user) redirect("/login")
 
-    const currentUser = token
-        ? await authService.getPayloadFromToken(token)
-        : null
-
-    if (!currentUser) redirect("/login")
-
-    const article = await articlesService.getArticleBySlug(
+    const article = await articlesService.getBySlug(
         params.slug,
-        currentUser.id,
+        session.user.id,
     )
 
     if (!article) return notFound()
 
-    const isArticleAuthor = await articlesService.isArticleAuthor(
-        currentUser.id,
+    const isArticleAuthor = await articlesService.isAuthor(
+        session.user.id,
         params.slug,
     )
 

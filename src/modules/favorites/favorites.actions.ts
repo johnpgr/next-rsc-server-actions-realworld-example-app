@@ -57,7 +57,7 @@ export const favoriteArticleAction = action(
                     code: 500,
                 },
             }
-        const article = await articlesService.getArticleById(res.article_id)
+        const article = await articlesService.getById(res.article_id)
         if (!article)
             return {
                 error: {
@@ -124,7 +124,7 @@ export const unfavoriteArticleAction = action(
                 },
             }
 
-        const article = await articlesService.getArticleById(res.article_id)
+        const article = await articlesService.getById(res.article_id)
 
         if (!article)
             return {

@@ -1,21 +1,17 @@
+import { getServerSession } from "next-auth"
 import { cookies } from "next/headers"
 import { USER_TOKEN } from "~/config/constants"
 import { articlesService } from "~/modules/articles/articles.service"
-import { authService } from "~/modules/auth/auth.service"
+import { authOptions } from "~/modules/auth/auth.options"
 
 export default async function FavoritesPage({
     params,
 }: {
     params: { username: string }
 }) {
-    const token = cookies().get(USER_TOKEN)?.value
-
-    const currentUser = token
-        ? await authService.getPayloadFromToken(token)
-        : null
-
+    const session = await getServerSession(authOptions)
     const articles = await articlesService.getArticles({
-        currentUserId: currentUser?.id ?? null,
+        currentUserId: session?.user?.id ?? null,
         feedType: "global",
         params: {
             authorName: null,

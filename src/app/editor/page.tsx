@@ -1,14 +1,10 @@
-import { AuthRequiredPage } from "~/components/auth/auth-required-page"
+import { getServerSession } from "next-auth"
+import { redirect } from "next/navigation"
 import { Editor } from "~/components/editor"
+import { authOptions } from "~/modules/auth/auth.options"
 
-//runtime edge doesnt work here
-export const runtime = "nodejs"
-
-export default function EditorPage() {
-    return (
-        //@ts-expect-error Async server component
-        <AuthRequiredPage>
-            <Editor />
-        </AuthRequiredPage>
-    )
+export default async function EditorPage() {
+    const session = await getServerSession(authOptions)
+    if (!session) redirect("/login")
+    return <Editor />
 }

@@ -34,14 +34,13 @@ export default function LoginPage() {
         })
 
         if (res?.error) {
-            setError(res.error)
-        }
-
-        if (res?.ok) {
-            router.push("/")
+            setError("Invalid email or password")
+            setIsPending(false)
+            return
         }
 
         setIsPending(false)
+        router.push("/")
     }
 
     return (

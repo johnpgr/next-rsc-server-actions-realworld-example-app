@@ -10,17 +10,10 @@ export default async function UserArticlesPage({
 }) {
     const session = await getServerSession(authOptions)
 
-    const articles = await articlesService.getArticles({
-        currentUserId: session?.user?.id ?? null,
-        feedType: "global",
-        params: {
-            authorName: params.username,
-            favoritedBy: null,
-            tag: null,
-            limit: 10,
-            offset: 0,
-        },
-    })
+    const articles = await articlesService.getAllByAuthor(
+        params.username,
+        session?.user?.id,
+    )
 
     return (
         <ul className="divide-y">

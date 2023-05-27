@@ -1,109 +1,87 @@
-import { relations } from "drizzle-orm"
-import {
-    index,
-    pgTable,
-    timestamp,
-    varchar,
-    text,
-    uuid,
-    integer,
-} from "drizzle-orm/pg-core"
+import { relations, sql } from "drizzle-orm"
+
 import { ProviderType } from "next-auth/providers"
+import {
+    sqliteTable,
+    text,
+    integer,
+    primaryKey,
+    index,
+} from "drizzle-orm/sqlite-core"
 
 // NextAuth
-export const user = pgTable(
-    "user",
-    {
-        id: uuid("id").notNull().defaultRandom().primaryKey(),
-        name: varchar("name", { length: 191 }),
-        email: varchar("email", { length: 191 }).notNull(),
-        password: text("password").notNull(),
-        emailVerified: timestamp("emailVerified"),
-        image: varchar("image", { length: 191 }),
-        bio: text("bio"),
-        created_at: timestamp("created_at").notNull().defaultNow(),
-        updated_at: timestamp("updated_at").notNull().defaultNow(),
-    },
-)
+export const user = sqliteTable("user", {
+    id: text("id").notNull().primaryKey(),
+    name: text("name").notNull(),
+    password: text("password").notNull(),
+    email: text("email").notNull(),
+    emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
+    bio: text("bio"),
+    image: text("image"),
+    updated_at: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+})
 
-export const userToAccountsRelation = relations(user, ({ many }) => ({
-    accounts: many(account),
-    sessions: many(session),
-}))
-
-export const account = pgTable(
+export const account = sqliteTable(
     "account",
     {
-        id: uuid("id").notNull().defaultRandom().primaryKey(),
-        userId: uuid("userId")
+        userId: text("userId")
             .notNull()
             .references(() => user.id, { onDelete: "cascade" }),
-        type: varchar("type", { length: 191 }).$type<ProviderType>().notNull(),
-        provider: varchar("provider", { length: 191 }).notNull(),
-        providerAccountId: varchar("providerAccountId", {
-            length: 191,
-        }).notNull(),
+        type: text("type").$type<ProviderType>().notNull(),
+        provider: text("provider").notNull(),
+        providerAccountId: text("providerAccountId").notNull(),
         refresh_token: text("refresh_token"),
         access_token: text("access_token"),
         expires_at: integer("expires_at"),
-        token_type: varchar("token_type", { length: 191 }),
-        scope: varchar("scope", { length: 191 }),
+        token_type: text("token_type"),
+        scope: text("scope"),
         id_token: text("id_token"),
-        session_state: varchar("session_state", { length: 191 }),
+        session_state: text("session_state"),
     },
+    (account) => ({
+        compositePk: primaryKey(account.provider, account.providerAccountId),
+    }),
 )
 
-export const accountsToUserRelation = relations(account, ({ one }) => ({
-    user: one(user, {
-        fields: [account.userId],
-        references: [user.id],
-    }),
-}))
+export const session = sqliteTable("session", {
+    sessionToken: text("sessionToken").notNull().primaryKey(),
+    userId: text("userId")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+})
 
-export const session = pgTable(
-    "session",
-    {
-        id: uuid("id").notNull().defaultRandom().primaryKey(),
-        sessionToken: varchar("sessionToken", { length: 191 }).notNull(),
-        userId: uuid("userId")
-            .notNull()
-            .references(() => user.id, { onDelete: "cascade" }),
-        expires: timestamp("expires").notNull(),
-    },
-)
-
-export const sessionsToUserRelation = relations(session, ({ one }) => ({
-    user: one(user, {
-        fields: [session.userId],
-        references: [user.id],
-    }),
-}))
-
-export const verificationToken = pgTable(
+export const verificationToken = sqliteTable(
     "verificationToken",
     {
-        identifier: varchar("identifier", { length: 191 }).notNull(),
-        token: varchar("token", { length: 191 }).notNull(),
-        expires: timestamp("expires").notNull(),
+        identifier: text("identifier").notNull(),
+        token: text("token").notNull(),
+        expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
     },
+    (vt) => ({
+        compositePk: primaryKey(vt.identifier, vt.token),
+    }),
 )
 // End NextAuth
 
-export const article = pgTable(
+export const article = sqliteTable(
     "article",
     {
-        id: uuid("id").notNull().defaultRandom().primaryKey(),
-        author_id: uuid("author_id").references(() => user.id),
-        slug: varchar("slug", { length: 191 }).notNull(),
-        title: varchar("title", { length: 191 }).notNull(),
-        description: varchar("description", { length: 191 }).notNull(),
+        id: text("id").notNull().primaryKey(),
+        author_id: text("author_id").references(() => user.id),
+        slug: text("slug").notNull(),
+        title: text("title").notNull(),
+        description: text("description").notNull(),
         body: text("body").notNull(),
-        created_at: timestamp("created_at").notNull().defaultNow(),
-        updated_at: timestamp("updated_at").notNull().defaultNow(),
+        updated_at: integer("updated_at", { mode: "timestamp" })
+            .notNull()
+            .default(sql`CURRENT_TIMESTAMP`),
     },
-    // (post) => ({
-    //     userIdIndex: index("posts__user_id__idx").on(post.author_id),
-    // }),
+    (post) => ({
+        userIdIndex: index("posts__user_id__idx").on(post.author_id),
+    }),
 )
 
 export const userToArticlesRelation = relations(user, ({ many }) => ({
@@ -117,22 +95,20 @@ export const articleToUserRelation = relations(article, ({ one }) => ({
     }),
 }))
 
-export const tag = pgTable(
+export const tag = sqliteTable(
     "tag",
     {
-        id: uuid("id").notNull().defaultRandom().primaryKey(),
-        name: varchar("name", { length: 191 }).notNull(),
-        article_id: uuid("article_id")
+        id: text("id").notNull().primaryKey(),
+        name: text("name").notNull(),
+        article_id: text("article_id")
             .notNull()
             .references(() => article.id, {
                 onDelete: "cascade",
             }),
-        created_at: timestamp("created_at").defaultNow().notNull(),
-        updated_at: timestamp("updated_at").defaultNow().notNull(),
     },
-    // (tag) => ({
-    //     articleIdIndex: index("tags__article_id__idx").on(tag.article_id),
-    // }),
+    (tag) => ({
+        articleIdIndex: index("tags__article_id__idx").on(tag.article_id),
+    }),
 )
 
 export const articleToTagsRelation = relations(article, ({ many }) => ({
@@ -146,28 +122,26 @@ export const tagToArticleRelation = relations(tag, ({ one }) => ({
     }),
 }))
 
-export const comment = pgTable(
+export const comment = sqliteTable(
     "comment",
     {
-        id: uuid("id").notNull().defaultRandom().primaryKey(),
-        author_id: uuid("author_id")
+        id: text("id").notNull().primaryKey(),
+        author_id: text("author_id")
             .notNull()
             .references(() => user.id),
-        article_id: uuid("article_id")
+        article_id: text("article_id")
             .notNull()
             .references(() => article.id, {
                 onDelete: "cascade",
             }),
         body: text("body").notNull(),
-        created_at: timestamp("created_at").notNull().defaultNow(),
-        updated_at: timestamp("updated_at").notNull().defaultNow(),
     },
-    // (comment) => ({
-    //     userIdIndex: index("comments__user_id__idx").on(comment.author_id),
-    //     articleIdIndex: index("comments__article_id__idx").on(
-    //         comment.article_id,
-    //     ),
-    // }),
+    (comment) => ({
+        userIdIndex: index("comments__user_id__idx").on(comment.author_id),
+        articleIdIndex: index("comments__article_id__idx").on(
+            comment.article_id,
+        ),
+    }),
 )
 
 export const userToCommentsRelation = relations(user, ({ many }) => ({
@@ -192,29 +166,27 @@ export const commentToArticleRelation = relations(comment, ({ one }) => ({
     }),
 }))
 
-export const favorite = pgTable(
+export const favorite = sqliteTable(
     "favorite",
     {
-        id: uuid("id").notNull().defaultRandom().primaryKey(),
-        user_id: uuid("user_id")
+        id: text("id").notNull().primaryKey(),
+        user_id: text("user_id")
             .notNull()
             .references(() => user.id, {
                 onDelete: "cascade",
             }),
-        article_id: uuid("article_id")
+        article_id: text("article_id")
             .notNull()
             .references(() => article.id, {
                 onDelete: "cascade",
             }),
-        created_at: timestamp("created_at").notNull().defaultNow(),
-        updated_at: timestamp("updated_at").notNull().defaultNow(),
     },
-    // (favorite) => ({
-    //     userIdIndex: index("favorites__user_id__idx").on(favorite.user_id),
-    //     articleIdIndex: index("favorites__article_id__idx").on(
-    //         favorite.article_id,
-    //     ),
-    // }),
+    (favorite) => ({
+        userIdIndex: index("favorites__user_id__idx").on(favorite.user_id),
+        articleIdIndex: index("favorites__article_id__idx").on(
+            favorite.article_id,
+        ),
+    }),
 )
 
 export const userToFavoritesRelation = relations(user, ({ many }) => ({
@@ -239,31 +211,29 @@ export const favoriteToArticleRelation = relations(favorite, ({ one }) => ({
     }),
 }))
 
-export const follow = pgTable(
+export const follow = sqliteTable(
     "follow",
     {
-        id: uuid("id").notNull().defaultRandom().primaryKey(),
-        follower_id: uuid("follower_id")
+        id: text("id").notNull().primaryKey(),
+        follower_id: text("follower_id")
             .notNull()
             .references(() => user.id, {
                 onDelete: "cascade",
             }),
-        following_id: uuid("following_id")
+        following_id: text("following_id")
             .notNull()
             .references(() => user.id, {
                 onDelete: "cascade",
             }),
-        created_at: timestamp("created_at").notNull().defaultNow(),
-        updated_at: timestamp("updated_at").notNull().defaultNow(),
     },
-    // (follow) => ({
-    //     followerIndex: index("follows__follower_id__idx").on(
-    //         follow.follower_id,
-    //     ),
-    //     followingIndex: index("follows__following_id__idx").on(
-    //         follow.following_id,
-    //     ),
-    // }),
+    (follow) => ({
+        followerIndex: index("follows__follower_id__idx").on(
+            follow.follower_id,
+        ),
+        followingIndex: index("follows__following_id__idx").on(
+            follow.following_id,
+        ),
+    }),
 )
 
 export const userToFollowersRelation = relations(user, ({ many }) => ({

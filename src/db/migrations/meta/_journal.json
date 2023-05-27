@@ -1,12 +1,18 @@
 {
   "version": "5",
-  "dialect": "pg",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
       "version": "5",
-      "when": 1685038719462,
-      "tag": "0000_famous_psynapse",
+      "when": 1685103160476,
+      "tag": "0000_thankful_lilandra",
+      "breakpoints": false
+    },{
+      "idx": 1,
+      "version": "5",
+      "when": 1685103702,
+      "tag": "0001_updated_at_trigger",
       "breakpoints": false
     }
   ]

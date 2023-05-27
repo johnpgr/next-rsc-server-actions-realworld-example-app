@@ -32,15 +32,12 @@ export default async function ArticlesPage({
     }
     const session = await getServerSession(authOptions)
 
-    return <div>Hello {session?.user?.name ?? "World"}</div>
-    // return (
-    //     <Suspense fallback={<div className="p-4">Loading articles...</div>}>
-    //         {/* @ts-expect-error Async server component */}
-    //         <ArticleList
-    //             currentUserId={session.user?.id ?? null}
-    //             parsedParams={parsedParams}
-    //             feedType="user"
-    //         />
-    //     </Suspense>
-    // )
+    return (
+        <Suspense fallback={<div className="p-4">Loading articles...</div>}>
+            {/* @ts-expect-error Async server component */}
+            <ArticleList
+                currentUserId={session?.user?.id ?? null}
+            />
+        </Suspense>
+    )
 }
