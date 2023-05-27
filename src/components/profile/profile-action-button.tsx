@@ -19,7 +19,7 @@ export const ProfileActionButton = ({
     following,
 }: ProfileActionButtonProps) => {
     const [pending, startTransition] = useTransition()
-    const {data:session} = useSession()
+    const { data: session } = useSession()
     const { toast } = useToast()
     const currentUsername = session?.user?.name
 
@@ -28,6 +28,7 @@ export const ProfileActionButton = ({
             if (!following) {
                 const { data } = await followUserAction({
                     followingId: user.id,
+                    session,
                 })
 
                 if (data?.error) {
@@ -39,6 +40,7 @@ export const ProfileActionButton = ({
             } else {
                 const { data } = await unfollowUserAction({
                     followingId: user.id,
+                    session,
                 })
                 if (data?.error) {
                     toast({
