@@ -39,12 +39,9 @@ export default function LoginPage() {
             return
         }
 
-
         //Refresh here is for the root layout to update the session
         router.refresh()
         router.push("/")
-
-        setIsPending(false)
     }
 
     return (
