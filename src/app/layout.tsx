@@ -3,6 +3,8 @@ import { Toaster } from "~/components/ui/toaster"
 import { Nav } from "~/components/nav"
 import { ArticlePageLayout } from "~/components/articles/article-page-layout"
 import { AuthProvider } from "~/modules/auth/auth.provider"
+import { getServerSession } from "next-auth"
+import { authOptions } from "~/modules/auth/auth.options"
 
 export const metadata = {
     title: "Create Next App",
@@ -14,14 +16,15 @@ export default async function RootLayout({
 }: {
     children: React.ReactNode
 }) {
+    const session = await getServerSession(authOptions)
 
     return (
         <html lang="en">
             <body>
                 <AuthProvider>
-                    <Nav />
+                    <Nav session={session} />
                     <main>
-                        <ArticlePageLayout>
+                        <ArticlePageLayout session={session}>
                             {children}
                         </ArticlePageLayout>
                     </main>

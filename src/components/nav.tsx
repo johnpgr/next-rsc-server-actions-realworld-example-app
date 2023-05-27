@@ -4,10 +4,10 @@ import { Button } from "~/components/ui/button"
 import { Edit, Home } from "lucide-react"
 import UserButton from "./auth/user-button"
 import { HEADER_HEIGHT } from "~/config/constants"
-import { useSession } from "next-auth/react"
+import { type Session } from "next-auth"
 
-export const Nav = () => {
-    const {data:session} = useSession()
+export const Nav = (props: { session: Session | null }) => {
+    const { session } = props
     return (
         <nav
             className="flex w-full items-center justify-end bg-background px-4"
@@ -30,7 +30,7 @@ export const Nav = () => {
                             New Article
                         </Link>
                     </Button>
-                    <UserButton/>
+                    <UserButton session={session} />
                 </div>
             )}
             {!session && (

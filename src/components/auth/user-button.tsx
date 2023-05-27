@@ -12,9 +12,10 @@ import { ChevronDown, LogOut, Settings, User as UserIcon } from "lucide-react"
 import Link from "next/link"
 import { DEFAULT_USER_IMAGE } from "~/config/constants"
 import { signOut, useSession } from "next-auth/react"
+import { type Session } from "next-auth"
 
-export default function UserButton() {
-    const {data:session} = useSession()
+export default function UserButton(props: { session: Session | null }) {
+    const { session } = props
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -54,7 +55,7 @@ export default function UserButton() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                     onClick={() => signOut()}
-                    className="flex items-center gap-1 cursor-pointer"
+                    className="flex cursor-pointer items-center gap-1"
                 >
                     <LogOut size={16} />
                     Logout
