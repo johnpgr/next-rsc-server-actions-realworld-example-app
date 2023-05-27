@@ -1,4 +1,3 @@
-import React from "react"
 import { ArticleRow } from "./article-row"
 import { Article } from "~/modules/articles/articles.types"
 
