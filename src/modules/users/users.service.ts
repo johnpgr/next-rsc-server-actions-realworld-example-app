@@ -78,8 +78,7 @@ export class UserService {
 
         if (!user) return null
 
-        //@ts-ignore
-        user.following = user.following === "1"
+        user.following = user.following === 1
 
         return user as Profile
     }
