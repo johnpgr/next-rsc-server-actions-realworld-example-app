@@ -25,7 +25,7 @@ class FollowsService {
             .get()
 
         if (alreadyFollowing) {
-            throw new Error(`Already following userId: ${followingId}`)
+            throw new Error(`Already following this user`)
         }
 
         const follow = await this.database
@@ -57,7 +57,7 @@ class FollowsService {
             .get()
 
         if (!alreadyFollowing) {
-            throw new Error(`Not following userId: ${followingId}`)
+            throw new Error(`Not following this user`)
         }
 
         const follow = await this.database
