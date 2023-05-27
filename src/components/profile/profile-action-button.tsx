@@ -9,6 +9,7 @@ import {
 } from "~/modules/follows/follows.actions"
 import { useToast } from "../ui/use-toast"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 type ProfileActionButtonProps = {
     user: { name: string; id: string }
@@ -19,6 +20,7 @@ export const ProfileActionButton = ({
     following,
 }: ProfileActionButtonProps) => {
     const [pending, startTransition] = useTransition()
+    const router = useRouter()
     const { data: session } = useSession()
     const { toast } = useToast()
     const currentUsername = session?.user?.name
@@ -36,12 +38,14 @@ export const ProfileActionButton = ({
                         title: "Error",
                         description: data.error.message,
                     })
+                    return
                 }
             } else {
                 const { data } = await unfollowUserAction({
                     followingId: user.id,
                     session,
                 })
+
                 if (data?.error) {
                     toast({
                         title: "Error",
@@ -49,6 +53,9 @@ export const ProfileActionButton = ({
                     })
                 }
             }
+            // This router refresh here is to update the home page with the new feed after following a user
+            // Because unfortunately Next.js revalidatePath / revalidateTag is not doing it's job.
+            router.refresh()
         })
     }
 
