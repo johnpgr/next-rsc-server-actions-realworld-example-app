@@ -1,17 +1,12 @@
 import React from "react"
-import { articlesService } from "~/modules/articles/articles.service"
 import { ArticleRow } from "./article-row"
+import { Article } from "~/modules/articles/articles.types"
 
-export const ArticleList = async ({
-    currentUserId,
-}: {
-    currentUserId: string | null
-}) => {
-    const articles = await articlesService.getAll(currentUserId, 10, 0)
+export const ArticleList = (props: {articles:Article[]}) => {
 
     return (
         <ul className="divide-y">
-            {articles.map((article) => (
+            {props.articles.map((article) => (
                 <ArticleRow article={article} key={article.slug} />
             ))}
         </ul>
