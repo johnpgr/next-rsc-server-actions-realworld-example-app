@@ -8,9 +8,9 @@ import { revalidatePath } from "next/cache"
 export const favoriteArticleAction = action(
     {
         input: favoriteArticleSchema,
-        withAuth: true,
     },
-    async (data, { session }) => {
+    async (data) => {
+        const {session} = data
         if (!session?.user)
             return {
                 error: {
@@ -64,9 +64,9 @@ export const favoriteArticleAction = action(
 export const unfavoriteArticleAction = action(
     {
         input: favoriteArticleSchema,
-        withAuth: true,
     },
-    async (data, { session }) => {
+    async (data) => {
+        const {session} = data
         if (!session || !session.user)
             return {
                 error: {

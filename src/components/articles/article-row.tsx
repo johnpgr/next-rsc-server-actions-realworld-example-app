@@ -14,6 +14,7 @@ import {
     unfavoriteArticleAction,
 } from "~/modules/favorites/favorites.actions"
 import { Badge } from "../ui/badge"
+import { useSession } from "next-auth/react"
 
 export type ArticleRowProps = {
     article: Article
@@ -22,6 +23,7 @@ export type ArticleRowProps = {
 export const ArticleRow = (props: ArticleRowProps) => {
     const { article } = props
     const { toast } = useToast()
+    const { data: session } = useSession()
     const [pending, startTransition] = useTransition()
 
     function handleFavorite() {
@@ -31,6 +33,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
                     article: {
                         slug: article.slug,
                     },
+                    session,
                 })
 
                 if (data?.error) {
@@ -44,6 +47,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
                     article: {
                         slug: article.slug,
                     },
+                    session
                 })
                 if (data?.error) {
                     toast({
