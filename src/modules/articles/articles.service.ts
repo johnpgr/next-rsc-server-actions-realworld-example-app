@@ -18,6 +18,7 @@ class ArticlesService {
                 favoritesCount: sql`COUNT(*)`.as("favoritesCount"),
             })
             .from(schema.favorite)
+            .groupBy(schema.favorite.article_id)
             .as("f")
 
         return this.database
@@ -34,7 +35,7 @@ class ArticlesService {
                     bio: schema.user.bio,
                     image: schema.user.image,
                 },
-                tagList: sql<string>`GROUP_CONCAT(${schema.tag.name}, ',')`,
+                tagList: sql<string>`GROUP_CONCAT(${schema.tag.name})`,
                 favoritesCount: sql<number>`COALESCE(${favoriteCountSq.favoritesCount}, 0)`,
                 favorited: sql<number>`CASE WHEN ${schema.favorite.article_id} IS NOT NULL THEN 1 ELSE 0 END`,
             })
