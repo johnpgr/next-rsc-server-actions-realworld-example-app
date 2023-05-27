@@ -47,7 +47,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
                     article: {
                         slug: article.slug,
                     },
-                    session
+                    session,
                 })
                 if (data?.error) {
                     toast({
