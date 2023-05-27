@@ -2,6 +2,7 @@ import { InferModel } from "drizzle-orm"
 import { article } from "~/db/schema"
 
 export type Article = {
+    id: string
     title: string
     description: string
     body: string

@@ -22,6 +22,7 @@ class ArticlesService {
 
         return this.database
             .select({
+                id: schema.article.id,
                 title: schema.article.title,
                 description: schema.article.description,
                 body: schema.article.body,
@@ -69,6 +70,7 @@ class ArticlesService {
     }
 
     private static readonly articleSchema = z.object({
+        id: z.string(),
         title: z.string(),
         description: z.string(),
         body: z.string(),
@@ -167,6 +169,22 @@ class ArticlesService {
         return ArticlesService.articleListSchema.parse(unparsedArticles)
     }
 
+    async getAllFavoritedByUser(
+        userId: string,
+        currentUserId: string | null = null,
+        limit: number,
+        offset: number,
+    ) {
+        const unparsedArticles = await this.baseArticlesQuery(currentUserId)
+            .innerJoin(schema.favorite, eq(schema.favorite.user_id, userId))
+            .limit(limit)
+            .offset(offset)
+            .orderBy(desc(schema.article.id))
+            .all()
+
+        return ArticlesService.articleListSchema.parse(unparsedArticles)
+    }
+
     async getById(
         id: string,
         currentUserId: string | null = null,
@@ -209,10 +227,7 @@ class ArticlesService {
 
         let slug = slugify(title, { lower: true })
 
-        const existingArticleWithSameSlug = await this.getBySlug(
-            slug,
-            null,
-        )
+        const existingArticleWithSameSlug = await this.getBySlug(slug, null)
 
         if (existingArticleWithSameSlug)
             throw new Error("Article with same slug already exists")

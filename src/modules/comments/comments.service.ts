@@ -3,9 +3,10 @@ import { CreateComment } from "./comments.validation"
 import { db } from "~/db/"
 import { and, desc, eq, sql } from "drizzle-orm"
 import { Comment, CommentModel } from "./comments.types"
+import { createId } from "~/utils/id"
 
 class CommentService {
-    private database:typeof db 
+    private database: typeof db
 
     constructor(database: typeof db) {
         this.database = database
@@ -19,7 +20,6 @@ class CommentService {
             .select({
                 id: schema.comment.id,
                 body: schema.comment.body,
-                updatedAt: schema.comment.updated_at,
                 author: {
                     username: schema.user.name,
                     bio: schema.user.bio,
@@ -38,6 +38,7 @@ class CommentService {
             )
             .where(eq(schema.comment.article_id, articleId))
             .orderBy(desc(schema.comment.id))
+            .all()
 
         for (const comment of comments) {
             if (!comment.author) {
@@ -57,22 +58,30 @@ class CommentService {
         const { articleId, authorId } = args
         const { body } = args.comment
 
-        const [comment] = await this.database.insert(schema.comment).values({
-            body,
-            article_id: articleId,
-            author_id: authorId,
-        }).returning()
+        const comment = await this.database
+            .insert(schema.comment)
+            .values({
+                id: createId(),
+                body,
+                article_id: articleId,
+                author_id: authorId,
+            })
+            .returning()
+            .get()
 
         return comment
     }
 
+    /**
+     * @throws {Error} if comment to delete not found
+     */
     async deleteComment(args: {
         commentId: string
         userId: string
     }): Promise<CommentModel> {
         const { commentId, userId } = args
 
-        const [comment] = await this.database
+        const comment = await this.database
             .delete(schema.comment)
             .where(
                 and(
@@ -80,7 +89,12 @@ class CommentService {
                     eq(schema.comment.author_id, userId),
                 ),
             )
-        .returning()
+            .returning()
+            .get()
+
+        if (!comment) {
+            throw new Error("Comment to delete not found")
+        }
 
         return comment
     }
@@ -91,13 +105,18 @@ class CommentService {
     }): Promise<boolean> {
         const { commentId, userId } = args
 
-        const [{ authorId }] = await this.database
-            .select({ authorId: schema.comment.author_id })
+        const author = await this.database
+            .select({ id: schema.comment.author_id })
             .from(schema.comment)
             .where(eq(schema.comment.id, commentId))
             .limit(1)
+            .get()
 
-        return authorId === userId
+        if (!author) {
+            return false
+        }
+
+        return author.id === userId
     }
 }
 

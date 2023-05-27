@@ -1,7 +1,8 @@
 import * as schema from "~/db/schema"
-import { and, eq } from "drizzle-orm"
+import { and, eq, sql } from "drizzle-orm"
 import { type Follow } from "./follows.types"
 import { db } from "~/db"
+import { createId } from "~/utils/id"
 
 class FollowsService {
     private database: typeof db
@@ -10,8 +11,10 @@ class FollowsService {
     }
 
     async followUser(followerId: string, followingId: string): Promise<Follow> {
-        const [alreadyFollowing] = await this.database
-            .select()
+        const alreadyFollowing = await this.database
+            .select({
+                exist: sql`1`,
+            })
             .from(schema.follow)
             .where(
                 and(
@@ -19,19 +22,21 @@ class FollowsService {
                     eq(schema.follow.following_id, followingId),
                 ),
             )
-            .limit(1)
+            .get()
 
         if (alreadyFollowing) {
             throw new Error(`Already following userId: ${followingId}`)
         }
 
-        const [follow] = await this.database
+        const follow = await this.database
             .insert(schema.follow)
             .values({
+                id: createId(),
                 follower_id: followerId,
                 following_id: followingId,
             })
             .returning()
+            .get()
 
         return follow
     }
@@ -40,8 +45,8 @@ class FollowsService {
         followerId: string,
         followingId: string,
     ): Promise<Follow> {
-        const [alreadyFollowing] = await this.database
-            .select()
+        const alreadyFollowing = await this.database
+            .select({ exist: sql`1` })
             .from(schema.follow)
             .where(
                 and(
@@ -49,13 +54,13 @@ class FollowsService {
                     eq(schema.follow.following_id, followingId),
                 ),
             )
-            .limit(1)
+            .get()
 
         if (!alreadyFollowing) {
             throw new Error(`Not following userId: ${followingId}`)
         }
 
-        const [follow] = await this.database
+        const follow = await this.database
             .delete(schema.follow)
             .where(
                 and(
@@ -64,6 +69,11 @@ class FollowsService {
                 ),
             )
             .returning()
+            .get()
+
+        if (!follow) {
+            throw new Error("Follow not found")
+        }
 
         return follow
     }

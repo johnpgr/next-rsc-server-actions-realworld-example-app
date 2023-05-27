@@ -63,7 +63,12 @@ export function DrizzleAdapter(database: typeof db): Adapter {
         updateUser: (user) => {
             return database
                 .update(schema.user)
-                .set(schema.user)
+                .set({
+                    email: user.email,
+                    emailVerified: user.emailVerified,
+                    image: user.image,
+                    name: user.name ?? undefined,
+                })
                 .where(eq(schema.user.id, user.id))
                 .returning()
                 .get()

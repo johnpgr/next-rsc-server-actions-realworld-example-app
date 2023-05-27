@@ -7,7 +7,7 @@ export const env = createEnv({
      * isn't built with invalid env vars.
      */
     server: {
-        DB_URL: z.string().url(),
+        DB_URL: z.string(),
         DB_TOKEN: z.string(),
         NODE_ENV: z.enum(["development", "test", "production"]),
     },
@@ -19,6 +19,7 @@ export const env = createEnv({
      */
     client: {
         // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
+        NEXT_PUBLIC_VERCEL_URL: z.string(),
     },
 
     /**
@@ -26,6 +27,7 @@ export const env = createEnv({
      * middlewares) or client-side so we need to destruct manually.
      */
     runtimeEnv: {
+        NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
         DB_URL: process.env.DB_URL,
         DB_TOKEN: process.env.DB_TOKEN,
         NODE_ENV: process.env.NODE_ENV,

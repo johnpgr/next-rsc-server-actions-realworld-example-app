@@ -4,7 +4,6 @@ import { favoriteArticleSchema } from "./favorites.validation"
 import { favoritesService } from "./favorites.service"
 import { articlesService } from "../articles/articles.service"
 import { revalidatePath } from "next/cache"
-import { usersService } from "../users/users.service"
 
 export const favoriteArticleAction = action(
     {
@@ -12,7 +11,7 @@ export const favoriteArticleAction = action(
         withAuth: true,
     },
     async (data, { session }) => {
-        if (!session || !session.user)
+        if (!session?.user)
             return {
                 error: {
                     message: "You must be logged in to favorite an article",
@@ -20,11 +19,9 @@ export const favoriteArticleAction = action(
                 },
             }
 
-        const articleId = await articlesService.getArticleIdBySlug(
-            data.article.slug,
-        )
+        const article = await articlesService.getBySlug(data.article.slug)
 
-        if (!articleId)
+        if (!article)
             return {
                 error: {
                     message: "Article not found",
@@ -33,7 +30,7 @@ export const favoriteArticleAction = action(
             }
 
         const isFavorited = await favoritesService.userHasFavoritedArticle({
-            articleId,
+            articleId: article.id,
             userId: session.user.id,
         })
 
@@ -46,7 +43,7 @@ export const favoriteArticleAction = action(
             }
 
         const res = await favoritesService.favoriteArticle({
-            articleId,
+            articleId: article.id,
             userId: session.user.id,
         })
 
@@ -57,18 +54,10 @@ export const favoriteArticleAction = action(
                     code: 500,
                 },
             }
-        const article = await articlesService.getById(res.article_id)
-        if (!article)
-            return {
-                error: {
-                    message: "Failed to revalidate",
-                    code: 500,
-                },
-            }
 
         revalidatePath(`/profile/${article.author.username}`)
 
-        return { article }
+        return { res }
     },
 )
 
@@ -86,11 +75,9 @@ export const unfavoriteArticleAction = action(
                 },
             }
 
-        const articleId = await articlesService.getArticleIdBySlug(
-            data.article.slug,
-        )
+        const article = await articlesService.getBySlug(data.article.slug)
 
-        if (!articleId)
+        if (!article)
             return {
                 error: {
                     message: "Article not found",
@@ -99,7 +86,7 @@ export const unfavoriteArticleAction = action(
             }
 
         const isFavorited = await favoritesService.userHasFavoritedArticle({
-            articleId,
+            articleId: article.id,
             userId: session.user.id,
         })
 
@@ -112,7 +99,7 @@ export const unfavoriteArticleAction = action(
             }
 
         const res = await favoritesService.unfavoriteArticle({
-            articleId,
+            articleId:article.id,
             userId: session.user.id,
         })
 
@@ -124,18 +111,8 @@ export const unfavoriteArticleAction = action(
                 },
             }
 
-        const article = await articlesService.getById(res.article_id)
-
-        if (!article)
-            return {
-                error: {
-                    message: "Failed to revalidate",
-                    code: 500,
-                },
-            }
-
         revalidatePath(`/profile/${article.author.username}`)
 
-        return { article }
+        return { res }
     },
 )

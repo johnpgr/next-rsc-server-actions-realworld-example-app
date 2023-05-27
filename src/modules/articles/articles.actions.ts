@@ -8,8 +8,8 @@ import { articlesService } from "./articles.service"
 
 export const publishArticleAction = action(
     { input: newArticleBodySchema, withAuth: true },
-    async (data, { user }) => {
-        if (!user)
+    async (data, { session }) => {
+        if (!session?.user)
             return {
                 error: {
                     message: "You need to be logged in to publish an article",
@@ -17,7 +17,7 @@ export const publishArticleAction = action(
                 },
             }
 
-        const article = await articlesService.create(data, user.id)
+        const article = await articlesService.create(data, session.user.id)
 
         if (!article)
             return {
@@ -33,8 +33,8 @@ export const publishArticleAction = action(
 
 export const editArticleAction = action(
     { input: updateArticleBodySchema, withAuth: true },
-    async (data, { user }) => {
-        if (!user) {
+    async (data, { session }) => {
+        if (!session?.user) {
             return {
                 error: {
                     message: "You need to be logged in to edit an article",
@@ -44,7 +44,7 @@ export const editArticleAction = action(
         }
 
         const isArticleAuthor = await articlesService.isAuthor(
-            user.id,
+            session.user.id,
             data.slug,
         )
 
