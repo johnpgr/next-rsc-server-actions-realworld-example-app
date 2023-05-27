@@ -1,6 +1,4 @@
 import { getServerSession } from "next-auth"
-import { cookies } from "next/headers"
-import { USER_TOKEN } from "~/config/constants"
 import { articlesService } from "~/modules/articles/articles.service"
 import { authOptions } from "~/modules/auth/auth.options"
 
