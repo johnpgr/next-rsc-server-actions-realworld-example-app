@@ -31,15 +31,11 @@ export default async function ArticlesPage({
     //     authorName: params.author,
     //     favoritedBy: params.favorited,
     // }
-    
+
     const session = await getServerSession(authOptions)
     const articles = session?.user
         ? await articlesService.getFeed(session.user.id, 10, 0)
         : await articlesService.getAll(null, 10, 0)
 
-    return (
-        <Suspense fallback={<div className="p-4">Loading articles...</div>}>
-            <ArticleList articles={articles} />
-        </Suspense>
-    )
+    return <ArticleList articles={articles} />
 }
