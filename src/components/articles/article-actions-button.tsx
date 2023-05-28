@@ -22,7 +22,7 @@ export const ArticleActionsButton = (props: {
                     <Button
                         size={"sm"}
                         variant="outline"
-                        className="h-7 rounded-sm border-stone-300 text-sm text-stone-300"
+                        className="h-7 rounded-sm border-neutral-300 text-sm text-neutral-300"
                         asChild
                     >
                         <Link
@@ -44,9 +44,9 @@ export const ArticleActionsButton = (props: {
                     <FollowUserButton
                         user={props.article.author}
                         className={clsx({
-                            "bg-transparent text-stone-300":
+                            "bg-transparent text-neutral-300":
                                 !props.article.author.following,
-                            "bg-stone-300 text-black":
+                            "bg-neutral-300 text-black":
                                 props.article.author.following,
                         })}
                     />

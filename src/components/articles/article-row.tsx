@@ -32,7 +32,7 @@ export const ArticleRow = (props: ArticleRowProps) => {
                         >
                             {article.author.username}
                         </Link>
-                        <span className="-mt-1 text-xs text-gray-300">
+                        <span className="-mt-1 text-xs text-neutral-300">
                             {format(
                                 new Date(article.createdAt),
                                 "MMMM d, yyyy",
@@ -49,19 +49,19 @@ export const ArticleRow = (props: ArticleRowProps) => {
                 />
             </div>
             <Link href={`/article/${article.slug}`}>
-                <h1 className="text-2xl font-semibold text-stone-700">
+                <h1 className="text-2xl font-semibold text-neutral-700">
                     {article.title}
                 </h1>
-                <p className="text-stone-400">{article.description}</p>
+                <p className="text-neutral-400">{article.description}</p>
                 <div className="mt-2 flex w-full items-center justify-between">
-                    <span className="text-xs text-stone-300">Read more...</span>
+                    <span className="text-xs text-neutral-300">Read more...</span>
                     <div className="space-x-1">
                         {article.tagList && article.tagList.length > 0
                             ? article.tagList.map((tag, i) => (
                                   <Badge
                                       key={`tag:${tag}_${i}`}
                                       variant={"outline"}
-                                      className="font-normal text-gray-400"
+                                      className="font-normal text-neutral-400"
                                   >
                                       {tag}
                                   </Badge>

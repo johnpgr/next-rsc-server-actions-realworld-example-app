@@ -9,7 +9,7 @@ export const ArticleBody = (props: {
     return (
         <div
             className={cn(
-                "prose lg:prose-xl text-stone-700 px-0 mt-8 text-lg pb-16",
+                "prose lg:prose-xl text-neutral-700 px-0 mt-8 text-lg pb-16",
                 props.className,
             )}
         >
