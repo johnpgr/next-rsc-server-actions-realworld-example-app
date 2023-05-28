@@ -6,8 +6,8 @@ import { FormEvent, useState } from "react"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { getFormData } from "~/utils/forms"
-import { registerAction } from "~/modules/auth/auth.actions" 
-import { passwordRegex } from "~/modules/auth/auth.validation" 
+import { registerAction } from "~/modules/auth/auth.actions"
+import { passwordRegex } from "~/modules/auth/auth.validation"
 import { signIn } from "next-auth/react"
 
 export default function RegisterPage() {
@@ -40,23 +40,22 @@ export default function RegisterPage() {
         }
 
         if (data?.user) {
-            const res = await signIn("credentials",{
-                redirect:false,
+            const res = await signIn("credentials", {
+                redirect: false,
                 email: user.email,
-                password: user.password
+                password: user.password,
             })
 
-            if(res?.error) {
+            if (res?.error) {
                 setError(res.error)
+                setIsPending(false)
+                return
             }
 
-            if(res?.ok){
-                router.push("/")
-            }
-
+            //Refresh here is for the root layout to update the session
+            router.refresh()
+            router.push("/")
         }
-
-        setIsPending(false)
     }
 
     return (
