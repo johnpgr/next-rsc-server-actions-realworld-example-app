@@ -111,7 +111,6 @@ export const Editor = (props: EditorProps) => {
                     onKeyDown={(e) => {
                         if (e.key === " ") {
                             e.preventDefault()
-                            console.log("space press")
                             e.currentTarget.value += ","
                         }
                     }}
