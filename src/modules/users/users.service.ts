@@ -41,6 +41,20 @@ export class UserService {
         return user ?? null
     }
 
+    async getUserByName(username: string): Promise<User | null> {
+        const user = await this.database.query.user.findFirst({
+            where: eq(schema.user.name, username),
+            columns: {
+                id: true,
+                name: true,
+                email: true,
+                bio: true,
+                image: true,
+            },
+        })
+        return user ?? null
+    }
+
     async getUserProfile(
         username: string,
         currentUserId: string | null = null,

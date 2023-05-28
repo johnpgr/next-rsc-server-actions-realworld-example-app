@@ -53,7 +53,8 @@ class ArticlesService {
                 schema.favorite,
                 and(
                     eq(schema.article.id, schema.favorite.article_id),
-                    eq(schema.favorite.user_id, sql`${currentUserId}`),
+                    //@ts-ignore
+                    eq(schema.favorite.user_id, currentUserId),
                 ),
             )
             .groupBy(
@@ -176,13 +177,35 @@ class ArticlesService {
         limit: number,
         offset: number,
     ) {
+        // this is bugged in drizzle-orm with sqlite
+        // const favoritedBySQ = this.database
+        //     .select()
+        //     .from(schema.favorite)
+        //     .where(
+        //         and(
+        //             eq(schema.favorite.article_id, schema.article.id),
+        //             eq(schema.favorite.user_id, userId),
+        //         ),
+        //     )
+
         const unparsedArticles = await this.baseArticlesQuery(currentUserId)
-            .innerJoin(schema.favorite, eq(schema.favorite.user_id, userId))
+            .where(
+                // exists(favoritedBySQ)
+                sql`
+                    EXISTS (
+                        SELECT 1
+                        FROM ${schema.favorite}
+                        WHERE ${schema.favorite.article_id} = ${schema.article.id}
+                        AND ${schema.favorite.user_id} = ${userId}
+                    )
+                `
+            )
             .limit(limit)
             .offset(offset)
             .orderBy(desc(schema.article.id))
             .all()
 
+        console.log({ unparsedArticles })
         return ArticlesService.articleListSchema.parse(unparsedArticles)
     }
 
