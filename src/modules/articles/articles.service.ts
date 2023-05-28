@@ -36,7 +36,10 @@ class ArticlesService {
                     image: schema.user.image,
                 },
                 tagList: sql<string>`GROUP_CONCAT(${schema.tag.name})`,
-                favoritesCount: sql<number>`COALESCE(${favoriteCountSq.favoritesCount}, 0)`,
+                favoritesCount:
+                    sql<number>`COALESCE(${favoriteCountSq.favoritesCount}, 0)`.as(
+                        "favoritesCount",
+                    ),
                 favorited: sql<number>`CASE WHEN ${schema.favorite.article_id} IS NOT NULL THEN 1 ELSE 0 END`,
             })
             .from(schema.article)
@@ -108,7 +111,12 @@ class ArticlesService {
         const unparsedArticles = await this.baseArticlesQuery(currentUserId)
             .limit(limit)
             .offset(offset)
-            .orderBy(desc(schema.article.id))
+            .orderBy(
+                desc(
+                    this.baseArticlesQuery().getSelectedFields().favoritesCount,
+                ),
+                desc(this.baseArticlesQuery().getSelectedFields().createdAt),
+            )
             .all()
 
         return ArticlesService.articleListSchema.parse(unparsedArticles)
@@ -129,7 +137,12 @@ class ArticlesService {
             )
             .limit(limit)
             .offset(offset)
-            .orderBy(desc(schema.article.id))
+            .orderBy(
+                desc(
+                    this.baseArticlesQuery().getSelectedFields().favoritesCount,
+                ),
+                desc(this.baseArticlesQuery().getSelectedFields().createdAt),
+            )
             .all()
 
         return ArticlesService.articleListSchema.parse(unparsedArticles)
@@ -141,7 +154,12 @@ class ArticlesService {
     ) {
         const unparsedArticles = await this.baseArticlesQuery(currentUserId)
             .where(eq(schema.user.name, authorName))
-            .orderBy(desc(schema.article.id))
+            .orderBy(
+                desc(
+                    this.baseArticlesQuery().getSelectedFields().favoritesCount,
+                ),
+                desc(this.baseArticlesQuery().getSelectedFields().createdAt),
+            )
             .all()
 
         return ArticlesService.articleListSchema.parse(unparsedArticles)
@@ -171,7 +189,12 @@ class ArticlesService {
             )
             .limit(limit)
             .offset(offset)
-            .orderBy(desc(schema.article.id))
+            .orderBy(
+                desc(
+                    this.baseArticlesQuery().getSelectedFields().favoritesCount,
+                ),
+                desc(this.baseArticlesQuery().getSelectedFields().createdAt),
+            )
             .all()
 
         return ArticlesService.articleListSchema.parse(unparsedArticles)
@@ -208,7 +231,12 @@ class ArticlesService {
             )
             .limit(limit)
             .offset(offset)
-            .orderBy(desc(schema.article.id))
+            .orderBy(
+                desc(
+                    this.baseArticlesQuery().getSelectedFields().favoritesCount,
+                ),
+                desc(this.baseArticlesQuery().getSelectedFields().createdAt),
+            )
             .all()
 
         return ArticlesService.articleListSchema.parse(unparsedArticles)
