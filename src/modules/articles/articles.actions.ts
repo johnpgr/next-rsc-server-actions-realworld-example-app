@@ -1,6 +1,8 @@
 "use server"
 import { action } from "~/utils/actions"
 import {
+    NewArticleBody,
+    UpdateArticleBody,
     newArticleBodySchema,
     updateArticleBodySchema,
 } from "./articles.validations"
@@ -11,6 +13,8 @@ export const publishArticleAction = action(
     async (data) => {
         const { session } = data
 
+        console.log({ data })
+
         if (!session?.user)
             return {
                 error: {
@@ -19,7 +23,11 @@ export const publishArticleAction = action(
                 },
             }
 
-        const article = await articlesService.create(data, session.user.id)
+        const article = await articlesService.create(
+            // zod cant infer correctly the type of tagList because of .transform()
+            data as unknown as NewArticleBody,
+            session.user.id,
+        )
 
         if (!article)
             return {
@@ -61,7 +69,10 @@ export const editArticleAction = action(
             }
         }
 
-        const article = await articlesService.update(data)
+        const article = await articlesService.update(
+            // zod cant infer correctly the type of tagList because of .transform()
+            data as unknown as UpdateArticleBody,
+        )
 
         return { article }
     },

@@ -33,18 +33,31 @@ const articleInputSchema = z.object({
         .min(1, "Article description must have at least 1 character.")
         .max(191, "Article description is too big."),
     body: z.string().min(1, "Article body must have at least 1 character"),
-    tagList: z.array(z.string()).optional(),
+    tagList: z
+        .string()
+        .nullable()
+        .transform((val) => val ? val.split(",") : null)
+        .refine(
+            (v) => {
+                if (!v) return true
+                return v.length <= 5
+            },
+            {
+                message: "The tag list can have maximum 5 tags.",
+                path: ["tagList"],
+            },
+        ),
 })
 
 export const newArticleBodySchema = z.object({
     article: articleInputSchema,
-    session: sessionSchema
+    session: sessionSchema,
 })
 export type NewArticleBody = z.infer<typeof newArticleBodySchema>
 
 export const updateArticleBodySchema = z.object({
     slug: z.string(),
     article: articleInputSchema.partial(),
-    session: sessionSchema
+    session: sessionSchema,
 })
 export type UpdateArticleBody = z.infer<typeof updateArticleBodySchema>

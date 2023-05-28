@@ -1,20 +1,11 @@
 "use client"
-import Image from "next/image"
 import { format } from "date-fns"
+import Image from "next/image"
 import Link from "next/link"
-import { type Article } from "~/modules/articles/articles.types"
 import { DEFAULT_USER_IMAGE } from "~/config/constants"
-import { Button } from "../ui/button"
-import { Heart } from "lucide-react"
-import clsx from "clsx"
-import { useTransition } from "react"
-import { useToast } from "../ui/use-toast"
-import {
-    favoriteArticleAction,
-    unfavoriteArticleAction,
-} from "~/modules/favorites/favorites.actions"
+import { type Article } from "~/modules/articles/articles.types"
 import { Badge } from "../ui/badge"
-import { useSession } from "next-auth/react"
+import { FavoriteArticleButton } from "./favorite-article-button"
 
 export type ArticleRowProps = {
     article: Article
@@ -22,42 +13,6 @@ export type ArticleRowProps = {
 
 export const ArticleRow = (props: ArticleRowProps) => {
     const { article } = props
-    const { toast } = useToast()
-    const { data: session } = useSession()
-    const [pending, startTransition] = useTransition()
-
-    function handleFavorite() {
-        startTransition(async () => {
-            if (!article.favorited) {
-                const { data } = await favoriteArticleAction({
-                    article: {
-                        slug: article.slug,
-                    },
-                    session,
-                })
-
-                if (data?.error) {
-                    toast({
-                        title: "Error",
-                        description: data.error.message,
-                    })
-                }
-            } else {
-                const { data } = await unfavoriteArticleAction({
-                    article: {
-                        slug: article.slug,
-                    },
-                    session,
-                })
-                if (data?.error) {
-                    toast({
-                        title: "Error",
-                        description: data.error.message,
-                    })
-                }
-            }
-        })
-    }
 
     return (
         <div className="space-y-2 py-4">
@@ -85,29 +40,21 @@ export const ArticleRow = (props: ArticleRowProps) => {
                         </span>
                     </div>
                 </div>
-                <Button
-                    onClick={handleFavorite}
-                    disabled={pending}
-                    className={clsx(
-                        "h-7 gap-1 rounded-sm border-primary py-0 text-sm text-primary hover:bg-primary hover:text-white",
-                        {
-                            "bg-primary text-white": article.favorited,
-                        },
-                    )}
-                    variant={"outline"}
-                    size={"sm"}
-                >
-                    <Heart size={14} />
-                    {article.favoritesCount}
-                </Button>
+                <FavoriteArticleButton
+                    article={{
+                        favorited: article.favorited,
+                        slug: article.slug,
+                        favoritesCount: article.favoritesCount,
+                    }}
+                />
             </div>
             <Link href={`/article/${article.slug}`}>
                 <h1 className="text-2xl font-semibold text-stone-700">
                     {article.title}
                 </h1>
-                <p className="text-gray-400">{article.description}</p>
+                <p className="text-stone-400">{article.description}</p>
                 <div className="mt-2 flex w-full items-center justify-between">
-                    <span className="text-xs text-gray-300">Read more...</span>
+                    <span className="text-xs text-stone-300">Read more...</span>
                     <div className="space-x-1">
                         {article.tagList && article.tagList.length > 0
                             ? article.tagList.map((tag, i) => (

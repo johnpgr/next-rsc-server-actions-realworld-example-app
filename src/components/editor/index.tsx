@@ -32,6 +32,8 @@ export const Editor = (props: EditorProps) => {
     async function onSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
         setIsPending(true)
+        setError("")
+        setValidationError([])
 
         const input = getFormData<{
             title: string
@@ -40,7 +42,7 @@ export const Editor = (props: EditorProps) => {
             tags: string
         }>(e)
 
-        const tags = input.tags !== "" ? input.tags.split(",") : []
+        console.log({ input })
 
         const { data, validationError } = props.slug
             ? await editArticleAction({
@@ -50,7 +52,7 @@ export const Editor = (props: EditorProps) => {
                       title: input.title,
                       description: input.description,
                       body: input.body,
-                      tagList: tags,
+                      tagList: input.tags,
                   },
               })
             : await publishArticleAction({
@@ -59,7 +61,7 @@ export const Editor = (props: EditorProps) => {
                       title: input.title,
                       description: input.description,
                       body: input.body,
-                      tagList: tags,
+                      tagList: input.tags,
                   },
               })
 
@@ -112,16 +114,25 @@ export const Editor = (props: EditorProps) => {
                     defaultValue={props.article?.body}
                 />
                 <Input
+                    name="tags"
+                    //add a comma when space is pressed
                     onKeyDown={(e) => {
                         if (e.key === " ") {
                             e.preventDefault()
                             e.currentTarget.value += ","
                         }
                     }}
-                    name="tags"
+                    //remove the last comma if theres no text after it
+                    onBlur={(e) =>
+                        e.currentTarget.value.endsWith(",") &&
+                        e.currentTarget.value.length > 1
+                            ? (e.currentTarget.value =
+                                  e.currentTarget.value.slice(0, -1))
+                            : null
+                    }
                     placeholder="Enter tags"
                     defaultValue={
-                        props.article?.tags && props.article?.tags.join(" ")
+                        props.article?.tags && props.article?.tags.join(",")
                     }
                 />
                 <Button className="ml-auto gap-1" disabled={isPending}>

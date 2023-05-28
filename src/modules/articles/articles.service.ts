@@ -82,7 +82,7 @@ class ArticlesService {
         favoritesCount: z.number(),
         tagList: z
             .string()
-            .optional()
+            .nullable()
             .transform((val) => val?.split(",")),
         author: z.object({
             username: z.string(),
@@ -198,7 +198,7 @@ class ArticlesService {
                         WHERE ${schema.favorite.article_id} = ${schema.article.id}
                         AND ${schema.favorite.user_id} = ${userId}
                     )
-                `
+                `,
             )
             .limit(limit)
             .offset(offset)
@@ -246,11 +246,10 @@ class ArticlesService {
         data: NewArticleBody,
         userId: string,
     ): Promise<ArticleModel | null> {
-        const { title, description, body: articleBody, tagList } = data.article
+        const { title, description, body, tagList } = data.article
+        const slug = slugify(title, { lower: true })
 
-        let slug = slugify(title, { lower: true })
-
-        const existingArticleWithSameSlug = await this.getBySlug(slug, null)
+        const existingArticleWithSameSlug = await this.getBySlug(slug)
 
         if (existingArticleWithSameSlug)
             throw new Error("Article with same slug already exists")
@@ -261,7 +260,7 @@ class ArticlesService {
                 id: createId(),
                 title,
                 description,
-                body: articleBody,
+                body,
                 slug,
                 author_id: userId,
             })
@@ -270,14 +269,17 @@ class ArticlesService {
 
         const insertTagsPromises = []
 
-        if (tagList && tagList.length > 0) {
-            for (const _tag of tagList) {
+        if (tagList) {
+            for (const tag of tagList) {
                 insertTagsPromises.push(
-                    this.database.insert(schema.tag).values({
-                        id: createId(),
-                        name: _tag,
-                        article_id: article.id,
-                    }),
+                    this.database
+                        .insert(schema.tag)
+                        .values({
+                            id: createId(),
+                            name: tag,
+                            article_id: article.id,
+                        })
+                        .run(),
                 )
             }
         }
@@ -306,34 +308,52 @@ class ArticlesService {
         if (!_article) throw new Error("Article not found with slug: " + slug)
 
         const newSlug = title ? slugify(title) : undefined
-        const insertTagsPromises = []
 
-        const existingTags = await this.database.query.tag.findMany({
-            where: eq(schema.tag.article_id, _article.id),
-            columns: { name: true },
-        })
+        const insertTagsPromises = []
+        const removeTagsPromises = []
+
+        const existingTags = new Set(
+            await this.database.query.tag
+                .findMany({
+                    where: eq(schema.tag.article_id, _article.id),
+                    columns: { name: true },
+                })
+                .then((tags) => tags.map((tag) => tag.name)),
+        )
 
         // Insert new tags that are not in the old tag list
-        if (tagList && tagList.length > 0) {
-            for (const _tag of tagList) {
-                if (!existingTags.find((tag) => tag.name === _tag)) {
+        if (tagList) {
+            for (const tag of tagList) {
+                if (!existingTags.has(tag)) {
                     insertTagsPromises.push(
-                        this.database.insert(schema.tag).values({
-                            id: createId(),
-                            name: _tag,
-                            article_id: _article.id,
-                        }),
+                        this.database
+                            .insert(schema.tag)
+                            .values({
+                                id: createId(),
+                                name: tag,
+                                article_id: _article.id,
+                            })
+                            .run(),
                     )
                 }
             }
 
+            const newTags = new Set(tagList)
+
             //Remove tags that are not in the new tag list
-            for (const _tag of existingTags) {
-                if (!tagList.find((tag) => tag === _tag.name)) {
-                    await this.database
-                        .delete(schema.tag)
-                        .where(eq(schema.tag.name, _tag.name))
-                        .run()
+            for (const tag of existingTags) {
+                if (!newTags.has(tag)) {
+                    removeTagsPromises.push(
+                        this.database
+                            .delete(schema.tag)
+                            .where(
+                                and(
+                                    eq(schema.tag.name, tag),
+                                    eq(schema.tag.article_id, _article.id),
+                                ),
+                            )
+                            .run(),
+                    )
                 }
             }
         }
@@ -351,8 +371,8 @@ class ArticlesService {
             .returning()
             .get()
 
-        //Insert new tags
-        await Promise.all(insertTagsPromises)
+        //Insert new tags and remove old tags
+        await Promise.all(insertTagsPromises.concat(removeTagsPromises))
 
         return article
     }
