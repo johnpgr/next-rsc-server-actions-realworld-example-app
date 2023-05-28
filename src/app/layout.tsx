@@ -3,8 +3,15 @@ import { Toaster } from "~/components/ui/toaster"
 import { Nav } from "~/components/nav"
 import { ArticlePageLayout } from "~/components/articles/article-page-layout"
 import { AuthProvider } from "~/modules/auth/auth.provider"
+import { Source_Sans_Pro } from "next/font/google"
 import { getServerSession } from "next-auth"
 import { authOptions } from "~/modules/auth/auth.options"
+
+const sourceSansPro = Source_Sans_Pro({
+    weight: ["400", "600", "700"],
+    subsets: ["latin"],
+    fallback: ["sans-serif"],
+})
 
 export const metadata = {
     title: "Create Next App",
@@ -20,7 +27,7 @@ export default async function RootLayout({
 
     return (
         <html lang="en">
-            <body>
+            <body className={sourceSansPro.className}>
                 <AuthProvider>
                     <Nav session={session} />
                     <main>
