@@ -6,6 +6,7 @@ import { AuthProvider } from "~/modules/auth/auth.provider"
 import { Source_Sans_Pro } from "next/font/google"
 import { getServerSession } from "next-auth"
 import { authOptions } from "~/modules/auth/auth.options"
+import { PopularTags } from "~/components/tags/popular-tags"
 
 const sourceSansPro = Source_Sans_Pro({
     weight: ["400", "600", "700"],
@@ -30,10 +31,12 @@ export default async function RootLayout({
             <body className={sourceSansPro.className}>
                 <AuthProvider>
                     <Nav session={session} />
-                    <main>
+                    <main className="flex gap-8">
                         <ArticlePageLayout session={session}>
                             {children}
                         </ArticlePageLayout>
+                        {/* @ts-expect-error Async server component */}
+                        <PopularTags />
                     </main>
                     <Toaster />
                 </AuthProvider>

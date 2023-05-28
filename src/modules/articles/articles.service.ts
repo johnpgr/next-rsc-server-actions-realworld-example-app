@@ -173,19 +173,26 @@ class ArticlesService {
     ): Promise<Article[]> {
         const unparsedArticles = await this.baseArticlesQuery(currentUserId)
             .where(
-                exists(
-                    this.database
-                        .select({
-                            exists: sql`1`,
-                        })
-                        .from(schema.tag)
-                        .where(
-                            and(
-                                eq(schema.tag.article_id, schema.article.id),
-                                eq(schema.tag.name, tag),
-                            ),
-                        ),
-                ),
+                // This is currently bugged in drizzle-orm with sqlite
+                // exists(
+                //     this.database
+                //         .select({
+                //             exists: sql`1`,
+                //         })
+                //         .from(schema.tag)
+                //         .where(
+                //             and(
+                //                 eq(schema.tag.article_id, schema.article.id),
+                //                 eq(schema.tag.name, tag),
+                //             ),
+                //         ),
+                // ),
+                sql`EXISTS(
+                    SELECT 1
+                    FROM ${schema.tag}
+                    WHERE ${schema.tag.article_id} = ${schema.article.id}
+                    AND ${schema.tag.name} = ${tag}
+                )`,
             )
             .limit(limit)
             .offset(offset)
@@ -206,7 +213,7 @@ class ArticlesService {
         limit: number,
         offset: number,
     ) {
-        // this is bugged in drizzle-orm with sqlite
+        // This is currently bugged in drizzle-orm with sqlite
         // const favoritedBySQ = this.database
         //     .select()
         //     .from(schema.favorite)

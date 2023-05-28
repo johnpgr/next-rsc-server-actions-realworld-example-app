@@ -13,3 +13,5 @@ export const DEFAULT_USER_IMAGE =
     "https://api.realworld.io/images/smiley-cyrus.jpeg"
 
 export const HEADER_HEIGHT = "56px"
+
+export const articlePages = ["/", "/global", "/tag/:tagName"]

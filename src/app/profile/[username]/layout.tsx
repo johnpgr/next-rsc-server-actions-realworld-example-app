@@ -26,7 +26,7 @@ export default async function ProfilePage({
     }
 
     return (
-        <div style={{ height: `calc(100vh - ${HEADER_HEIGHT})` }}>
+        <div style={{ height: `calc(100vh - ${HEADER_HEIGHT})` }} className="w-full">
             <div className="flex h-[30%] w-full items-center justify-center bg-muted">
                 <div className="flex w-1/2 flex-col items-center justify-center gap-4">
                     <Image

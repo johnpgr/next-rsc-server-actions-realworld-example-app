@@ -2,8 +2,7 @@
 import { Session } from "next-auth"
 import { FeedTabs } from "./feed-tabs"
 import { usePathname } from "next/navigation"
-
-const articlePages = ["/", "/global"]
+import { isArticlesPage } from "~/utils/layout"
 
 export const ArticlePageLayout = (props: {
     children: React.ReactNode
@@ -11,13 +10,12 @@ export const ArticlePageLayout = (props: {
 }) => {
     const path = usePathname()
 
-    if (articlePages.includes(path))
-        return (
-            <div className="container mx-auto mt-6 max-w-5xl">
-                <FeedTabs session={props.session} />
-                {props.children}
-            </div>
-        )
+    if (!isArticlesPage(path)) return <>{props.children}</>
 
-    return <>{props.children}</>
+    return (
+        <div className="mt-6 flex-1 max-w-[855px] ml-auto">
+            <FeedTabs session={props.session} />
+            {props.children}
+        </div>
+    )
 }

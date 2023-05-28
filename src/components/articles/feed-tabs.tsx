@@ -1,9 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import { Button } from "~/components/ui/button"
 import { usePathname } from "next/navigation"
 import clsx from "clsx"
 import { Session } from "next-auth"
+import { HashIcon } from "lucide-react"
 
 export const FeedTabs = (props: { session: Session | null }) => {
     const path = usePathname()
@@ -36,6 +38,12 @@ export const FeedTabs = (props: { session: Session | null }) => {
             >
                 Global Feed
             </Link>
+            {path.startsWith("/tag/") && (
+                <Button className="flex h-fit w-fit items-center bg-transparent border-b-2 border-primary rounded-none px-4 py-2 text-primary hover:bg-transparent gap-1">
+                    <HashIcon size={20} />
+                    {path.split("/")[2]}
+                </Button>
+            )}
         </div>
     )
 }
