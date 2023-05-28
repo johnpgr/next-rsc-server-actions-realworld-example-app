@@ -1,12 +1,12 @@
+import { and, desc, eq, exists, sql } from "drizzle-orm"
 import slugify from "slugify"
+import { decodeTime } from "ulid"
+import { z } from "zod"
 import { db } from "~/db"
-import { and, desc, eq, exists, isNull, or, sql } from "drizzle-orm"
 import * as schema from "~/db/schema"
+import { createId } from "~/utils/id"
 import { Article, ArticleModel } from "./articles.types"
 import { NewArticleBody, UpdateArticleBody } from "./articles.validations"
-import { decodeTime } from "ulid"
-import { createId } from "~/utils/id"
-import { z } from "zod"
 
 class ArticlesService {
     private database: typeof db
@@ -120,7 +120,13 @@ class ArticlesService {
      */
     async getFeed(userId: string, limit: number, offset: number) {
         const unparsedArticles = await this.baseArticlesQuery(userId)
-            .innerJoin(schema.follow, eq(schema.follow.follower_id, userId))
+            .where(
+                sql`${schema.article.author_id} IN (
+                    SELECT ${schema.follow.following_id} 
+                    FROM ${schema.follow} 
+                    WHERE ${schema.follow.follower_id} = ${userId}
+                )`,
+            )
             .limit(limit)
             .offset(offset)
             .orderBy(desc(schema.article.id))

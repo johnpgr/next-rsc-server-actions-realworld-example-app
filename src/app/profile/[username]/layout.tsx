@@ -31,20 +31,22 @@ export default async function ProfilePage({
                 <div className="flex w-1/2 flex-col items-center justify-center gap-4">
                     <Image
                         src={profile.image ?? DEFAULT_USER_IMAGE}
-                        alt={profile.name ?? "Unknown user"}
+                        alt={profile.name}
                         width={100}
                         height={100}
                         className="rounded-full"
                     />
                     <h1 className="text-xl font-bold text-zinc-700">
-                        {profile.name ?? "Unknown user"}
+                        {profile.name}
                     </h1>
                     <ProfileActionButton
                         user={{
+                            following: profile.following,
+                            bio: profile.bio,
+                            image: profile.image,
                             id: profile.id,
-                            name: profile.name ?? "Unknown user",
+                            name: profile.name,
                         }}
-                        following={profile.following}
                     />
                 </div>
             </div>

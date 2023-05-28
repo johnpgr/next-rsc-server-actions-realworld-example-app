@@ -5,7 +5,6 @@ import Link from "next/link"
 import { Button } from "~/components/ui/button"
 import { type Profile } from "~/modules/users/users.types"
 import { FollowUserButton } from "./follow-user-button"
-import clsx from "clsx"
 
 type ProfileActionButtonProps = {
     user: Profile
