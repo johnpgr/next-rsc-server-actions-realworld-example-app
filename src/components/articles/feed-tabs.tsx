@@ -11,7 +11,7 @@ export const FeedTabs = (props: { session: Session | null }) => {
     const globalFeedLink = props.session?.user?.name ? "/global" : "/"
 
     return (
-        <div className="flex items-center gap-2 border-b text-sm">
+        <div className="flex items-center gap-2 border-b">
             {props.session?.user?.name && (
                 <Link
                     href={yourFeedLink}
@@ -27,7 +27,7 @@ export const FeedTabs = (props: { session: Session | null }) => {
             )}
             <Link
                 href={globalFeedLink}
-                className={clsx("px-4 py-2 ", {
+                className={clsx("px-4 py-2", {
                     "border-b-2 border-primary text-primary":
                         path === globalFeedLink,
                     "text-zinc-500 transition-colors hover:text-zinc-800":
