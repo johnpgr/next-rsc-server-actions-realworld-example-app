@@ -166,7 +166,6 @@ export class UserService {
         email: string,
         password: string,
     ): Promise<User | null> {
-        console.time("get user from db")
         const user = await this.database.query.user.findFirst({
             where: eq(schema.user.email, email),
             columns: {
@@ -178,7 +177,6 @@ export class UserService {
                 password: true,
             },
         })
-        console.timeEnd("get user from db")
 
         if (!user) return null
 

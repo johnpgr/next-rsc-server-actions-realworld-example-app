@@ -42,8 +42,6 @@ export const Editor = (props: EditorProps) => {
             tags: string
         }>(e)
 
-        console.log({ input })
-
         const { data, validationError } = props.slug
             ? await editArticleAction({
                   session,

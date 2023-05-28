@@ -13,8 +13,6 @@ export const publishArticleAction = action(
     async (data) => {
         const { session } = data
 
-        console.log({ data })
-
         if (!session?.user)
             return {
                 error: {
