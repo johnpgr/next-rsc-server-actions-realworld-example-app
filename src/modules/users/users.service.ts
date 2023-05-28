@@ -2,7 +2,7 @@ import { db } from "~/db"
 import { Profile, type User } from "./users.types"
 import * as schema from "~/db/schema"
 import { and, eq, sql } from "drizzle-orm"
-import { EditUser } from "./users.validation"
+import { UpdateUser } from "./users.types"
 import { compare, hash as hashPassword } from "bcryptjs"
 import { createId } from "~/utils/id"
 
@@ -100,13 +100,41 @@ export class UserService {
     /**
      * @throws {Error}
      */
-    async updateUser(username: string, input: EditUser): Promise<User> {
-        const { user } = input
+    async updateUser(userId: string, input: UpdateUser["user"]): Promise<User> {
+        const user = input
+
+        if (user.email) {
+            const foundEmail = await this.database.query.user.findFirst({
+                where: eq(schema.user.email, user.email),
+                columns: {
+                    email: true,
+                },
+            })
+            if (foundEmail) throw new Error("Email already in use")
+        }
+
+        if (user.username) {
+            const foundUsername = await this.database.query.user.findFirst({
+                where: eq(schema.user.name, user.username),
+                columns: {
+                    name: true,
+                },
+            })
+            if (foundUsername) throw new Error("Username already in use")
+        }
 
         const updatedUser = await this.database
             .update(schema.user)
-            .set(user)
-            .where(eq(schema.user.name, username))
+            .set({
+                bio: user.bio,
+                email: user.email,
+                image: user.image,
+                name: user.username,
+                password: user.password
+                    ? await hashPassword(user.password, 12)
+                    : undefined,
+            })
+            .where(eq(schema.user.id, userId))
             .returning()
             .get()
 

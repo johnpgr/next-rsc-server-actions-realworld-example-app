@@ -27,13 +27,16 @@ export const ArticleRow = (props: ArticleRowProps) => {
                         height={32}
                     />
                     <div className="flex flex-col">
-                        <Link
-                            href={`/profile/${article.author.username}`}
-                            className="text-primary"
+                        <Button
+                            className="h-fit w-fit p-0 text-primary"
+                            asChild
+                            variant={"link"}
                         >
-                            {article.author.username}
-                        </Link>
-                        <span className="-mt-1 text-xs text-neutral-300">
+                            <Link href={`/profile/${article.author.username}`}>
+                                {article.author.username}
+                            </Link>
+                        </Button>
+                        <span className="text-xs text-neutral-300">
                             {format(
                                 new Date(article.createdAt),
                                 "MMMM d, yyyy",

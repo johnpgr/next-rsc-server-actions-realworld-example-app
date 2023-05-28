@@ -4,7 +4,9 @@ export function getFormData<T extends object>(
     e: FormEvent<HTMLFormElement>,
 ): T {
     const formData = new FormData(e.currentTarget)
+
     const input = Object.fromEntries(formData.entries()) as unknown as T
+
     return input
 }
 

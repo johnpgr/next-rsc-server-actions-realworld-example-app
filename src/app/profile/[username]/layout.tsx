@@ -26,7 +26,10 @@ export default async function ProfilePage({
     }
 
     return (
-        <div style={{ height: `calc(100vh - ${HEADER_HEIGHT})` }} className="w-full">
+        <div
+            style={{ height: `calc(100vh - ${HEADER_HEIGHT})` }}
+            className="w-full"
+        >
             <div className="flex h-[30%] w-full items-center justify-center bg-muted">
                 <div className="flex w-1/2 flex-col items-center justify-center gap-4">
                     <Image
@@ -39,6 +42,9 @@ export default async function ProfilePage({
                     <h1 className="text-xl font-bold text-zinc-700">
                         {profile.name}
                     </h1>
+                    {profile.bio && (
+                        <h2 className="text-neutral-400">{profile.bio}</h2>
+                    )}
                     <ProfileActionButton
                         user={{
                             following: profile.following,
