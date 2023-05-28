@@ -205,7 +205,6 @@ class ArticlesService {
             .orderBy(desc(schema.article.id))
             .all()
 
-        console.log({ unparsedArticles })
         return ArticlesService.articleListSchema.parse(unparsedArticles)
     }
 
