@@ -7,8 +7,10 @@ import {
 import { articlesService } from "./articles.service"
 
 export const publishArticleAction = action(
-    { input: newArticleBodySchema, withAuth: true },
-    async (data, { session }) => {
+    { input: newArticleBodySchema },
+    async (data) => {
+        const { session } = data
+
         if (!session?.user)
             return {
                 error: {
@@ -33,7 +35,9 @@ export const publishArticleAction = action(
 
 export const editArticleAction = action(
     { input: updateArticleBodySchema, withAuth: true },
-    async (data, { session }) => {
+    async (data) => {
+        const { session } = data
+
         if (!session?.user) {
             return {
                 error: {

@@ -10,6 +10,7 @@ import { getFormData } from "~/utils/forms"
 import { useRouter } from "next/navigation"
 import { FormEvent, useState } from "react"
 import { Spinner } from "~/components/spinner"
+import { useSession } from "next-auth/react"
 
 type EditorProps = {
     slug?: string
@@ -26,6 +27,7 @@ export const Editor = (props: EditorProps) => {
     const [error, setError] = useState<string>("")
     const [validationError, setValidationError] = useState<string[]>([])
     const [isPending, setIsPending] = useState(false)
+    const { data: session } = useSession()
 
     async function onSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -42,6 +44,7 @@ export const Editor = (props: EditorProps) => {
 
         const { data, validationError } = props.slug
             ? await editArticleAction({
+                  session,
                   slug: props.slug,
                   article: {
                       title: input.title,
@@ -51,6 +54,7 @@ export const Editor = (props: EditorProps) => {
                   },
               })
             : await publishArticleAction({
+                  session,
                   article: {
                       title: input.title,
                       description: input.description,
