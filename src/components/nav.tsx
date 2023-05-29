@@ -7,6 +7,7 @@ import { type Session } from "next-auth"
 import { Titillium_Web } from "next/font/google"
 import { cn } from "~/utils/cn"
 
+
 const titilliumWeb = Titillium_Web({
     weight: ["700"],
     subsets: ["latin"],
