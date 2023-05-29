@@ -73,7 +73,7 @@ export const CommentForm = (props: {
         )
 
     return (
-        <form onSubmit={handleSubmit} className="flex justify-center pt-16">
+        <form onSubmit={handleSubmit} className="flex justify-center py-16">
             <div className="w-full max-w-3xl rounded border">
                 <Textarea
                     ref={textAreaRef}
