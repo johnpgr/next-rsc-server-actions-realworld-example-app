@@ -1,4 +1,4 @@
-CREATE TABLE `account` (
+CREATE TABLE IF NOT EXISTS `account` (
 	`userId` text NOT NULL,
 	`type` text NOT NULL,
 	`provider` text NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE `account` (
 );
 --> statement-breakpoint
 
-CREATE TABLE `article` (
+CREATE TABLE IF NOT EXISTS `article` (
 	`id` text PRIMARY KEY NOT NULL,
 	`author_id` text,
 	`slug` text NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE `article` (
 );
 --> statement-breakpoint
 
-CREATE TABLE `comment` (
+CREATE TABLE IF NOT EXISTS `comment` (
 	`id` text PRIMARY KEY NOT NULL,
 	`author_id` text NOT NULL,
 	`article_id` text NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE `comment` (
 );
 --> statement-breakpoint
 
-CREATE TABLE `favorite` (
+CREATE TABLE IF NOT EXISTS `favorite` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
 	`article_id` text NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE `favorite` (
 );
 --> statement-breakpoint
 
-CREATE TABLE `follow` (
+CREATE TABLE IF NOT EXISTS `follow` (
 	`id` text PRIMARY KEY NOT NULL,
 	`follower_id` text NOT NULL,
 	`following_id` text NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE `follow` (
 );
 --> statement-breakpoint
 
-CREATE TABLE `session` (
+CREATE TABLE IF NOT EXISTS `session` (
 	`sessionToken` text PRIMARY KEY NOT NULL,
 	`userId` text NOT NULL,
 	`expires` integer NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE `session` (
 );
 --> statement-breakpoint
 
-CREATE TABLE `tag` (
+CREATE TABLE IF NOT EXISTS `tag` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`article_id` text NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE `tag` (
 );
 --> statement-breakpoint
 
-CREATE TABLE `user` (
+CREATE TABLE IF NOT EXISTS `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`password` text NOT NULL,
@@ -83,7 +83,7 @@ CREATE TABLE `user` (
 );
 --> statement-breakpoint
 
-CREATE TABLE `verificationToken` (
+CREATE TABLE IF NOT EXISTS `verificationToken` (
 	`identifier` text NOT NULL,
 	`token` text NOT NULL,
 	`expires` integer NOT NULL,
@@ -91,18 +91,19 @@ CREATE TABLE `verificationToken` (
 );
 --> statement-breakpoint
 
-CREATE INDEX `posts__user_id__idx` ON `article` (`author_id`);
+CREATE INDEX IF NOT EXISTS `posts__user_id__idx` ON `article` (`author_id`);
 --> statement-breakpoint
-CREATE INDEX `comments__user_id__idx` ON `comment` (`author_id`);
+CREATE INDEX IF NOT EXISTS `comments__user_id__idx` ON `comment` (`author_id`);
 --> statement-breakpoint
-CREATE INDEX `comments__article_id__idx` ON `comment` (`article_id`);
+CREATE INDEX IF NOT EXISTS `comments__article_id__idx` ON `comment` (`article_id`);
 --> statement-breakpoint
-CREATE INDEX `favorites__user_id__idx` ON `favorite` (`user_id`);
+CREATE INDEX IF NOT EXISTS `favorites__user_id__idx` ON `favorite` (`user_id`);
 --> statement-breakpoint
-CREATE INDEX `favorites__article_id__idx` ON `favorite` (`article_id`);
+CREATE INDEX IF NOT EXISTS `favorites__article_id__idx` ON `favorite` (`article_id`);
 --> statement-breakpoint
-CREATE INDEX `follows__follower_id__idx` ON `follow` (`follower_id`);
+CREATE INDEX IF NOT EXISTS `follows__follower_id__idx` ON `follow` (`follower_id`);
 --> statement-breakpoint
-CREATE INDEX `follows__following_id__idx` ON `follow` (`following_id`);
+CREATE INDEX IF NOT EXISTS `follows__following_id__idx` ON `follow` (`following_id`);
 --> statement-breakpoint
-CREATE INDEX `tags__article_id__idx` ON `tag` (`article_id`);
+CREATE INDEX IF NOT EXISTS `tags__article_id__idx` ON `tag` (`article_id`);
+--> statement-breakpoint

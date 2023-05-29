@@ -1,4 +1,4 @@
-import { and, desc, eq, exists, sql } from "drizzle-orm"
+import { and, desc, eq, sql } from "drizzle-orm"
 import slugify from "slugify"
 import { decodeTime } from "ulid"
 import { z } from "zod"

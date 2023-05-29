@@ -17,6 +17,7 @@ const nextConfig = {
             "avatars.githubusercontent.com",
         ],
     },
+
 }
 
 export default nextConfig

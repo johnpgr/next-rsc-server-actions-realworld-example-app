@@ -8,8 +8,7 @@
         "start": "next start",
         "lint": "next lint",
         "db:seed": "curl -X POST http://localhost:3000/api/db/seed",
-        "db:generate": "drizzle-kit generate:sqlite",
-        "db:migrate": "curl -X POST http://localhost:3000/api/db/migrate"
+        "db:generate": "drizzle-kit generate:sqlite"
     },
     "dependencies": {
         "@libsql/client": "^0.1.6",
