@@ -7,7 +7,7 @@ export type Comment = {
     updatedAt: string
     createdAt: string
     author: {
-        username: string
+        name: string
         bio: string | null
         image: string | null
         following: boolean

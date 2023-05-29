@@ -21,10 +21,13 @@ class CommentService {
                 id: schema.comment.id,
                 body: schema.comment.body,
                 author: {
-                    username: schema.user.name,
+                    name: schema.user.name,
                     bio: schema.user.bio,
                     image: schema.user.image,
-                    following: sql`IF(${schema.follow.id} IS NULL, FALSE, TRUE)`,
+                    following:
+                        sql`CASE WHEN ${schema.follow.id} IS NOT NULL THEN 1 ELSE 0 END`.as(
+                            "following",
+                        ),
                 },
             })
             .from(schema.comment)
@@ -51,19 +54,29 @@ class CommentService {
     }
 
     async createComment(args: {
-        comment: CreateComment
-        articleId: string
+        body: CreateComment["body"]
+        articleSlug: string
         authorId: string
     }): Promise<CommentModel> {
-        const { articleId, authorId } = args
-        const { body } = args.comment
+        const { articleSlug, authorId, body } = args
+
+        const article = await this.database.query.article.findFirst({
+            where: eq(schema.article.slug, articleSlug),
+            columns: {
+                id: true,
+            },
+        })
+
+        if (!article) {
+            throw new Error("Article not found")
+        }
 
         const comment = await this.database
             .insert(schema.comment)
             .values({
                 id: createId(),
                 body,
-                article_id: articleId,
+                article_id: article.id,
                 author_id: authorId,
             })
             .returning()
@@ -105,18 +118,18 @@ class CommentService {
     }): Promise<boolean> {
         const { commentId, userId } = args
 
-        const author = await this.database
-            .select({ id: schema.comment.author_id })
-            .from(schema.comment)
-            .where(eq(schema.comment.id, commentId))
-            .limit(1)
-            .get()
+        const comment = await this.database.query.comment.findFirst({
+            where: eq(schema.comment.id, commentId),
+            columns: {
+                author_id: true,
+            },
+        })
 
-        if (!author) {
+        if (!comment) {
             return false
         }
 
-        return author.id === userId
+        return comment.author_id === userId
     }
 }
 

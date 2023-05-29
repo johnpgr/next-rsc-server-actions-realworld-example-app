@@ -11,6 +11,8 @@ import { authOptions } from "~/modules/auth/auth.options"
 import { usersService } from "~/modules/users/users.service"
 import { Button } from "~/components/ui/button"
 import { format } from "date-fns"
+import { CommentForm } from "~/components/comments/comment-form"
+import { CommentList } from "~/components/comments/comment-list"
 
 const sourceSerifPro = Source_Serif_Pro({
     weight: ["400", "600", "700"],
@@ -41,7 +43,7 @@ export default async function ArticlePage({
 
     return (
         <div
-            style={{ height: `calc(100vh - ${HEADER_HEIGHT})` }}
+            style={{ minHeight: `calc(100vh - ${HEADER_HEIGHT})` }}
             className="w-full"
         >
             <div className="flex h-1/4 w-full justify-center bg-neutral-800/95 text-white">
@@ -96,12 +98,23 @@ export default async function ArticlePage({
                     </div>
                 </div>
             </div>
-            <div className="container mx-auto max-w-5xl divide-y">
+            <div className="mx-auto flex w-full max-w-5xl flex-col">
                 <ArticleBody
                     body={article.body}
                     className={sourceSerifPro.className}
                 />
-                <div className="pt-8">TODO: CommentSection</div>
+                <div className="w-full h-[1px] bg-border"/>
+                <CommentForm
+                    article={{ slug: article.slug }}
+                    session={session}
+                />
+                {/* @ts-expect-error Async server component */}
+                <CommentList
+                    session={session}
+                    article={{
+                        slug: article.slug,
+                    }}
+                />
             </div>
         </div>
     )
