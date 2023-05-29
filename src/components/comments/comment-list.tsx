@@ -22,7 +22,7 @@ export const CommentList = async (props: {
     )
 
     return (
-        <ul className="mx-auto flex w-full max-w-3xl flex-col gap-4 py-8">
+        <ul className="mx-auto flex w-full max-w-3xl flex-col gap-4 pb-16">
             {comments.map((comment) => (
                 <li key={comment.id} className="w-full rounded border">
                     <div className="border-b p-6">{comment.body}</div>

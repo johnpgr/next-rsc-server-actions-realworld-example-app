@@ -9,6 +9,7 @@ import { createCommentAction } from "~/modules/comments/comments.actions"
 import { useToast } from "../ui/use-toast"
 import { Spinner } from "../spinner"
 import type { Session } from "next-auth"
+import Link from "next/link"
 
 export const CommentForm = (props: {
     article: {
@@ -46,6 +47,31 @@ export const CommentForm = (props: {
             }
         })
     }
+
+    if (!props.session)
+        return (
+            <div className="py-16">
+                <p className="text-center">
+                    <Button
+                        asChild
+                        variant={"link"}
+                        className="h-fit w-fit p-0 text-primary"
+                    >
+                        <Link href={"/login"}>Sign in</Link>
+                    </Button>{" "}
+                    or{" "}
+                    <Button
+                        asChild
+                        variant={"link"}
+                        className="h-fit w-fit p-0 text-primary"
+                    >
+                        <Link href={"/register"}>Sign up</Link>
+                    </Button>{" "}
+                    to add comments on this article.
+                </p>
+            </div>
+        )
+
     return (
         <form onSubmit={handleSubmit} className="flex justify-center pt-16">
             <div className="w-full max-w-3xl rounded border">
