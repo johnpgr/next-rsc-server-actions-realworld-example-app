@@ -61,7 +61,7 @@ export const FollowUserButton = (props: {
             size={"sm"}
             variant="outline"
             className={cn(
-                "gap-1 bg-white hover:border-zinc-500 hover:bg-white h-7 py-0 rounded-sm text-sm",
+                "h-7 gap-1 rounded-sm bg-white py-0 text-sm hover:border-zinc-500 hover:bg-white",
                 props.className,
             )}
         >

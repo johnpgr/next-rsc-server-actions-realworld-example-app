@@ -27,9 +27,7 @@ export const ProfileActionButton = ({ user }: ProfileActionButtonProps) => {
                     </Link>
                 </Button>
             ) : (
-                <FollowUserButton
-                    user={user}
-                />
+                <FollowUserButton user={user} />
             )}
         </div>
     )

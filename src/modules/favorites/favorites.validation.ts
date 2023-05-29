@@ -5,5 +5,5 @@ export const favoriteArticleSchema = z.object({
     article: z.object({
         slug: z.string(),
     }),
-    session: sessionSchema
+    session: sessionSchema,
 })

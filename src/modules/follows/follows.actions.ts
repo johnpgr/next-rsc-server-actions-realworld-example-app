@@ -10,7 +10,7 @@ export const followUserAction = action(
         input: followUserSchema,
     },
     async (data) => {
-        const {session} = data
+        const { session } = data
         try {
             if (!session || !session.user)
                 throw new Error("You must be logged in to follow a user")
@@ -37,7 +37,7 @@ export const unfollowUserAction = action(
         input: followUserSchema,
     },
     async (data) => {
-        const {session} = data
+        const { session } = data
         try {
             if (!session || !session.user)
                 throw new Error("You must be logged in to unfollow a user")

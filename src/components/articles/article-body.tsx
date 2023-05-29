@@ -7,9 +7,9 @@ export const ArticleBody = (props: {
     className?: string
 }) => {
     return (
-        <div
+        <article
             className={cn(
-                "prose lg:prose-xl text-neutral-700 px-0 mt-8 text-lg pb-16",
+                "prose mt-8 max-w-none px-0 pb-16 text-neutral-700 lg:prose-xl prose-headings:mb-6",
                 props.className,
             )}
         >
@@ -20,6 +20,6 @@ export const ArticleBody = (props: {
             >
                 {props.body}
             </Markdown>
-        </div>
+        </article>
     )
 }

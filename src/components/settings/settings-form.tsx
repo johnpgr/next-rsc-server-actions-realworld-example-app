@@ -33,13 +33,13 @@ export const SettingsForm = (props: { user: User }) => {
         }
 
         //@ts-ignore
-        if(data.email === props.user.email) delete data.email
+        if (data.email === props.user.email) delete data.email
         //@ts-ignore
-        if(data.username === props.user.name) delete data.username
+        if (data.username === props.user.name) delete data.username
         //@ts-ignore
-        if(data.bio === props.user.bio) delete data.bio
+        if (data.bio === props.user.bio) delete data.bio
         //@ts-ignore
-        if(data.image === props.user.image) delete data.image
+        if (data.image === props.user.image) delete data.image
 
         const res = await updateUserAction({
             user: data,
@@ -63,50 +63,35 @@ export const SettingsForm = (props: { user: User }) => {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {error && (
                 <p className="flex items-center text-sm font-medium text-red-700">
                     <Dot size={28} />
                     {error}
                 </p>
             )}
-            <div>
-                <Label>URL of profile picture</Label>
-                <Input
-                    name="image"
-                    defaultValue={props.user.image ?? undefined}
-                />
-            </div>
-            <div>
-                <Label>Username</Label>
-                <Input
-                    name="username"
-                    defaultValue={props.user.name ?? undefined}
-                />
-            </div>
-            <div>
-                <Label>Bio</Label>
-                <Textarea
-                    name="bio"
-                    defaultValue={props.user.bio ?? undefined}
-                />
-            </div>
+            <Input
+                name="image"
+                placeholder="URL of profile picture"
+                defaultValue={props.user.image ?? undefined}
+            />
+            <Input
+                name="username"
+                placeholder="Username"
+                defaultValue={props.user.name ?? undefined}
+            />
+            <Textarea name="bio" defaultValue={props.user.bio ?? undefined} />
 
-            <div>
-                <Label>Email</Label>
-                <Input
-                    type="email"
-                    name="email"
-                    defaultValue={props.user.email ?? undefined}
-                />
-            </div>
+            <Input
+                type="email"
+                name="email"
+                placeholder="Email"
+                defaultValue={props.user.email ?? undefined}
+            />
 
-            <div>
-                <Label>New password</Label>
-                <Input type="password" name="password" />
-            </div>
-            <Button className="ml-auto mt-2 w-fit" disabled={isPending}>
-                {isPending ? <Spinner /> : null}
+            <Input type="password" placeholder="New password" name="password" />
+            <Button className="ml-auto mt-2 w-fit gap-1" disabled={isPending}>
+                {isPending ? <Spinner size={16} /> : null}
                 Update settings
             </Button>
         </form>

@@ -22,12 +22,16 @@ export const registerInputSchema = z
     })
     .strict()
 
-export const sessionSchema = z.object({
-    user: z.object({
-        id: z.string(),
-        name: z.string().nullish(),
-        email: z.string(),
-        image: z.string().nullish(),
-        bio: z.string().nullish(),
-    }).nullish(),
-}).nullable()
+export const sessionSchema = z
+    .object({
+        user: z
+            .object({
+                id: z.string(),
+                name: z.string().nullish(),
+                email: z.string(),
+                image: z.string().nullish(),
+                bio: z.string().nullish(),
+            })
+            .nullish(),
+    })
+    .nullable()

@@ -1,564 +1,502 @@
 {
-  "version": "5",
-  "dialect": "sqlite",
-  "id": "711df4b9-2e2a-4f6e-99e0-9b6462ce281a",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "tables": {
-    "account": {
-      "name": "account",
-      "columns": {
-        "userId": {
-          "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
+    "version": "5",
+    "dialect": "sqlite",
+    "id": "711df4b9-2e2a-4f6e-99e0-9b6462ce281a",
+    "prevId": "00000000-0000-0000-0000-000000000000",
+    "tables": {
+        "account": {
+            "name": "account",
+            "columns": {
+                "userId": {
+                    "name": "userId",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "type": {
+                    "name": "type",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "provider": {
+                    "name": "provider",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "providerAccountId": {
+                    "name": "providerAccountId",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "refresh_token": {
+                    "name": "refresh_token",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "access_token": {
+                    "name": "access_token",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "expires_at": {
+                    "name": "expires_at",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "token_type": {
+                    "name": "token_type",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "scope": {
+                    "name": "scope",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "id_token": {
+                    "name": "id_token",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "session_state": {
+                    "name": "session_state",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "account_userId_user_id_fk": {
+                    "name": "account_userId_user_id_fk",
+                    "tableFrom": "account",
+                    "tableTo": "user",
+                    "columnsFrom": ["userId"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {
+                "account_provider_providerAccountId_pk": {
+                    "columns": ["provider", "providerAccountId"]
+                }
+            }
         },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
+        "article": {
+            "name": "article",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "author_id": {
+                    "name": "author_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "slug": {
+                    "name": "slug",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "title": {
+                    "name": "title",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "description": {
+                    "name": "description",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "body": {
+                    "name": "body",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "CURRENT_TIMESTAMP"
+                }
+            },
+            "indexes": {
+                "posts__user_id__idx": {
+                    "name": "posts__user_id__idx",
+                    "columns": ["author_id"],
+                    "isUnique": false
+                }
+            },
+            "foreignKeys": {
+                "article_author_id_user_id_fk": {
+                    "name": "article_author_id_user_id_fk",
+                    "tableFrom": "article",
+                    "tableTo": "user",
+                    "columnsFrom": ["author_id"],
+                    "columnsTo": ["id"]
+                }
+            },
+            "compositePrimaryKeys": {}
         },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
+        "comment": {
+            "name": "comment",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "author_id": {
+                    "name": "author_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "article_id": {
+                    "name": "article_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "body": {
+                    "name": "body",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {
+                "comments__user_id__idx": {
+                    "name": "comments__user_id__idx",
+                    "columns": ["author_id"],
+                    "isUnique": false
+                },
+                "comments__article_id__idx": {
+                    "name": "comments__article_id__idx",
+                    "columns": ["article_id"],
+                    "isUnique": false
+                }
+            },
+            "foreignKeys": {
+                "comment_author_id_user_id_fk": {
+                    "name": "comment_author_id_user_id_fk",
+                    "tableFrom": "comment",
+                    "tableTo": "user",
+                    "columnsFrom": ["author_id"],
+                    "columnsTo": ["id"]
+                },
+                "comment_article_id_article_id_fk": {
+                    "name": "comment_article_id_article_id_fk",
+                    "tableFrom": "comment",
+                    "tableTo": "article",
+                    "columnsFrom": ["article_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {}
         },
-        "providerAccountId": {
-          "name": "providerAccountId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
+        "favorite": {
+            "name": "favorite",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "article_id": {
+                    "name": "article_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {
+                "favorites__user_id__idx": {
+                    "name": "favorites__user_id__idx",
+                    "columns": ["user_id"],
+                    "isUnique": false
+                },
+                "favorites__article_id__idx": {
+                    "name": "favorites__article_id__idx",
+                    "columns": ["article_id"],
+                    "isUnique": false
+                }
+            },
+            "foreignKeys": {
+                "favorite_user_id_user_id_fk": {
+                    "name": "favorite_user_id_user_id_fk",
+                    "tableFrom": "favorite",
+                    "tableTo": "user",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade"
+                },
+                "favorite_article_id_article_id_fk": {
+                    "name": "favorite_article_id_article_id_fk",
+                    "tableFrom": "favorite",
+                    "tableTo": "article",
+                    "columnsFrom": ["article_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {}
         },
-        "refresh_token": {
-          "name": "refresh_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+        "follow": {
+            "name": "follow",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "follower_id": {
+                    "name": "follower_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "following_id": {
+                    "name": "following_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {
+                "follows__follower_id__idx": {
+                    "name": "follows__follower_id__idx",
+                    "columns": ["follower_id"],
+                    "isUnique": false
+                },
+                "follows__following_id__idx": {
+                    "name": "follows__following_id__idx",
+                    "columns": ["following_id"],
+                    "isUnique": false
+                }
+            },
+            "foreignKeys": {
+                "follow_follower_id_user_id_fk": {
+                    "name": "follow_follower_id_user_id_fk",
+                    "tableFrom": "follow",
+                    "tableTo": "user",
+                    "columnsFrom": ["follower_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade"
+                },
+                "follow_following_id_user_id_fk": {
+                    "name": "follow_following_id_user_id_fk",
+                    "tableFrom": "follow",
+                    "tableTo": "user",
+                    "columnsFrom": ["following_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {}
         },
-        "access_token": {
-          "name": "access_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+        "session": {
+            "name": "session",
+            "columns": {
+                "sessionToken": {
+                    "name": "sessionToken",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "userId": {
+                    "name": "userId",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "expires": {
+                    "name": "expires",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "session_userId_user_id_fk": {
+                    "name": "session_userId_user_id_fk",
+                    "tableFrom": "session",
+                    "tableTo": "user",
+                    "columnsFrom": ["userId"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {}
         },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+        "tag": {
+            "name": "tag",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "name": {
+                    "name": "name",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "article_id": {
+                    "name": "article_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {
+                "tags__article_id__idx": {
+                    "name": "tags__article_id__idx",
+                    "columns": ["article_id"],
+                    "isUnique": false
+                }
+            },
+            "foreignKeys": {
+                "tag_article_id_article_id_fk": {
+                    "name": "tag_article_id_article_id_fk",
+                    "tableFrom": "tag",
+                    "tableTo": "article",
+                    "columnsFrom": ["article_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {}
         },
-        "token_type": {
-          "name": "token_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+        "user": {
+            "name": "user",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "name": {
+                    "name": "name",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "password": {
+                    "name": "password",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "email": {
+                    "name": "email",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "emailVerified": {
+                    "name": "emailVerified",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "bio": {
+                    "name": "bio",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "image": {
+                    "name": "image",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "CURRENT_TIMESTAMP"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {}
         },
-        "scope": {
-          "name": "scope",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "id_token": {
-          "name": "id_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "session_state": {
-          "name": "session_state",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+        "verificationToken": {
+            "name": "verificationToken",
+            "columns": {
+                "identifier": {
+                    "name": "identifier",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "token": {
+                    "name": "token",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "expires": {
+                    "name": "expires",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "verificationToken_identifier_token_pk": {
+                    "columns": ["identifier", "token"]
+                }
+            }
         }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "account_userId_user_id_fk": {
-          "name": "account_userId_user_id_fk",
-          "tableFrom": "account",
-          "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {
-        "account_provider_providerAccountId_pk": {
-          "columns": [
-            "provider",
-            "providerAccountId"
-          ]
-        }
-      }
     },
-    "article": {
-      "name": "article",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "author_id": {
-          "name": "author_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "body": {
-          "name": "body",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "posts__user_id__idx": {
-          "name": "posts__user_id__idx",
-          "columns": [
-            "author_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "article_author_id_user_id_fk": {
-          "name": "article_author_id_user_id_fk",
-          "tableFrom": "article",
-          "tableTo": "user",
-          "columnsFrom": [
-            "author_id"
-          ],
-          "columnsTo": [
-            "id"
-          ]
-        }
-      },
-      "compositePrimaryKeys": {}
-    },
-    "comment": {
-      "name": "comment",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "author_id": {
-          "name": "author_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "article_id": {
-          "name": "article_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "body": {
-          "name": "body",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "comments__user_id__idx": {
-          "name": "comments__user_id__idx",
-          "columns": [
-            "author_id"
-          ],
-          "isUnique": false
-        },
-        "comments__article_id__idx": {
-          "name": "comments__article_id__idx",
-          "columns": [
-            "article_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "comment_author_id_user_id_fk": {
-          "name": "comment_author_id_user_id_fk",
-          "tableFrom": "comment",
-          "tableTo": "user",
-          "columnsFrom": [
-            "author_id"
-          ],
-          "columnsTo": [
-            "id"
-          ]
-        },
-        "comment_article_id_article_id_fk": {
-          "name": "comment_article_id_article_id_fk",
-          "tableFrom": "comment",
-          "tableTo": "article",
-          "columnsFrom": [
-            "article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {}
-    },
-    "favorite": {
-      "name": "favorite",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "article_id": {
-          "name": "article_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "favorites__user_id__idx": {
-          "name": "favorites__user_id__idx",
-          "columns": [
-            "user_id"
-          ],
-          "isUnique": false
-        },
-        "favorites__article_id__idx": {
-          "name": "favorites__article_id__idx",
-          "columns": [
-            "article_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "favorite_user_id_user_id_fk": {
-          "name": "favorite_user_id_user_id_fk",
-          "tableFrom": "favorite",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade"
-        },
-        "favorite_article_id_article_id_fk": {
-          "name": "favorite_article_id_article_id_fk",
-          "tableFrom": "favorite",
-          "tableTo": "article",
-          "columnsFrom": [
-            "article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {}
-    },
-    "follow": {
-      "name": "follow",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "follower_id": {
-          "name": "follower_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "following_id": {
-          "name": "following_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "follows__follower_id__idx": {
-          "name": "follows__follower_id__idx",
-          "columns": [
-            "follower_id"
-          ],
-          "isUnique": false
-        },
-        "follows__following_id__idx": {
-          "name": "follows__following_id__idx",
-          "columns": [
-            "following_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "follow_follower_id_user_id_fk": {
-          "name": "follow_follower_id_user_id_fk",
-          "tableFrom": "follow",
-          "tableTo": "user",
-          "columnsFrom": [
-            "follower_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade"
-        },
-        "follow_following_id_user_id_fk": {
-          "name": "follow_following_id_user_id_fk",
-          "tableFrom": "follow",
-          "tableTo": "user",
-          "columnsFrom": [
-            "following_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {}
-    },
-    "session": {
-      "name": "session",
-      "columns": {
-        "sessionToken": {
-          "name": "sessionToken",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "userId": {
-          "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expires": {
-          "name": "expires",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "session_userId_user_id_fk": {
-          "name": "session_userId_user_id_fk",
-          "tableFrom": "session",
-          "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {}
-    },
-    "tag": {
-      "name": "tag",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "article_id": {
-          "name": "article_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "tags__article_id__idx": {
-          "name": "tags__article_id__idx",
-          "columns": [
-            "article_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "tag_article_id_article_id_fk": {
-          "name": "tag_article_id_article_id_fk",
-          "tableFrom": "tag",
-          "tableTo": "article",
-          "columnsFrom": [
-            "article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {}
-    },
-    "user": {
-      "name": "user",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "password": {
-          "name": "password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "emailVerified": {
-          "name": "emailVerified",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "image": {
-          "name": "image",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {}
-    },
-    "verificationToken": {
-      "name": "verificationToken",
-      "columns": {
-        "identifier": {
-          "name": "identifier",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expires": {
-          "name": "expires",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "verificationToken_identifier_token_pk": {
-          "columns": [
-            "identifier",
-            "token"
-          ]
-        }
-      }
+    "enums": {},
+    "_meta": {
+        "schemas": {},
+        "tables": {},
+        "columns": {}
     }
-  },
-  "enums": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  }
 }

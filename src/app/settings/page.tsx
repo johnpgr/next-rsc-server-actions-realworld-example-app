@@ -14,8 +14,8 @@ export default async function SettingsPage() {
     if (!user) redirect("/login")
 
     return (
-        <div className="w-full max-w-3xl mx-auto">
-            <h1 className="text-[40px] text-center">Your settings</h1>
+        <div className="mx-auto w-full max-w-3xl mt-8">
+            <h1 className="text-center text-[40px] mb-4">Your settings</h1>
             <SettingsForm user={user} />
         </div>
     )

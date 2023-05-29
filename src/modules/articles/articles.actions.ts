@@ -3,6 +3,7 @@ import { action } from "~/utils/actions"
 import {
     NewArticleBody,
     UpdateArticleBody,
+    deleteArticleBodySchema,
     newArticleBodySchema,
     updateArticleBodySchema,
 } from "./articles.validations"
@@ -40,7 +41,7 @@ export const publishArticleAction = action(
 )
 
 export const editArticleAction = action(
-    { input: updateArticleBodySchema, withAuth: true },
+    { input: updateArticleBodySchema },
     async (data) => {
         const { session } = data
 
@@ -71,6 +72,40 @@ export const editArticleAction = action(
             // zod cant infer correctly the type of tagList because of .transform()
             data as unknown as UpdateArticleBody,
         )
+
+        return { article }
+    },
+)
+
+export const deleteArticleAction = action(
+    { input: deleteArticleBodySchema },
+    async (data) => {
+        const { session } = data
+
+        if (!session?.user) {
+            return {
+                error: {
+                    message: "You need to be logged in to delete an article",
+                    code: 401,
+                },
+            }
+        }
+
+        const isArticleAuthor = await articlesService.isAuthor(
+            session.user.id,
+            data.slug,
+        )
+
+        if (!isArticleAuthor) {
+            return {
+                error: {
+                    message: "You are not the author of this article",
+                    code: 403,
+                },
+            }
+        }
+
+        const article = await articlesService.delete(data.slug)
 
         return { article }
     },

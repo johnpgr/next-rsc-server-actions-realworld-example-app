@@ -18,7 +18,7 @@ type EditorProps = {
         title?: string
         description?: string
         body?: string
-        tags?: string[]
+        tagList?: string[]
     } | null
 }
 
@@ -79,8 +79,11 @@ export const Editor = (props: EditorProps) => {
     }
 
     return (
-        <div className="container mx-auto max-w-3xl">
-            <form className="mt-8 flex flex-col gap-4" onSubmit={onSubmit}>
+        <div className="mx-auto w-full max-w-3xl mt-8">
+            <h1 className="text-center text-[40px] mb-4">
+                {props.slug ? "Edit article" : "New article"}
+            </h1>
+            <form className="flex flex-col gap-4" onSubmit={onSubmit}>
                 {error && (
                     <div className="relative rounded border border-red-400 bg-red-100 px-4 py-3 text-sm text-red-700">
                         <p>{error}</p>
@@ -130,7 +133,8 @@ export const Editor = (props: EditorProps) => {
                     }
                     placeholder="Enter tags"
                     defaultValue={
-                        props.article?.tags && props.article?.tags.join(",")
+                        props.article?.tagList &&
+                        props.article?.tagList.join(",")
                     }
                 />
                 <Button className="ml-auto gap-1" disabled={isPending}>

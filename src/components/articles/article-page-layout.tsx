@@ -13,7 +13,7 @@ export const ArticlePageLayout = (props: {
     if (!isArticlesPage(path)) return <>{props.children}</>
 
     return (
-        <div className="mt-6 flex-1 max-w-[855px] ml-auto">
+        <div className="ml-auto mt-6 max-w-[855px] flex-1">
             <FeedTabs session={props.session} />
             {props.children}
         </div>

@@ -5,9 +5,11 @@ import { Profile } from "~/modules/users/users.types"
 import { FollowUserButton } from "../profile/follow-user-button"
 import clsx from "clsx"
 import { FavoriteArticleButton } from "./favorite-article-button"
+import { DeleteArticleButton } from "./delete-article-button"
 
 export const ArticleActionsButton = (props: {
     article: {
+        id: string
         slug: string
         favorited: boolean
         favoritesCount: number
@@ -32,12 +34,11 @@ export const ArticleActionsButton = (props: {
                             <Pencil size={16} /> Edit Article
                         </Link>
                     </Button>
-                    <Button
-                        className="h-7 gap-1 rounded-sm border border-red-500 bg-transparent text-sm text-red-500 hover:bg-red-500 hover:text-white"
-                        size={"sm"}
-                    >
-                        <Trash size={14} /> Delete Article
-                    </Button>
+                    <DeleteArticleButton
+                        article={{
+                            slug: props.article.slug,
+                        }}
+                    />
                 </div>
             ) : (
                 <div className="flex items-center gap-1">

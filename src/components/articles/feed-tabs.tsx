@@ -39,7 +39,7 @@ export const FeedTabs = (props: { session: Session | null }) => {
                 Global Feed
             </Link>
             {path.startsWith("/tag/") && (
-                <Button className="flex h-fit w-fit items-center bg-transparent border-b-2 border-primary rounded-none px-4 py-2 text-primary hover:bg-transparent gap-1">
+                <Button className="flex h-fit w-fit items-center gap-1 rounded-none border-b-2 border-primary bg-transparent px-4 py-2 text-primary hover:bg-transparent">
                     <HashIcon size={20} />
                     {path.split("/")[2]}
                 </Button>

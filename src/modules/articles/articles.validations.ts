@@ -36,7 +36,7 @@ const articleInputSchema = z.object({
     tagList: z
         .string()
         .nullable()
-        .transform((val) => val ? val.split(",") : null)
+        .transform((val) => (val ? val.split(",") : null))
         .refine(
             (v) => {
                 if (!v) return true
@@ -61,3 +61,8 @@ export const updateArticleBodySchema = z.object({
     session: sessionSchema,
 })
 export type UpdateArticleBody = z.infer<typeof updateArticleBodySchema>
+
+export const deleteArticleBodySchema = z.object({
+    slug: z.string(),
+    session: sessionSchema,
+})

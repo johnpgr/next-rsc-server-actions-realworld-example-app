@@ -28,5 +28,6 @@ export default async function EditorPage({
 
     if (!isArticleAuthor) redirect("/")
 
+    console.log({article})
     return <Editor slug={params.slug} article={article} />
 }

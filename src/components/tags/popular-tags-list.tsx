@@ -10,9 +10,9 @@ export const PopularTagsList = (props: { tags: string[] }) => {
     if (!isArticlesPage(path)) return null
 
     return (
-        <div className="flex h-fit w-64 mr-auto flex-col rounded bg-muted mt-6 px-4 pt-2 pb-4 gap-2">
+        <div className="mr-auto mt-6 flex h-fit w-64 flex-col gap-2 rounded bg-muted px-4 pb-4 pt-2">
             <span>Popular tags</span>
-            <ul className="flex gap-1 flex-wrap">
+            <ul className="flex flex-wrap gap-1">
                 {props.tags.map((tag) => (
                     <Badge
                         className="bg-neutral-500 hover:bg-neutral-600"

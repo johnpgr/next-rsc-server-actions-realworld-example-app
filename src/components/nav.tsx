@@ -7,7 +7,6 @@ import { type Session } from "next-auth"
 import { Titillium_Web } from "next/font/google"
 import { cn } from "~/utils/cn"
 
-
 const titilliumWeb = Titillium_Web({
     weight: ["700"],
     subsets: ["latin"],
@@ -24,14 +23,18 @@ export const Nav = (props: { session: Session | null }) => {
             <Link
                 href="/"
                 className={cn(
-                    "h-fit w-fit p-0 text-2xl font-bold text-primary focus:outline-ring rounded-lg",
+                    "h-fit w-fit rounded-lg p-0 text-2xl font-bold text-primary focus:outline-ring",
                     titilliumWeb.className,
                 )}
             >
                 conduit
             </Link>
             <div className="flex items-center gap-4">
-                <Button asChild variant="link" className="h-fit w-fit p-0 gap-1">
+                <Button
+                    asChild
+                    variant="link"
+                    className="h-fit w-fit gap-1 p-0"
+                >
                     <Link href="/">
                         <Home size={16} />
                         Home
@@ -42,7 +45,7 @@ export const Nav = (props: { session: Session | null }) => {
                         <Button
                             asChild
                             variant="link"
-                            className="h-fit w-fit p-0 gap-1"
+                            className="h-fit w-fit gap-1 p-0"
                         >
                             <Link href="/editor">
                                 <Edit size={16} />

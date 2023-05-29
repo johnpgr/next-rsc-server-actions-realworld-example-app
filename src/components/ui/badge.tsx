@@ -37,7 +37,7 @@ function Badge({ className, variant, ...props }: BadgeProps) {
             className={cn(badgeVariants({ variant }), className)}
             {...props}
         />
-   )
+    )
 }
 
 export { Badge, badgeVariants }

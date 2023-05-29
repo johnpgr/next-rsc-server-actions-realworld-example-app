@@ -16,7 +16,7 @@ export default async function UserArticlesPage({
     )
 
     return (
-        <ul className="divide-y w-full">
+        <ul className="w-full divide-y">
             {articles.map((article) => (
                 <ArticleRow key={article.slug} article={article} />
             ))}

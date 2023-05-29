@@ -40,7 +40,10 @@ export default async function ArticlePage({
     if (!authorProfile) return notFound()
 
     return (
-        <div style={{ height: `calc(100vh - ${HEADER_HEIGHT})` }} className="w-full">
+        <div
+            style={{ height: `calc(100vh - ${HEADER_HEIGHT})` }}
+            className="w-full"
+        >
             <div className="flex h-1/4 w-full justify-center bg-neutral-800/95 text-white">
                 <div className="flex h-full w-full max-w-5xl flex-col justify-center gap-8">
                     <h1 className="text-5xl font-semibold">{article.title}</h1>
@@ -82,6 +85,7 @@ export default async function ArticlePage({
                                     authorProfile.id === session?.user?.id
                                 }
                                 article={{
+                                    id: article.id,
                                     favorited: article.favorited,
                                     favoritesCount: article.favoritesCount,
                                     slug: article.slug,

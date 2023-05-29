@@ -10,7 +10,7 @@ export const favoriteArticleAction = action(
         input: favoriteArticleSchema,
     },
     async (data) => {
-        const {session} = data
+        const { session } = data
         if (!session?.user)
             return {
                 error: {
@@ -66,7 +66,7 @@ export const unfavoriteArticleAction = action(
         input: favoriteArticleSchema,
     },
     async (data) => {
-        const {session} = data
+        const { session } = data
         if (!session || !session.user)
             return {
                 error: {
@@ -99,7 +99,7 @@ export const unfavoriteArticleAction = action(
             }
 
         const res = await favoritesService.unfavoriteArticle({
-            articleId:article.id,
+            articleId: article.id,
             userId: session.user.id,
         })
 
