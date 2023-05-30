@@ -6,6 +6,7 @@ import { articlesService } from "~/modules/articles/articles.service"
 import { UserImage } from "../profile/user-image"
 import Link from "next/link"
 import { Button } from "../ui/button"
+import { DEFAULT_USER_IMAGE } from "~/config/constants"
 
 export const CommentList = async (props: {
     article: {
@@ -33,7 +34,7 @@ export const CommentList = async (props: {
                                     <UserImage
                                         className="h-6 w-6"
                                         image={
-                                            comment.author.image ?? undefined
+                                            comment.author.image ?? DEFAULT_USER_IMAGE
                                         }
                                         name={comment.author.name}
                                     />

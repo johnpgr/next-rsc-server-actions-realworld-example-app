@@ -1,12 +1,12 @@
 "use client"
 import { format } from "date-fns"
-import Image from "next/image"
 import Link from "next/link"
 import { DEFAULT_USER_IMAGE } from "~/config/constants"
 import { type Article } from "~/modules/articles/articles.types"
 import { Badge } from "../ui/badge"
 import { FavoriteArticleButton } from "./favorite-article-button"
 import { Button } from "~/components/ui/button"
+import { UserImage } from "../profile/user-image"
 
 export type ArticleRowProps = {
     article: Article
@@ -19,12 +19,9 @@ export const ArticleRow = (props: ArticleRowProps) => {
         <div className="space-y-2 p-4">
             <div className="flex justify-between">
                 <div className="flex items-center gap-2">
-                    <Image
-                        src={article.author.image ?? DEFAULT_USER_IMAGE}
-                        alt={article.author.username}
-                        className="rounded-full"
-                        width={32}
-                        height={32}
+                    <UserImage
+                        name={article.author.username}
+                        image={article.author.image ?? DEFAULT_USER_IMAGE}
                     />
                     <div className="flex flex-col">
                         <Button

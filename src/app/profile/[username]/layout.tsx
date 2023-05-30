@@ -6,6 +6,7 @@ import { usersService } from "~/modules/users/users.service"
 import { ProfileTabs } from "~/components/profile/profile-tabs"
 import { authOptions } from "~/modules/auth/auth.options"
 import { getServerSession } from "next-auth"
+import { UserImage } from "~/components/profile/user-image"
 
 export default async function ProfilePage({
     params,
@@ -32,12 +33,9 @@ export default async function ProfilePage({
         >
             <div className="flex h-[30%] w-full items-center justify-center bg-muted">
                 <div className="flex w-1/2 flex-col items-center justify-center gap-4">
-                    <Image
-                        src={profile.image ?? DEFAULT_USER_IMAGE}
-                        alt={profile.name}
-                        width={100}
-                        height={100}
-                        className="rounded-full"
+                    <UserImage
+                        name={profile.name}
+                        image={profile.image ?? DEFAULT_USER_IMAGE}
                     />
                     <h1 className="text-xl font-bold text-zinc-700">
                         {profile.name}

@@ -8,7 +8,7 @@ import { createId } from "~/utils/id"
 import { Article, ArticleModel } from "./articles.types"
 import { NewArticleBody, UpdateArticleBody } from "./articles.validations"
 
-class ArticlesService {
+export class ArticlesService {
     private database: typeof db
 
     private baseArticlesQuery(currentUserId: string | null = null) {

@@ -5,7 +5,7 @@ export const UserImage = (props: { image?: string; name: string, className?: str
     return (
         <Avatar className={props.className}>
             <AvatarImage src={image} />
-            <AvatarFallback>
+            <AvatarFallback className="font-bold">
                 {name[0].toUpperCase()}
                 {name[1].toUpperCase()}
             </AvatarFallback>

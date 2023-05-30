@@ -10,6 +10,7 @@ import { useToast } from "../ui/use-toast"
 import { Spinner } from "../spinner"
 import type { Session } from "next-auth"
 import Link from "next/link"
+import { DEFAULT_USER_IMAGE } from "~/config/constants"
 
 export const CommentForm = (props: {
     article: {
@@ -84,7 +85,7 @@ export const CommentForm = (props: {
                 <div className="flex items-center justify-between p-4">
                     <UserImage
                         name={props.session?.user?.name ?? ""}
-                        image={props.session?.user?.image}
+                        image={props.session?.user?.image ?? DEFAULT_USER_IMAGE}
                     />
                     <Button
                         size={"sm"}

@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth"
 import { Source_Serif_Pro } from "next/font/google"
-import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArticleActionsButton } from "~/components/articles/article-actions-button"
@@ -13,6 +12,7 @@ import { Button } from "~/components/ui/button"
 import { format } from "date-fns"
 import { CommentForm } from "~/components/comments/comment-form"
 import { CommentList } from "~/components/comments/comment-list"
+import { UserImage } from "~/components/profile/user-image"
 
 const sourceSerifPro = Source_Serif_Pro({
     weight: ["400", "600", "700"],
@@ -52,15 +52,9 @@ export default async function ArticlePage({
                     <div>
                         <div className="flex items-center gap-8">
                             <div className="flex items-center gap-2">
-                                <Image
-                                    src={
-                                        article.author.image ??
-                                        DEFAULT_USER_IMAGE
-                                    }
-                                    alt={article.author.username}
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full"
+                                <UserImage 
+                                    name={article.author.username}
+                                    image={article.author.image ?? DEFAULT_USER_IMAGE}
                                 />
                                 <div className="flex flex-col">
                                     <Button
