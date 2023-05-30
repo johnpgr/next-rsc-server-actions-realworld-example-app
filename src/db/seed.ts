@@ -1,5 +1,5 @@
 import { InferModel } from "drizzle-orm"
-import { createId } from "~/utils/id"
+import { createId } from "../utils/id"
 import { db } from "."
 import { faker } from "@faker-js/faker"
 import * as schema from "./schema"
@@ -49,7 +49,7 @@ async function seedArticles(n: number) {
 }
 
 console.log("Seeding fake data...")
-seedArticles(5)
+seedArticles(10)
     .then(() => {
         console.log("done")
         process.exit(0)

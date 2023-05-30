@@ -1,39 +1,38 @@
-import { PageSearchParams, getSearchParams } from "~/utils/search-params"
-import { Suspense } from "react"
-import { ArticleList } from "~/components/articles/article-list"
 import { getServerSession } from "next-auth"
-import { authOptions } from "~/modules/auth/auth.options"
+import { notFound } from "next/navigation"
+import { ArticleList } from "~/components/articles/article-list"
+import { ARTICLE_PAGE_SIZE } from "~/config/constants"
 import { articlesService } from "~/modules/articles/articles.service"
+import { authOptions } from "~/modules/auth/auth.options"
+import { PageSearchParams, getSearchParam } from "~/utils/search-params"
 
 export default async function ArticlesPage({
     searchParams,
 }: {
     searchParams: PageSearchParams
 }) {
-    // const params = getSearchParams(searchParams, [
-    //     "tag",
-    //     "limit",
-    //     "offset",
-    //     "author",
-    //     "favorited",
-    // ])
+    const page = getSearchParam(searchParams, "page")
+    const pageNumber = page ? parseInt(page) : 1
 
-    // const parsedParams = {
-    //     limit:
-    //         params.limit && !Number.isNaN(parseInt(params.limit))
-    //             ? parseInt(params.limit)
-    //             : 20,
-    //     offset:
-    //         params.offset && !Number.isNaN(parseInt(params.offset))
-    //             ? parseInt(params.offset)
-    //             : 0,
-    //     tag: params.tag,
-    //     authorName: params.author,
-    //     favoritedBy: params.favorited,
-    // }
+    if (page && Number.isNaN(pageNumber)) {
+        return notFound()
+    }
+
+    const offset = pageNumber !== 1 ? (pageNumber - 1) * ARTICLE_PAGE_SIZE : 0
 
     const session = await getServerSession(authOptions)
-    const articles = await articlesService.getAll(session?.user?.id, 10, 0)
+    const articles = await articlesService.getAll(
+        session?.user?.id,
+        ARTICLE_PAGE_SIZE,
+        offset,
+    )
+    const articleCount = await articlesService.getAllCount()
 
-    return <ArticleList articles={articles} />
+    return (
+        <ArticleList
+            articles={articles}
+            articleCount={articleCount}
+            currentPage={pageNumber}
+        />
+    )
 }

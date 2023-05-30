@@ -11,6 +11,10 @@ import { NewArticleBody, UpdateArticleBody } from "./articles.validations"
 export class ArticlesService {
     private database: typeof db
 
+    constructor(database: typeof db) {
+        this.database = database
+    }
+
     private baseArticlesQuery(currentUserId: string | null = null) {
         const favoriteCountSq = this.database
             .select({
@@ -99,8 +103,72 @@ export class ArticlesService {
         ArticlesService.articleSchema,
     )
 
-    constructor(database: typeof db) {
-        this.database = database
+    async getAllCount(): Promise<number> {
+        const { count } = await this.database
+            .select({ count: sql<number>`COUNT(*)` })
+            .from(schema.article)
+            .get()
+
+        return count
+    }
+
+    async getFeedCount(userId: string): Promise<number> {
+        const { count } = await this.database
+            .select({ count: sql<number>`COUNT(*)` })
+            .from(schema.article)
+            .where(
+                sql`${schema.article.author_id} IN (
+                    SELECT ${schema.follow.following_id}
+                    FROM ${schema.follow}
+                    WHERE ${schema.follow.follower_id} = ${userId}
+                )`,
+            )
+            .get()
+
+        return count
+    }
+
+    async getAllByAuthorCount(authorName: string): Promise<number> {
+        const { count } = await this.database
+            .select({ count: sql<number>`COUNT(*)` })
+            .from(schema.article)
+            .innerJoin(
+                schema.user,
+                eq(schema.article.author_id, schema.user.id),
+            )
+            .where(eq(schema.user.name, authorName))
+            .get()
+
+        return count
+    }
+
+    async getAllByTagCount(tagName: string): Promise<number> {
+        const { count } = await this.database
+            .select({ count: sql<number>`COUNT(*)` })
+            .from(schema.article)
+            .innerJoin(schema.tag, eq(schema.article.id, schema.tag.article_id))
+            .where(eq(schema.tag.name, tagName))
+            .get()
+
+        return count
+    }
+
+    async getAllFavoritedByUserCount(username: string): Promise<number> {
+        const { count } = await this.database
+            .select({ count: sql<number>`COUNT(*)` })
+            .from(schema.article)
+            .innerJoin(
+                schema.user,
+                eq(schema.article.author_id, schema.user.id),
+            )
+            .innerJoin(
+                schema.favorite,
+                eq(schema.article.id, schema.favorite.article_id),
+            )
+            .where(eq(schema.user.name, username))
+            .get()
+
+        return count
     }
 
     async getAll(
@@ -151,6 +219,8 @@ export class ArticlesService {
     async getAllByAuthor(
         authorName: string,
         currentUserId: string | null = null,
+        limit: number,
+        offset: number,
     ) {
         const unparsedArticles = await this.baseArticlesQuery(currentUserId)
             .where(eq(schema.user.name, authorName))
@@ -160,6 +230,8 @@ export class ArticlesService {
                 ),
                 desc(this.baseArticlesQuery().getSelectedFields().createdAt),
             )
+            .limit(limit)
+            .offset(offset)
             .all()
 
         return ArticlesService.articleListSchema.parse(unparsedArticles)
