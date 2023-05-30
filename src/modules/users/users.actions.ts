@@ -7,14 +7,15 @@ import { usersService } from "./users.service"
 export const updateUserAction = action(
     {
         input: updateUserSchema,
+        withAuth: true,
     },
-    async (data) => {
+    async (data, { session }) => {
         try {
-            if (!data.session || !data.session.user)
+            if (!session.user)
                 throw new Error("You must be logged in to update a user")
 
             const res = await usersService.updateUser(
-                data.session.user.id,
+                session.user.id,
                 data.user,
             )
 

@@ -1,5 +1,4 @@
 import { z } from "zod"
-import { sessionSchema } from "../auth/auth.validation"
 
 export const articleSchema = z.object({
     title: z.string(),
@@ -51,18 +50,15 @@ const articleInputSchema = z.object({
 
 export const newArticleBodySchema = z.object({
     article: articleInputSchema,
-    session: sessionSchema,
 })
 export type NewArticleBody = z.infer<typeof newArticleBodySchema>
 
 export const updateArticleBodySchema = z.object({
     slug: z.string(),
     article: articleInputSchema.partial(),
-    session: sessionSchema,
 })
 export type UpdateArticleBody = z.infer<typeof updateArticleBodySchema>
 
 export const deleteArticleBodySchema = z.object({
     slug: z.string(),
-    session: sessionSchema,
 })

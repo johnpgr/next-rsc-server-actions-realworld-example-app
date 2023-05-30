@@ -21,17 +21,3 @@ export const registerInputSchema = z
         username: z.string(),
     })
     .strict()
-
-export const sessionSchema = z
-    .object({
-        user: z
-            .object({
-                id: z.string(),
-                name: z.string().nullish(),
-                email: z.string(),
-                image: z.string().nullish(),
-                bio: z.string().nullish(),
-            })
-            .nullish(),
-    })
-    .nullable()

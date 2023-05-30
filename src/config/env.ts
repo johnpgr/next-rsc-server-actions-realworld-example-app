@@ -13,6 +13,8 @@ export const env = createEnv({
         DB_URL: z.string(),
         DB_TOKEN: z.string(),
         DB_LOGGER: z.string().transform((val) => val === "true"),
+        NEXTAUTH_SECRET: z.string(),
+        NEXTAUTH_URL: z.string(),
     },
 
     /**
@@ -32,6 +34,8 @@ export const env = createEnv({
         DB_URL: process.env.DB_URL,
         DB_TOKEN: process.env.DB_TOKEN,
         DB_LOGGER: process.env.DB_LOGGER,
+        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+        NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     },
 })
 

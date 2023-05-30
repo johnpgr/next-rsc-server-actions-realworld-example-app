@@ -10,11 +10,9 @@ import {
 import { articlesService } from "./articles.service"
 
 export const publishArticleAction = action(
-    { input: newArticleBodySchema },
-    async (data) => {
-        const { session } = data
-
-        if (!session?.user)
+    { input: newArticleBodySchema, withAuth: true },
+    async (data, { session }) => {
+        if (!session.user)
             return {
                 error: {
                     message: "You need to be logged in to publish an article",
@@ -23,7 +21,7 @@ export const publishArticleAction = action(
             }
 
         const article = await articlesService.create(
-            // zod cant infer correctly the type of tagList because of .transform()
+            // zod can't infer correctly the type of tagList because of .transform()
             data as unknown as NewArticleBody,
             session.user.id,
         )
@@ -41,11 +39,9 @@ export const publishArticleAction = action(
 )
 
 export const editArticleAction = action(
-    { input: updateArticleBodySchema },
-    async (data) => {
-        const { session } = data
-
-        if (!session?.user) {
+    { input: updateArticleBodySchema, withAuth: true },
+    async (data, { session }) => {
+        if (!session.user) {
             return {
                 error: {
                     message: "You need to be logged in to edit an article",
@@ -78,11 +74,9 @@ export const editArticleAction = action(
 )
 
 export const deleteArticleAction = action(
-    { input: deleteArticleBodySchema },
-    async (data) => {
-        const { session } = data
-
-        if (!session?.user) {
+    { input: deleteArticleBodySchema, withAuth: true },
+    async (data, { session }) => {
+        if (!session.user) {
             return {
                 error: {
                     message: "You need to be logged in to delete an article",

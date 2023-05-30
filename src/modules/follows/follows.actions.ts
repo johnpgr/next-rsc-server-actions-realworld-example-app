@@ -8,11 +8,11 @@ import { usersService } from "../users/users.service"
 export const followUserAction = action(
     {
         input: followUserSchema,
+        withAuth: true,
     },
-    async (data) => {
-        const { session } = data
+    async (data, { session }) => {
         try {
-            if (!session || !session.user)
+            if (!session.user)
                 throw new Error("You must be logged in to follow a user")
 
             const [followingUser] = await Promise.all([
@@ -35,11 +35,11 @@ export const followUserAction = action(
 export const unfollowUserAction = action(
     {
         input: followUserSchema,
+        withAuth: true,
     },
-    async (data) => {
-        const { session } = data
+    async (data, { session }) => {
         try {
-            if (!session || !session.user)
+            if (!session.user)
                 throw new Error("You must be logged in to unfollow a user")
 
             const [followingUser] = await Promise.all([

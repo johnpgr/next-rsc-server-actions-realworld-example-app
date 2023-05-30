@@ -10,13 +10,13 @@ export const registerAction = action(
     },
     async (data) => {
         try {
-            const res = await usersService.createUser({
+            const user = await usersService.createUser({
                 email: data.email,
                 username: data.username,
                 password: data.password,
                 image: DEFAULT_USER_IMAGE,
             })
-            return { user: res }
+            return { user }
         } catch (error) {
             return {
                 error: {

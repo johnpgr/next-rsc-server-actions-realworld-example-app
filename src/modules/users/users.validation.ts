@@ -2,7 +2,6 @@ import { z } from "zod"
 import { passwordRegex, sessionSchema } from "../auth/auth.validation"
 
 export const updateUserSchema = z.object({
-    session: sessionSchema,
     user: z.object({
         username: z.string().min(3).max(20).optional(),
         email: z.string().email().optional(),

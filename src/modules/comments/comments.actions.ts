@@ -7,9 +7,10 @@ import { revalidatePath } from "next/cache"
 export const createCommentAction = action(
     {
         input: createCommentSchema,
+        withAuth: true,
     },
-    async (data) => {
-        if (!data.session?.user) {
+    async (data, { session }) => {
+        if (!session.user) {
             return {
                 error: {
                     message: "You must be logged in to comment",
@@ -20,7 +21,7 @@ export const createCommentAction = action(
 
         const comment = await commentsService.createComment({
             body: data.body,
-            authorId: data.session.user.id,
+            authorId: session.user.id,
             articleSlug: data.article.slug,
         })
 
@@ -32,9 +33,10 @@ export const createCommentAction = action(
 export const deleteCommentAction = action(
     {
         input: deleteCommentSchema,
+        withAuth: true,
     },
-    async (data) => {
-        if (!data.session?.user) {
+    async (data, { session }) => {
+        if (!session.user) {
             return {
                 error: {
                     message: "You must be logged in to delete a comment",
@@ -45,7 +47,7 @@ export const deleteCommentAction = action(
 
         const comment = await commentsService.deleteComment({
             commentId: data.id,
-            userId: data.session.user.id,
+            userId: session.user.id,
         })
 
         return { comment }

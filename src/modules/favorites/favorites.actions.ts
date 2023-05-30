@@ -8,10 +8,10 @@ import { revalidatePath } from "next/cache"
 export const favoriteArticleAction = action(
     {
         input: favoriteArticleSchema,
+        withAuth: true,
     },
-    async (data) => {
-        const { session } = data
-        if (!session?.user)
+    async (data, { session }) => {
+        if (!session.user)
             return {
                 error: {
                     message: "You must be logged in to favorite an article",
@@ -64,10 +64,10 @@ export const favoriteArticleAction = action(
 export const unfavoriteArticleAction = action(
     {
         input: favoriteArticleSchema,
+        withAuth: true,
     },
-    async (data) => {
-        const { session } = data
-        if (!session || !session.user)
+    async (data, { session }) => {
+        if (!session.user)
             return {
                 error: {
                     message: "You must be logged in to favorite an article",
