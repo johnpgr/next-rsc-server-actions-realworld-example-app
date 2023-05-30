@@ -30,7 +30,6 @@ export const DeleteArticleButton = (props: { article: { slug: string } }) => {
         startTransition(async () => {
             const res = await deleteArticleAction({
                 slug: props.article.slug,
-                session,
             })
 
             if (res?.data?.error) {

@@ -32,7 +32,6 @@ export const CommentForm = (props: {
                 article: {
                     slug: props.article.slug,
                 },
-                session: props.session,
             })
 
             if (res.data?.error) {

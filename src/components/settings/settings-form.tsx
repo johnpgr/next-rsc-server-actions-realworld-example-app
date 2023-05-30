@@ -1,21 +1,18 @@
 "use client"
 
-import { useSession } from "next-auth/react"
+import { Dot } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { FormEvent, useState } from "react"
+import { Button } from "~/components/ui/button"
+import { Input } from "~/components/ui/input"
+import { Textarea } from "~/components/ui/textarea"
 import { updateUserAction } from "~/modules/users/users.actions"
 import { UpdateUser, User } from "~/modules/users/users.types"
 import { getFormData } from "~/utils/forms"
-import { Input } from "~/components/ui/input"
-import { Button } from "~/components/ui/button"
-import { Label } from "~/components/ui/label"
-import { Textarea } from "~/components/ui/textarea"
-import { Dot } from "lucide-react"
 import { Spinner } from "../spinner"
 
 export const SettingsForm = (props: { user: User }) => {
     const router = useRouter()
-    const { data: session } = useSession()
     const [error, setError] = useState("")
     const [isPending, setIsPending] = useState(false)
 
@@ -43,7 +40,6 @@ export const SettingsForm = (props: { user: User }) => {
 
         const res = await updateUserAction({
             user: data,
-            session,
         })
 
         if (res.validationError?.user) {

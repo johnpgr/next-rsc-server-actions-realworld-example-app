@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { passwordRegex, sessionSchema } from "../auth/auth.validation"
+import { passwordRegex } from "../auth/auth.validation"
 
 export const updateUserSchema = z.object({
     user: z.object({

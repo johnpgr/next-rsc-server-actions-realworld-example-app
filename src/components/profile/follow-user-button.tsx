@@ -1,23 +1,21 @@
 "use client"
-import { cn } from "~/utils/cn"
-import { Button } from "~/components/ui/button"
 import { Plus } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useTransition } from "react"
+import { Button } from "~/components/ui/button"
 import {
     followUserAction,
     unfollowUserAction,
 } from "~/modules/follows/follows.actions"
 import { Profile } from "~/modules/users/users.types"
-import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { cn } from "~/utils/cn"
 import { useToast } from "../ui/use-toast"
-import { useTransition } from "react"
 
 export const FollowUserButton = (props: {
     className?: string
     user: Profile
 }) => {
     const router = useRouter()
-    const { data: session } = useSession()
     const { toast } = useToast()
     const [pending, startTransition] = useTransition()
 
@@ -26,7 +24,6 @@ export const FollowUserButton = (props: {
             if (!props.user.following) {
                 const { data } = await followUserAction({
                     followingId: props.user.id,
-                    session,
                 })
 
                 if (data?.error) {
@@ -39,7 +36,6 @@ export const FollowUserButton = (props: {
             } else {
                 const { data } = await unfollowUserAction({
                     followingId: props.user.id,
-                    session,
                 })
 
                 if (data?.error) {

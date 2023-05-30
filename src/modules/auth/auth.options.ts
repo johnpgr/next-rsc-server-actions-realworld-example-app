@@ -3,6 +3,7 @@ import { usersService } from "../users/users.service"
 import { NextAuthOptions } from "next-auth"
 import { DrizzleAdapter } from "~/db/auth-adapter"
 import { db } from "~/db"
+import { DEFAULT_USER_IMAGE } from "~/config/constants"
 
 export const authOptions: NextAuthOptions = {
     // Choose how you want to save the user session.
@@ -24,7 +25,7 @@ export const authOptions: NextAuthOptions = {
                 token.id = user.id
                 token.name = user.name
                 token.email = user.email
-                token.image = user.image
+                token.image = user.image ?? DEFAULT_USER_IMAGE
             }
 
             return token

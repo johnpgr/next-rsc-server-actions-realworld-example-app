@@ -1,14 +1,13 @@
 "use client"
 import clsx from "clsx"
 import { Heart } from "lucide-react"
-import React, { useTransition } from "react"
+import { useTransition } from "react"
 import { Button } from "~/components/ui/button"
-import { useToast } from "../ui/use-toast"
-import { useSession } from "next-auth/react"
 import {
     favoriteArticleAction,
     unfavoriteArticleAction,
 } from "~/modules/favorites/favorites.actions"
+import { useToast } from "../ui/use-toast"
 
 export const FavoriteArticleButton = (props: {
     article: {
@@ -19,7 +18,6 @@ export const FavoriteArticleButton = (props: {
     articlePage?: boolean
 }) => {
     const { toast } = useToast()
-    const { data: session } = useSession()
     const [pending, startTransition] = useTransition()
 
     function handleFavorite() {
@@ -29,7 +27,6 @@ export const FavoriteArticleButton = (props: {
                     article: {
                         slug: props.article.slug,
                     },
-                    session,
                 })
 
                 if (data?.error) {
@@ -43,7 +40,6 @@ export const FavoriteArticleButton = (props: {
                     article: {
                         slug: props.article.slug,
                     },
-                    session,
                 })
                 if (data?.error) {
                     toast({
