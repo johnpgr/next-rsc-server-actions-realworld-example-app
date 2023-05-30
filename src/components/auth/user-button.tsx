@@ -1,4 +1,8 @@
 "use client"
+import { ChevronDown, LogOut, Settings, User as UserIcon } from "lucide-react"
+import { type Session } from "next-auth"
+import { signOut } from "next-auth/react"
+import Link from "next/link"
 import { Button } from "~/components/ui/button"
 import {
     DropdownMenu,
@@ -7,12 +11,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import Image from "next/image"
-import { ChevronDown, LogOut, Settings, User as UserIcon } from "lucide-react"
-import Link from "next/link"
-import { DEFAULT_USER_IMAGE } from "~/config/constants"
-import { signOut } from "next-auth/react"
-import { type Session } from "next-auth"
+import { UserImage } from "../profile/user-image"
 
 export default function UserButton(props: { session: Session | null }) {
     const { session } = props
@@ -21,12 +20,9 @@ export default function UserButton(props: { session: Session | null }) {
             <DropdownMenuTrigger asChild>
                 <Button variant="link" className="flex items-center gap-1">
                     {session?.user ? (
-                        <Image
-                            className="rounded-full"
-                            src={session.user.image ?? DEFAULT_USER_IMAGE}
-                            alt={session.user.name ?? "Unknown user"}
-                            width={24}
-                            height={24}
+                        <UserImage
+                            name={session.user.name ?? "Unknown user"}
+                            image={session.user.image}
                         />
                     ) : null}
                     {session?.user?.name ?? "Unknown user"}
